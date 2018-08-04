@@ -26,7 +26,7 @@
         <!-- The datasource is deployed as <EAR>/META-INF/warsztatZlomek-ds.xml, you
            can find it in the source at ear/src/main/application/META-INF/warsztatZlomek-ds.xml -->
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <jta-data-source>java:jboss/datasources/warsztatZlomekDS</jta-data-source>
+        <jta-data-source>java:/warsztatZlomekDS</jta-data-source>
         <class>pl.zlomek.warsztat.model.Company</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
@@ -35,7 +35,7 @@
             <property name="hibernate.show_sql" value="true"/>
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="javax.persistence.jdbc.user" value="postgres"/>
-            <property name="javax.persistence.jdbc.password" value="poldg7j8"/>
+            <property name="javax.persistence.jdbc.password" value="abc123"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/warsztatZlomekDS"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL82Dialect"/>
 
