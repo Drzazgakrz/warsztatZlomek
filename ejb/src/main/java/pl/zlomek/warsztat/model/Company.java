@@ -1,18 +1,18 @@
 package pl.zlomek.warsztat.model;
 
 
-import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-//Tabela
 @lombok.Getter
 @lombok.Setter
 @lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
+@lombok.ToString
 @Entity
-@Table(name = "comapnies")
+@Table(name = "companies")
 public class Company implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

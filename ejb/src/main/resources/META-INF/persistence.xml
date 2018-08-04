@@ -35,9 +35,9 @@
             <property name="hibernate.show_sql" value="true"/>
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="javax.persistence.jdbc.user" value="postgres"/>
-            <property name="javax.persistence.jdbc.password" value="abc123"/>
+            <property name="javax.persistence.jdbc.password" value="poldg7j8"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/warsztatZlomekDS"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL82Dialect"/>
 
             <!-- alternatively to <class> and <property> declarations, you can use a regular hibernate.cfg.xml file -->
             <!-- property name="hibernate.ejb.cfgfile" value="/org/hibernate/ejb/test/hibernate.cfg.xml"/ -->

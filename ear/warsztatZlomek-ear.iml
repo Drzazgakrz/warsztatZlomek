@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="javaeeApplication" name="JavaEE">
+      <configuration>
+        <descriptors>
+          <deploymentDescriptor name="application.xml" url="file://$MODULE_DIR$/target/application.xml" />
+        </descriptors>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6">
+    <output url="file://$MODULE_DIR$/target/classes" />
+    <output-test url="file://$MODULE_DIR$/target/test-classes" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="warsztatZlomek-web" />
+    <orderEntry type="module" module-name="warsztatZlomek-ejb" />
+    <orderEntry type="library" name="Maven: postgresql:postgresql:9.1-901-1.jdbc4" level="project" />
+    <orderEntry type="library" name="Maven: javax.enterprise:cdi-api:1.0.0.SP4-redhat-5" level="project" />
+    <orderEntry type="library" name="Maven: org.jboss.spec.javax.interceptor:jboss-interceptors-api_1.1_spec:1.0.1.Final-redhat-3" level="project" />
+    <orderEntry type="library" name="Maven: javax.inject:javax.inject:1.0.0.redhat-5" level="project" />
+    <orderEntry type="library" name="Maven: javax.transaction:javax.transaction-api:1.2" level="project" />
+  </component>
+</module>
