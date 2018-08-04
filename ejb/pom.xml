@@ -41,6 +41,13 @@
 
     <dependencies>
 
+        <!-- https://mvnrepository.com/artifact/postgresql/postgresql -->
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901-1.jdbc4</version>
+        </dependency>
+
         <!-- Declare the APIs we depend on and need for compilation. All of 
             them are provided by JBoss EAP 6 -->
 
@@ -106,6 +113,20 @@
             <artifactId>javax.inject</artifactId>
             <version>1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/javax.transaction/javax.transaction-api -->
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>javax.transaction-api</artifactId>
+            <version>1.2</version>
+        </dependency>
 
     </dependencies>
 
@@ -113,6 +134,7 @@
         <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ejb-plugin</artifactId>
                 <version>${version.ejb.plugin}</version>
                 <configuration>

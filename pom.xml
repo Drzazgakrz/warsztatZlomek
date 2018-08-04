@@ -79,7 +79,14 @@
                 <version>${project.version}</version>
                 <type>ejb</type>
             </dependency>
-            
+            <!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.0-api -->
+            <dependency>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.0-api</artifactId>
+                <version>1.0.1.Final</version>
+            </dependency>
+
+
             <!-- Define the version of the WAR so that we don't need to repeat 
                 ourselves in every module -->
             <dependency>
