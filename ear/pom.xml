@@ -92,6 +92,8 @@
                 <artifactId>jboss-as-maven-plugin</artifactId>
                 <configuration>
                     <skip>false</skip>
+                    <executeCommands/>
+                    <execute-commands/>
                 </configuration>
             </plugin>
             <plugin>

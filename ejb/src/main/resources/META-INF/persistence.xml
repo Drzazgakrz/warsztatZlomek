@@ -25,7 +25,10 @@
            data source, this example data source is just for development and testing! -->
         <!-- The datasource is deployed as <EAR>/META-INF/warsztatZlomek-ds.xml, you
            can find it in the source at ear/src/main/application/META-INF/warsztatZlomek-ds.xml -->
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <jta-data-source>java:jboss/datasources/warsztatZlomekDS</jta-data-source>
+        <class>pl.zlomek.warsztat.model.Company</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Properties for Hibernate -->
             <property name="hibernate.hbm2ddl.auto" value="create"/>
@@ -33,7 +36,7 @@
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="javax.persistence.jdbc.user" value="postgres"/>
             <property name="javax.persistence.jdbc.password" value="abc123"/>
-            <property name="javax.persistence.jdbc.url" value="localhost:5432/warsztatZlomekDS"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/warsztatZlomekDS"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
 
             <!-- alternatively to <class> and <property> declarations, you can use a regular hibernate.cfg.xml file -->
