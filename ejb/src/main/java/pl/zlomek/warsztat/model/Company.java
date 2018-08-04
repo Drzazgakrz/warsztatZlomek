@@ -7,7 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-
+//Tabela
 @lombok.Getter
 @lombok.Setter
 @lombok.NoArgsConstructor
