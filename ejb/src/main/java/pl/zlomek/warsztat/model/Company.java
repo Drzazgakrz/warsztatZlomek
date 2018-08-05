@@ -4,6 +4,7 @@ package pl.zlomek.warsztat.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
 
@@ -20,26 +21,34 @@ public class Company implements Serializable {
     private long id;
 
     @NotNull
+    @Size(min = 14,max=14)
     private String NIP;
 
     @NotNull
+    @Size(max = 30, min = 6)
     private String email;
 
     @NotNull
+    @Size(min = 2, max = 40)
     private String companyName;
 
     @NotNull
+    @Size(max = 20, min = 2)
     private String cityName;
 
     @NotNull
+    @Size(max = 40, min = 3)
     private String streetName;
 
     @NotNull
+    @Size(max = 5, min = 1)
     private String buildingNum;
 
+    @Size(max = 5)
     private String aptNum;
 
     @NotNull
+    @Size(max = 6, min = 6)
     private String zipCode;
 
     @ManyToMany

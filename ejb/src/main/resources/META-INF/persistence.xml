@@ -29,10 +29,12 @@
         <jta-data-source>java:/warsztatZlomekDS</jta-data-source>
         <class>pl.zlomek.warsztat.model.Company</class>
         <class>pl.zlomek.warsztat.model.Client</class>
+        <class>pl.zlomek.warsztat.model.Car</class>
+        <class>pl.zlomek.warsztat.model.CarBrand</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Properties for Hibernate -->
-            <property name="hibernate.hbm2ddl.auto" value="create"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="javax.persistence.jdbc.user" value="postgres"/>

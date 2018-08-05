@@ -1,5 +1,7 @@
 package pl.zlomek.warsztat.model;
 
+import org.bouncycastle.jcajce.provider.digest.SHA3;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -59,4 +61,22 @@ public class Client {
 
     @ManyToMany(mappedBy = "employees")
     private List<Company> companies;
+
+    public Client(String firstName, String lastName, String email, String phoneNumber, String cityName,
+                  String streetName, String buildNum, String aptNum, String zipCode, String password,
+                  List<Company> companies){
+        this.aptNum = aptNum;
+        this.buildNum = buildNum;
+        this.cityName = cityName;
+        this.companies = companies;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this. streetName = streetName;
+        this.zipCode = zipCode;
+        SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
+        sha3.update(password.getBytes());
+        this.password = sha3.digest().toString();
+    }
 }
