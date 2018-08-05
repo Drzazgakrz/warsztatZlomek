@@ -28,6 +28,7 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <jta-data-source>java:/warsztatZlomekDS</jta-data-source>
         <class>pl.zlomek.warsztat.model.Company</class>
+        <class>pl.zlomek.warsztat.model.Client</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Properties for Hibernate -->
