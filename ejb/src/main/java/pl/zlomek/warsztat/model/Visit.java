@@ -2,7 +2,7 @@ package pl.zlomek.warsztat.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.sql.Date;
 import java.util.List;
 
 @lombok.Getter
@@ -16,7 +16,7 @@ public class Visit {
     private long id;
 
     @NotNull
-    private LocalDateTime visitDate;
+    private Date visitDate;
 
     @NotNull
     private VisitStatus status;
@@ -35,7 +35,7 @@ public class Visit {
     inverseJoinColumns = @JoinColumn(name = "visit_id"))
     private List<Service> services;
 
-    public Visit(LocalDateTime date, VisitStatus status, Employee employee, Car car, List<Service> services){
+    public Visit(Date date, VisitStatus status, Employee employee, Car car, List<Service> services){
         this.visitDate = date;
         this.services = services;
         this.status = status;
