@@ -1,5 +1,6 @@
 package pl.zlomek.warsztat.model;
 
+import lombok.NoArgsConstructor;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import java.util.Date;
 @lombok.AllArgsConstructor
 @lombok.Setter
 @lombok.Getter
+@NoArgsConstructor
 @Entity
 @Table(name =  "employees")
 public class Employee {

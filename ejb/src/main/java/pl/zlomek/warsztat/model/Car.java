@@ -10,6 +10,7 @@ import java.util.List;
 @lombok.Setter
 @lombok.ToString
 @lombok.AllArgsConstructor
+@lombok.NoArgsConstructor
 @Entity
 @Table(name = "cars")
 public class Car {

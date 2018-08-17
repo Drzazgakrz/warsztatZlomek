@@ -2,6 +2,8 @@ package pl.zlomek.warsztat.model;
 
 
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -11,6 +13,7 @@ import java.util.List;
 @lombok.Getter
 @lombok.Setter
 @lombok.AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "companies")
 public class Company implements Serializable {

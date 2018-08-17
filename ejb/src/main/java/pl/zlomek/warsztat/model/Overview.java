@@ -1,6 +1,8 @@
 package pl.zlomek.warsztat.model;
 
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Date;
@@ -9,6 +11,7 @@ import java.sql.Date;
 @lombok.AllArgsConstructor
 @lombok.Setter
 @lombok.Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "overviews")
 public class Overview {

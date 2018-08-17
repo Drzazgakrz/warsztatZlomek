@@ -11,6 +11,8 @@ import java.util.List;
 @lombok.AllArgsConstructor
 @lombok.Setter
 @lombok.Getter
+@lombok.ToString
+@lombok.NoArgsConstructor
 @Entity
 @Table(name = "clients")
 public class Client {
@@ -66,14 +68,18 @@ public class Client {
     @Size(max=64, min = 64)
     private String password;
 
-    @ManyToMany
+    @ManyToMany(
+            fetch = FetchType.EAGER
+    )
     @JoinTable(name = "clients_has_cars",
             joinColumns = @JoinColumn(name = "car_id"),
             inverseJoinColumns = @JoinColumn(name = "client_id")
     )
     private List<Company> companies;
 
-    @ManyToMany
+    @ManyToMany(
+            fetch = FetchType.EAGER
+    )
     @JoinTable(name = "clients_has_cars",
             joinColumns = @JoinColumn(name = "car_id"),
             inverseJoinColumns = @JoinColumn(name = "client_id")
