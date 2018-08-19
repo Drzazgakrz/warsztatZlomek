@@ -1,6 +1,7 @@
 package pl.zlomek.warsztat.model;
 
 import org.bouncycastle.jcajce.provider.digest.SHA3;
+import org.bouncycastle.util.encoders.Hex;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -62,7 +63,7 @@ public class Client {
     private String zipCode;
 
     @NotNull
-    @Size(max=256, min = 256)
+    @Size(max=64, min = 64)
     private String password;
 
     @ManyToMany
@@ -73,7 +74,6 @@ public class Client {
     private List<Company> companies;
 
     @ManyToMany
-    @NotNull
     @JoinTable(name = "clients_has_cars",
             joinColumns = @JoinColumn(name = "car_id"),
             inverseJoinColumns = @JoinColumn(name = "client_id")
@@ -94,8 +94,9 @@ public class Client {
         this. streetName = streetName;
         this.zipCode = zipCode;
         SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
-        sha3.update(password.getBytes());
-        this.password = sha3.digest().toString();
+        byte[] digest = sha3.digest(password.getBytes());
+        this.password = Hex.toHexString(digest);
         this.cars = cars;
+        this.companies = companies;
     }
 }

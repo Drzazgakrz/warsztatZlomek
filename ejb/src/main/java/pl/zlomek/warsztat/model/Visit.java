@@ -2,7 +2,7 @@ package pl.zlomek.warsztat.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.sql.Date;
 import java.util.List;
 
 @lombok.Getter
@@ -16,7 +16,7 @@ public class Visit {
     private long id;
 
     @NotNull
-    private LocalDateTime visitDate;
+    private Date visitDate;
 
     @NotNull
     private VisitStatus status;
@@ -41,6 +41,7 @@ public class Visit {
     private List<CarParts> parts;
 
     public Visit(LocalDateTime date, VisitStatus status, Employee employee, Car car, List<Service> services, List<CarParts> parts){
+
         this.visitDate = date;
         this.services = services;
         this.status = status;
