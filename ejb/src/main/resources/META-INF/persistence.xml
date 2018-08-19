@@ -36,7 +36,7 @@
         <class>pl.zlomek.warsztat.model.Employee</class>
         <class>pl.zlomek.warsztat.model.Visit</class>
         <class>pl.zlomek.warsztat.model.Service</class>
-
+        <class>pl.zlomek.warsztat.model.VisitsParts</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Properties for Hibernate -->
