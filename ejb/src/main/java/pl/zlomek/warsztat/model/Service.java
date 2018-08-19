@@ -1,27 +1,27 @@
 package pl.zlomek.warsztat.model;
 
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.List;
 
-@lombok.Getter
-@lombok.Setter
 @lombok.AllArgsConstructor
-@lombok.ToString
+@lombok.Setter
+@lombok.Getter
 @Entity
-@Table(name = "car_parts")
-public class CarParts {
+@Table(name = "services")
+public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(name = "service_name")
     @NotNull
-    @Size(max = 255, min = 6)
     private String name;
 
     @ManyToMany
-    @JoinTable(name = "visits_has_parts",joinColumns = @JoinColumn(name = "visit_id"),
-    inverseJoinColumns = @JoinColumn(name = "part_id"))
+    @NotNull
+    @JoinTable(name = "visits_has_services", joinColumns = @JoinColumn(name = "service_id"),
+            inverseJoinColumns = @JoinColumn(name = "visit_id"))
     private List<Visit> visits;
 }

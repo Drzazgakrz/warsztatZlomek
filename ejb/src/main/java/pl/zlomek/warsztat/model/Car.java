@@ -10,7 +10,6 @@ import java.util.List;
 @lombok.Setter
 @lombok.ToString
 @lombok.AllArgsConstructor
-@lombok.NoArgsConstructor
 @Entity
 @Table(name = "cars")
 public class Car {
@@ -20,6 +19,7 @@ public class Car {
 
     @NotNull
     @Size(min = 7, max = 8)
+    @Column(name = "registration_number")
     private String registrationNumber;
 
     @NotNull
@@ -28,10 +28,36 @@ public class Car {
 
     @NotNull
     @Size(min = 4, max = 4)
+    @Column(name = "prod_year")
     private int prodYear;
 
     @ManyToOne
     @NotNull
     CarBrand brand;
+
+    @NotNull
+    @ManyToMany
+    @JoinTable(name = "clients_has_cars",
+            joinColumns = @JoinColumn(name = "car_id"),
+            inverseJoinColumns = @JoinColumn(name = "client_id")
+    )
+    List<Client> owners;
+
+    @ManyToMany
+    @JoinTable(name = "company_has_cars",
+            joinColumns = @JoinColumn(name = "car_id"),
+            inverseJoinColumns = @JoinColumn(name = "company_id")
+    )
+    private List<Company> companiesCars;
+
+    public Car(String registrationNumber, String model, int prodYear, CarBrand brand, List<Client> owners,
+               List<Company> companiesCars){
+        this.registrationNumber = registrationNumber;
+        this.brand = brand;
+        this.model = model;
+        this.prodYear = prodYear;
+        this.owners = owners;
+        this.companiesCars = companiesCars;
+    }
 
 }
