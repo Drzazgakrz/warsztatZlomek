@@ -35,11 +35,18 @@ public class Visit {
     inverseJoinColumns = @JoinColumn(name = "visit_id"))
     private List<Service> services;
 
-    public Visit(Date date, VisitStatus status, Employee employee, Car car, List<Service> services){
+    @ManyToMany
+    @JoinTable(name = "visits_has_parts",joinColumns = @JoinColumn(name = "visit_id"),
+           inverseJoinColumns = @JoinColumn(name = "part_id"))
+    private List<CarParts> parts;
+
+    public Visit(LocalDateTime date, VisitStatus status, Employee employee, Car car, List<Service> services, List<CarParts> parts){
+
         this.visitDate = date;
         this.services = services;
         this.status = status;
         this.employee = employee;
         this.car = car;
+        this.parts = parts;
     }
 }
