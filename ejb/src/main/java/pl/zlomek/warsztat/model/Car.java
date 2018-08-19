@@ -32,6 +32,11 @@ public class Car {
     @Column(name = "prod_year")
     private int prodYear;
 
+    @NotNull
+    @Size(min = 17, max = 17)
+    @Column(name = "vin_number", unique = true)
+    private String vin;
+
     @ManyToOne
     @NotNull
     CarBrand brand;
