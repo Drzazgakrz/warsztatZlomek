@@ -1,5 +1,7 @@
 package pl.zlomek.warsztat.model;
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Date;
@@ -8,6 +10,7 @@ import java.util.List;
 @lombok.Getter
 @lombok.Setter
 @lombok.AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "visits")
 public class Visit {
@@ -35,12 +38,10 @@ public class Visit {
     inverseJoinColumns = @JoinColumn(name = "visit_id"))
     private List<Service> services;
 
-    @ManyToMany
-    @JoinTable(name = "visits_has_parts",joinColumns = @JoinColumn(name = "visit_id"),
-           inverseJoinColumns = @JoinColumn(name = "part_id"))
-    private List<CarParts> parts;
+    @OneToMany(mappedBy = "visit")
+    private List<VisitsParts> parts;
 
-    public Visit(LocalDateTime date, VisitStatus status, Employee employee, Car car, List<Service> services, List<CarParts> parts){
+    public Visit(Date date, VisitStatus status, Employee employee, Car car, List<Service> services, List<VisitsParts> parts){
 
         this.visitDate = date;
         this.services = services;

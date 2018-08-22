@@ -20,8 +20,6 @@ public class CarParts {
     @Size(max = 255, min = 6)
     private String name;
 
-    @ManyToMany
-    @JoinTable(name = "visits_has_parts",joinColumns = @JoinColumn(name = "visit_id"),
-    inverseJoinColumns = @JoinColumn(name = "part_id"))
-    private List<Visit> visits;
+    @OneToMany(mappedBy = "part")
+    private List<VisitsParts> visits;
 }

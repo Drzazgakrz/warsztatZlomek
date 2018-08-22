@@ -25,6 +25,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.transaction:javax.transaction-api:1.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_1.1_spec:1.0.1.Final-redhat-3" level="project" />
     <orderEntry type="library" name="Maven: javax.enterprise:cdi-api:1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.spec.javax.faces:jboss-jsf-api_2.1_spec:2.1.28.Final-redhat-1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final" level="project" />
@@ -83,7 +84,7 @@
     <orderEntry type="module-library">
       <library name="Maven: sun.jdk:jconsole:jdk">
         <CLASSES>
-          <root url="jar://C:/Program Files/Java/jdk1.8.0_121/lib/jconsole.jar!/" />
+          <root url="jar://C:/Program Files/Java/jdk1.8.0_172/lib/jconsole.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

@@ -1,6 +1,8 @@
 package pl.zlomek.warsztat.model;
 
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.List;
 @lombok.AllArgsConstructor
 @lombok.Setter
 @lombok.Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "services")
 public class Service {

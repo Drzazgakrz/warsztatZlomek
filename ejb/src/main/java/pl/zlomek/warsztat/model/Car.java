@@ -10,6 +10,7 @@ import java.util.List;
 @lombok.Setter
 @lombok.ToString
 @lombok.AllArgsConstructor
+@lombok.NoArgsConstructor
 @Entity
 @Table(name = "cars")
 public class Car {
@@ -30,6 +31,11 @@ public class Car {
     @Size(min = 4, max = 4)
     @Column(name = "prod_year")
     private int prodYear;
+
+    @NotNull
+    @Size(min = 17, max = 17)
+    @Column(name = "vin_number", unique = true)
+    private String vin;
 
     @ManyToOne
     @NotNull
