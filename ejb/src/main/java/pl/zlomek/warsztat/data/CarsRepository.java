@@ -8,7 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 @ApplicationScoped
-public class CarRepository {
+public class CarsRepository {
     @Inject
     EntityManager em;
 

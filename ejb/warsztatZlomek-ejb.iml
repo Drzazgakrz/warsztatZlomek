@@ -65,6 +65,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-spi:2.0.0-alpha-3" level="project" />
     <orderEntry type="library" name="Maven: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.2" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: javax.transaction:javax.transaction-api:1.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.hibernate:hibernate-core:5.3.4.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.persistence:javax.persistence-api:2.2" level="project" />
@@ -77,5 +78,10 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.activation:javax.activation-api:1.2.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: dom4j:dom4j:1.6.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.hibernate.common:hibernate-commons-annotations:5.0.4.Final" level="project" />
+    <orderEntry type="library" name="Maven: com.auth0:java-jwt:3.4.0" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.6" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.0" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.6" level="project" />
+    <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.11" level="project" />
   </component>
 </module>

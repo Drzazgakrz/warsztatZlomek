@@ -86,9 +86,12 @@ public class Client {
     )
     private List<Car> cars;
 
+    @Column(name = "access_token", unique = true)
+    private String accessToken;
+
     public Client(String firstName, String lastName, String email, String phoneNumber, String cityName,
                   String streetName, String buildNum, String aptNum, String zipCode, String password,
-                  List<Company> companies, List<Car> cars){
+                  List<Company> companies, List<Car> cars, String accessToken){
         this.aptNum = aptNum;
         this.buildNum = buildNum;
         this.cityName = cityName;
@@ -104,5 +107,6 @@ public class Client {
         this.password = Hex.toHexString(digest);
         this.cars = cars;
         this.companies = companies;
+        this.accessToken = accessToken;
     }
 }
