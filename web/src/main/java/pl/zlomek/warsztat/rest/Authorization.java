@@ -43,7 +43,7 @@ public class Authorization {
             String aptNum = newUserData.getAptNum();
             String zipCode = newUserData.getZipCode();
             String password = newUserData.getPassword();
-            Client client = new Client(firstName,lastName,email,phoneNum, cityName,streetName,buildNum,aptNum, zipCode,password,null,null, null);
+            Client client = new Client(firstName,lastName,email,phoneNum, cityName,streetName,buildNum,aptNum, zipCode,password, null);
             repository.registerUser(client);
             String token = repository.generateToken(client);
             client.setAccessToken(token);

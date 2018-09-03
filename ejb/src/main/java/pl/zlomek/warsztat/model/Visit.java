@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @lombok.Getter
@@ -41,13 +42,13 @@ public class Visit {
     @OneToMany(mappedBy = "visit")
     private List<VisitsParts> parts;
 
-    public Visit(Date date, VisitStatus status, Employee employee, Car car, List<Service> services, List<VisitsParts> parts){
+    public Visit(Date date, VisitStatus status, Employee employee, Car car){
 
         this.visitDate = date;
-        this.services = services;
+        this.services = new ArrayList<>();
         this.status = status;
         this.employee = employee;
         this.car = car;
-        this.parts = parts;
+        this.parts = new ArrayList<>();
     }
 }

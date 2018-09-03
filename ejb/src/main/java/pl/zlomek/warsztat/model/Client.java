@@ -6,6 +6,7 @@ import org.bouncycastle.util.encoders.Hex;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 @lombok.AllArgsConstructor
@@ -69,20 +70,20 @@ public class Client {
     private String password;
 
     @ManyToMany(
-            fetch = FetchType.EAGER
+            fetch = FetchType.LAZY
     )
-    @JoinTable(name = "clients_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
+    @JoinTable(name = "clients_has_employees",
+            joinColumns = @JoinColumn(name = "client_id"),
+            inverseJoinColumns = @JoinColumn(name = "company_id")
     )
     private List<Company> companies;
 
     @ManyToMany(
-            fetch = FetchType.EAGER
+            fetch = FetchType.LAZY
     )
     @JoinTable(name = "clients_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
+            joinColumns = @JoinColumn(name = "client_id"),
+            inverseJoinColumns = @JoinColumn(name = "car_id")
     )
     private List<Car> cars;
 
@@ -91,11 +92,11 @@ public class Client {
 
     public Client(String firstName, String lastName, String email, String phoneNumber, String cityName,
                   String streetName, String buildNum, String aptNum, String zipCode, String password,
-                  List<Company> companies, List<Car> cars, String accessToken){
+                  String accessToken){
         this.aptNum = aptNum;
         this.buildNum = buildNum;
         this.cityName = cityName;
-        this.companies = companies;
+        this.companies = new ArrayList<>();
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -105,8 +106,8 @@ public class Client {
         SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
         byte[] digest = sha3.digest(password.getBytes());
         this.password = Hex.toHexString(digest);
-        this.cars = cars;
-        this.companies = companies;
+        this.cars = new ArrayList<>();
+        this.companies = new ArrayList<>();
         this.accessToken = accessToken;
     }
 }
