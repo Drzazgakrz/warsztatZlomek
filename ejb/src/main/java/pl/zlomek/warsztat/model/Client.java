@@ -73,8 +73,8 @@ public class Client {
             fetch = FetchType.LAZY
     )
     @JoinTable(name = "clients_has_employees",
-            joinColumns = @JoinColumn(name = "company_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
+            joinColumns = @JoinColumn(name = "client_id"),
+            inverseJoinColumns = @JoinColumn(name = "company_id")
     )
     private List<Company> companies;
 
@@ -82,8 +82,8 @@ public class Client {
             fetch = FetchType.LAZY
     )
     @JoinTable(name = "clients_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
+            joinColumns = @JoinColumn(name = "client_id"),
+            inverseJoinColumns = @JoinColumn(name = "car_id")
     )
     private List<Car> cars;
 

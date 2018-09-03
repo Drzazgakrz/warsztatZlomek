@@ -61,15 +61,15 @@ public class Company implements Serializable {
 
     @ManyToMany
     @JoinTable(name = "company_has_employees",
-            joinColumns = @JoinColumn(name = "client_id"),
-            inverseJoinColumns = @JoinColumn(name = "company_id")
+            joinColumns = @JoinColumn(name = "company_id"),
+            inverseJoinColumns = @JoinColumn(name = "client_id")
     )
     private List<Client> employees;
 
     @ManyToMany
     @JoinTable(name = "company_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "company_id")
+            joinColumns = @JoinColumn(name = "company_id"),
+            inverseJoinColumns = @JoinColumn(name = "car_id")
     )
     private List<Car> cars;
 
