@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @lombok.Getter
@@ -72,7 +73,7 @@ public class Company implements Serializable {
     )
     private List<Car> cars;
 
-    public Company(String NIP, String email, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode, List<Car> cars){
+    public Company(String NIP, String email, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode){
         this.NIP = NIP;
         this.email = email;
         this.companyName = companyName;
@@ -81,6 +82,7 @@ public class Company implements Serializable {
         this.buildingNum = buildingNum;
         this.aptNum = aptNum;
         this.zipCode = zipCode;
-        this.cars = cars;
+        this.employees = new ArrayList<>();
+        this.cars = new ArrayList<>();
     }
 }

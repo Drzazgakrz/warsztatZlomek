@@ -1,5 +1,7 @@
 package pl.zlomek.warsztat.rest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.zlomek.warsztat.data.CarsRepository;
 import pl.zlomek.warsztat.data.ClientsRepository;
 import pl.zlomek.warsztat.data.CompaniesRepository;
@@ -11,6 +13,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 
 @Path("/updateClient")
 public class UpdateClient {
@@ -23,6 +26,8 @@ public class UpdateClient {
 
     @Inject
     private CompaniesRepository companiesRepository;
+
+    private Logger log = LoggerFactory.getLogger(UpdateClient.class);
 
     @POST
     @Path("/addCar")
@@ -45,13 +50,23 @@ public class UpdateClient {
         if(client == null){
             return Response.status(403).build();
         }
-        Company clientsCmpany = companiesRepository.getCompanyByName(form.getCompanyName());
-        if(clientsCmpany == null){
+        Company clientsCompany = companiesRepository.getCompanyByName(form.getCompanyName());
+        if(clientsCompany == null){
+            log.info("brak firmy");
             return Response.status(400).build();
         }
-        client.getCompanies().add(clientsCmpany);
-        clientsCmpany.getEmployees().add(client);
-        String token = clientsRepository.generateToken(client);
-        return Response.ok(token).build();
+        if(client.getCompanies() == null){
+            client.setCompanies(new ArrayList<Company>());
+        }
+        client.getCompanies().add(clientsCompany);
+        log.info(client.toString()+" moje");
+        if(clientsCompany.getEmployees() == null){
+            clientsCompany.setEmployees(new ArrayList<Client>());
+        }
+        log.info(clientsCompany.toString()+" moje");
+        clientsCompany.getEmployees().add(client);
+        clientsRepository.addCompany(client);// coś tu się pierdoli
+        companiesRepository.addClient(clientsCompany);
+        return Response.ok().build();
     }
 }

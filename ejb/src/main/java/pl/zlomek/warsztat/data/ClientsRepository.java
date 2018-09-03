@@ -27,7 +27,7 @@ public class ClientsRepository {
         em.persist(client);
     }
 
-    public void updateClient(Client client){
+    private void updateClient(Client client){
         em.merge(client);
     }
 
@@ -88,5 +88,9 @@ public class ClientsRepository {
         updateClient(client);
 
         return token;
+    }
+    @Transactional
+    public void addCompany(Client client){
+        this.updateClient(client);
     }
 }

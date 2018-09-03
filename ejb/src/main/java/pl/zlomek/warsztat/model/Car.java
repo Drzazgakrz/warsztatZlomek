@@ -4,6 +4,7 @@ package pl.zlomek.warsztat.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 @lombok.Getter
@@ -42,7 +43,7 @@ public class Car {
     CarBrand brand;
 
     @NotNull
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "clients_has_cars",
             joinColumns = @JoinColumn(name = "car_id"),
             inverseJoinColumns = @JoinColumn(name = "client_id")
@@ -56,14 +57,13 @@ public class Car {
     )
     private List<Company> companiesCars;
 
-    public Car(String registrationNumber, String model, int prodYear, CarBrand brand, List<Client> owners,
-               List<Company> companiesCars){
+    public Car(String registrationNumber, String model, int prodYear, CarBrand brand){
         this.registrationNumber = registrationNumber;
         this.brand = brand;
         this.model = model;
         this.prodYear = prodYear;
-        this.owners = owners;
-        this.companiesCars = companiesCars;
+        this.owners = new ArrayList<>();
+        this.companiesCars = new ArrayList<>();
     }
 
 }
