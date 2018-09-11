@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.sql.Date;
 
 
@@ -14,7 +15,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "overviews")
-public class Overview {
+public class Overview implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

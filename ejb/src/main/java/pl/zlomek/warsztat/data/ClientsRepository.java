@@ -16,9 +16,7 @@ import javax.transaction.Transactional;
 import java.util.Date;
 
 @ApplicationScoped
-public class ClientsRepository {
-    @Inject
-    EntityManager em;
+public class ClientsRepository extends AccountsRepository {
 
     private Logger log = LoggerFactory.getLogger(ClientsRepository.class);
 
@@ -26,11 +24,6 @@ public class ClientsRepository {
     public void registerUser(Client client){
         em.persist(client);
     }
-
-    private void updateClient(Client client){
-        em.merge(client);
-    }
-
 
     public Client signIn(String username, String password){
         try {
@@ -60,7 +53,8 @@ public class ClientsRepository {
         }
     }
 
-    public Client findClientByToken(String token){
+    @Override
+    public Client findByToken(String token){
         try {
             TypedQuery<Client> getClient = em.createQuery("select client from Client client where accessToken "+
                             "= :token ",Client.class);
@@ -70,27 +64,5 @@ public class ClientsRepository {
             e.printStackTrace();
             return null;
         }
-    }
-
-    @Transactional
-    public String generateToken(Client client){
-        Algorithm algorithm = Algorithm.HMAC256("secret");
-        String token = JWT.create()
-                .withIssuer(client.getEmail()+(new Date()).getTime())
-                .sign(algorithm);
-        while(this.findClientByToken(token)!=null){
-            algorithm = Algorithm.HMAC256("secret");
-            token = JWT.create()
-                    .withIssuer(client.getEmail()+(new Date()).getTime())
-                    .sign(algorithm);
-        }
-        client.setAccessToken(token);
-        updateClient(client);
-
-        return token;
-    }
-    @Transactional
-    public void addCompany(Client client){
-        this.updateClient(client);
     }
 }

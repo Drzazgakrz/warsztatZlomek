@@ -7,7 +7,9 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @lombok.AllArgsConstructor
 @lombok.Setter
@@ -16,25 +18,11 @@ import java.util.List;
 @lombok.NoArgsConstructor
 @Entity
 @Table(name = "clients")
-public class Client {
+public class Client extends Account{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_id")
     private long clientId;
-
-    @NotNull
-    @Size(max = 30, min = 3)
-    @Column(name = "first_name")
-    private String firstName;
-
-    @NotNull
-    @Size(max = 30, min = 2)
-    @Column(name = "last_name")
-    private String lastName;
-
-    @NotNull
-    @Size(max = 30, min = 6)
-    private String email;
 
     @NotNull
     @Size(max = 15, min = 9)
@@ -65,49 +53,32 @@ public class Client {
     @Column(name = "zip_code")
     private String zipCode;
 
-    @NotNull
-    @Size(max=64, min = 64)
-    private String password;
-
     @ManyToMany(
             fetch = FetchType.LAZY
     )
-    @JoinTable(name = "clients_has_employees",
-            joinColumns = @JoinColumn(name = "client_id"),
-            inverseJoinColumns = @JoinColumn(name = "company_id")
-    )
-    private List<Company> companies;
+    private Set<Company> companies;
 
-    @ManyToMany(
-            fetch = FetchType.LAZY
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "car"
     )
-    @JoinTable(name = "clients_has_cars",
-            joinColumns = @JoinColumn(name = "client_id"),
-            inverseJoinColumns = @JoinColumn(name = "car_id")
-    )
-    private List<Car> cars;
-
-    @Column(name = "access_token", unique = true)
-    private String accessToken;
+    private Set<CarsHasOwners> cars;
 
     public Client(String firstName, String lastName, String email, String phoneNumber, String cityName,
                   String streetName, String buildNum, String aptNum, String zipCode, String password,
                   String accessToken){
+        super(email, firstName, lastName);
         this.aptNum = aptNum;
         this.buildNum = buildNum;
         this.cityName = cityName;
-        this.companies = new ArrayList<>();
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this. streetName = streetName;
         this.zipCode = zipCode;
         SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
         byte[] digest = sha3.digest(password.getBytes());
-        this.password = Hex.toHexString(digest);
-        this.cars = new ArrayList<>();
-        this.companies = new ArrayList<>();
+        super.password = Hex.toHexString(digest);
+        this.cars = new HashSet<>();
+        this.companies = new HashSet<>();
         this.accessToken = accessToken;
     }
 }

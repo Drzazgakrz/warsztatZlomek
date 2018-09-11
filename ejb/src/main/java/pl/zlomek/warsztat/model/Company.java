@@ -9,7 +9,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @lombok.Getter
 @lombok.Setter
@@ -64,14 +66,14 @@ public class Company implements Serializable {
             joinColumns = @JoinColumn(name = "company_id"),
             inverseJoinColumns = @JoinColumn(name = "client_id")
     )
-    private List<Client> employees;
+    private Set<Client> employees;
 
     @ManyToMany
     @JoinTable(name = "company_has_cars",
             joinColumns = @JoinColumn(name = "company_id"),
             inverseJoinColumns = @JoinColumn(name = "car_id")
     )
-    private List<Car> cars;
+    private Set<Car> cars;
 
     public Company(String NIP, String email, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode){
         this.NIP = NIP;
@@ -82,7 +84,7 @@ public class Company implements Serializable {
         this.buildingNum = buildingNum;
         this.aptNum = aptNum;
         this.zipCode = zipCode;
-        this.employees = new ArrayList<>();
-        this.cars = new ArrayList<>();
+        this.employees = new HashSet<>();
+        this.cars = new HashSet<>();
     }
 }
