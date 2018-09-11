@@ -4,8 +4,11 @@ package pl.zlomek.warsztat.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @lombok.Getter
 @lombok.Setter
@@ -14,7 +17,7 @@ import java.util.List;
 @lombok.NoArgsConstructor
 @Entity
 @Table(name = "cars")
-public class Car {
+public class Car implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -29,7 +32,6 @@ public class Car {
     private String model;
 
     @NotNull
-    @Size(min = 4, max = 4)
     @Column(name = "prod_year")
     private int prodYear;
 
@@ -42,28 +44,27 @@ public class Car {
     @NotNull
     CarBrand brand;
 
-    @NotNull
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "clients_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
-    )
-    List<Client> owners;
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "owner")
+    Set<CarsHasOwners> owners;
 
     @ManyToMany
-    @JoinTable(name = "company_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "company_id")
-    )
-    private List<Company> companiesCars;
+    private Set<Company> companiesCars;
 
-    public Car(String registrationNumber, String model, int prodYear, CarBrand brand){
+    public Car(String registrationNumber, String vin, String model, int prodYear, CarBrand brand, Client client){
         this.registrationNumber = registrationNumber;
         this.brand = brand;
         this.model = model;
         this.prodYear = prodYear;
-        this.owners = new ArrayList<>();
-        this.companiesCars = new ArrayList<>();
+        this.owners = new HashSet<>();
+        this.vin = vin;
+        this.companiesCars = new HashSet<>();
+    }
+
+    public CarsHasOwners addCarOwner(Client client){
+        CarsHasOwners cho = new CarsHasOwners(this, client, OwnershipStatus.CURRENT_OWNER);
+        this.owners.add(cho);
+        client.getCars().add(cho);
+        return cho;
     }
 
 }

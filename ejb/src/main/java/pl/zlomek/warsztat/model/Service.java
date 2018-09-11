@@ -5,7 +5,10 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @lombok.AllArgsConstructor
 @lombok.Setter
@@ -13,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "services")
-public class Service {
+public class Service implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -24,7 +27,5 @@ public class Service {
 
     @ManyToMany
     @NotNull
-    @JoinTable(name = "visits_has_services", joinColumns = @JoinColumn(name = "service_id"),
-            inverseJoinColumns = @JoinColumn(name = "visit_id"))
-    private List<Visit> visits;
+    private Set<Visit> visits;
 }

@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 @NoArgsConstructor
 @Getter
@@ -14,7 +15,7 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "company_data_buffer")
 
-public class CompanyDataBuffer {
+public class CompanyDataBuffer implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

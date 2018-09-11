@@ -1,17 +1,21 @@
 package pl.zlomek.warsztat.model;
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
+import java.io.Serializable;
+import java.util.Set;
 
 @lombok.Getter
 @lombok.Setter
 @lombok.AllArgsConstructor
+@NoArgsConstructor
 @lombok.ToString
 @Entity
 @Table(name = "car_parts")
-public class CarParts {
+public class CarPart implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -21,5 +25,5 @@ public class CarParts {
     private String name;
 
     @OneToMany(mappedBy = "part")
-    private List<VisitsParts> visits;
+    private Set<VisitsParts> visits;
 }

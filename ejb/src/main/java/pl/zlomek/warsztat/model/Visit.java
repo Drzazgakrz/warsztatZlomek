@@ -4,9 +4,10 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @lombok.Getter
 @lombok.Setter
@@ -14,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "visits")
-public class Visit {
+public class Visit implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -37,18 +38,18 @@ public class Visit {
     @NotNull
     @JoinTable(name = "visits_has_services", joinColumns = @JoinColumn(name = "service_id"),
     inverseJoinColumns = @JoinColumn(name = "visit_id"))
-    private List<Service> services;
+    private Set<Service> services;
 
     @OneToMany(mappedBy = "visit")
-    private List<VisitsParts> parts;
+    private Set<VisitsParts> parts;
 
-    public Visit(Date date, VisitStatus status, Employee employee, Car car){
+
+    public Visit(Date date, Car car){
 
         this.visitDate = date;
-        this.services = new ArrayList<>();
-        this.status = status;
-        this.employee = employee;
+        this.services = new HashSet<>();
+        this.status = VisitStatus.ACCEPTED;
         this.car = car;
-        this.parts = new ArrayList<>();
+        this.parts = new HashSet<>();
     }
 }
