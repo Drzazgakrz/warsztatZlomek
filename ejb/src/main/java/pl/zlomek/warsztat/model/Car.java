@@ -5,10 +5,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @lombok.Getter
 @lombok.Setter
@@ -67,4 +64,24 @@ public class Car implements Serializable {
         return cho;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Car)) return false;
+        Car car = (Car) o;
+        return id == car.id &&
+                prodYear == car.prodYear &&
+                Objects.equals(registrationNumber, car.registrationNumber) &&
+                Objects.equals(model, car.model) &&
+                Objects.equals(vin, car.vin) &&
+                Objects.equals(brand, car.brand) &&
+                Objects.equals(owners, car.owners) &&
+                Objects.equals(companiesCars, car.companiesCars);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, registrationNumber, model, prodYear, vin, brand, owners, companiesCars);
+    }
 }

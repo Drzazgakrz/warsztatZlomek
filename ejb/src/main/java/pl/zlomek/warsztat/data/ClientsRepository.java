@@ -6,6 +6,7 @@ import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.zlomek.warsztat.model.Account;
 import pl.zlomek.warsztat.model.Client;
 
 import javax.enterprise.context.ApplicationScoped;
