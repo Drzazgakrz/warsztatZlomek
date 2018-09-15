@@ -95,6 +95,7 @@
       <library name="Maven: sun.jdk:jconsole:jdk">
         <CLASSES>
           <root url="jar://C:/Program Files/Java/jdk1.8.0_121/lib/jconsole.jar!/" />
+
         </CLASSES>
         <JAVADOC />
         <SOURCES />

@@ -1,41 +1,30 @@
 package pl.zlomek.warsztat.model;
 
-
-
-import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 
+@lombok.AllArgsConstructor
 @lombok.Getter
 @lombok.Setter
-@lombok.AllArgsConstructor
-@NoArgsConstructor
 @Entity
-@Table(name = "companies")
-public class Company implements Serializable {
+@Table(name = "companies_data")
+public class CompanyData implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @NotNull
-    @Size(min = 14,max=14)
+    @Size(min = 14,max = 14)
     @Column(name = "NIP")
     private String nip;
-
-    @NotNull
-    @Size(max = 30, min = 6)
-    private String email;
 
     @NotNull
     @Size(min = 2, max = 40)
     @Column(name = "company_name")
     private String companyName;
-
     @NotNull
     @Size(max = 20, min = 2)
     @Column(name = "city_name")
@@ -60,30 +49,17 @@ public class Company implements Serializable {
     @Column(name = "zip_code")
     private String zipCode;
 
-    @ManyToMany
-    @JoinTable(name = "company_has_employees",
-            joinColumns = @JoinColumn(name = "company_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
-    )
-    private Set<Client> employees;
+    @OneToMany (mappedBy = "companyData")
+    private Set<Invoice> invoices;
 
-    @ManyToMany
-    @JoinTable(name = "company_has_cars",
-            joinColumns = @JoinColumn(name = "company_id"),
-            inverseJoinColumns = @JoinColumn(name = "car_id")
-    )
-    private Set<Car> cars;
-
-    public Company(String nip, String email, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode){
+    public CompanyData(String nip, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode) {
         this.nip = nip;
-        this.email = email;
         this.companyName = companyName;
         this.cityName = cityName;
         this.streetName = streetName;
         this.buildingNum = buildingNum;
         this.aptNum = aptNum;
         this.zipCode = zipCode;
-        this.employees = new HashSet<>();
-        this.cars = new HashSet<>();
+        this.invoices = invoices;
     }
 }
