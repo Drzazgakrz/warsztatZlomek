@@ -6,10 +6,8 @@ import org.bouncycastle.util.encoders.Hex;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 
 @lombok.AllArgsConstructor
 @lombok.Setter
@@ -80,5 +78,31 @@ public class Client extends Account{
         this.cars = new HashSet<>();
         this.companies = new HashSet<>();
         this.accessToken = accessToken;
+    }
+
+    public boolean checkCar(Car car){
+        return cars.stream().allMatch(clientCar-> clientCar.equals(car));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Client)) return false;
+        Client client = (Client) o;
+        return clientId == client.clientId &&
+                Objects.equals(phoneNumber, client.phoneNumber) &&
+                Objects.equals(cityName, client.cityName) &&
+                Objects.equals(streetName, client.streetName) &&
+                Objects.equals(buildNum, client.buildNum) &&
+                Objects.equals(aptNum, client.aptNum) &&
+                Objects.equals(zipCode, client.zipCode) &&
+                Objects.equals(companies, client.companies) &&
+                Objects.equals(cars, client.cars);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(clientId, phoneNumber, cityName, streetName, buildNum, aptNum, zipCode, companies, cars);
     }
 }

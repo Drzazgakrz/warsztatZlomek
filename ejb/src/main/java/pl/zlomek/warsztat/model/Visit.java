@@ -26,7 +26,6 @@ public class Visit implements Serializable {
     @NotNull
     private VisitStatus status;
 
-    @NotNull
     @ManyToOne
     private Employee employee;
 
@@ -51,5 +50,11 @@ public class Visit implements Serializable {
         this.status = VisitStatus.ACCEPTED;
         this.car = car;
         this.parts = new HashSet<>();
+    }
+
+    public void addPartToVisit(CarPart part, int count, double singlePrice){
+        VisitsParts relation = new VisitsParts(this, part,count, singlePrice);
+        this.parts.add(relation);
+        part.addVisit(relation);
     }
 }

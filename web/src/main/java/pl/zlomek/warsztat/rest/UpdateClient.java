@@ -63,18 +63,15 @@ public class UpdateClient {
         }
         Company clientsCompany = companiesRepository.getCompanyByName(form.getCompanyName());
         if(clientsCompany == null){
-            log.info("brak firmy");
             return Response.status(400).build();
         }
         if(client.getCompanies() == null){
             client.setCompanies(new HashSet<Company>());
         }
         client.getCompanies().add(clientsCompany);
-        log.info(client.toString()+" moje");
         if(clientsCompany.getEmployees() == null){
             clientsCompany.setEmployees(new HashSet<Client>());
         }
-        log.info(clientsCompany.toString()+" moje");
         clientsCompany.getEmployees().add(client);
         clientsRepository.update(client);
         companiesRepository.addClient(clientsCompany);

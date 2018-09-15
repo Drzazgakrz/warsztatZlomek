@@ -64,10 +64,29 @@ public class CarsHasOwners implements Serializable {
         }
     }
 
-    public CarsHasOwners(Car car, Client client, OwnershipStatus status){
-        this.id = new CarHasOwnerId(car,client);
+    public CarsHasOwners(Car car, Client client, OwnershipStatus status) {
+        this.id = new CarHasOwnerId(car, client);
         this.car = car;
         this.owner = client;
         this.status = status;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o == null)
+            return false;
+        if (o.getClass() == Car.class){
+            return (o.equals(this.car));
+        }
+        if(o.getClass() == Client.class){
+            return (o).equals(this.owner);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, car, owner, status);
     }
 }

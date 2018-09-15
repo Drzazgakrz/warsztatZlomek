@@ -17,6 +17,10 @@ public class VisitsRepository {
         em.persist(visit);
     }
 
+    public void updateVisit(Visit visit){
+        em.merge(visit);
+    }
+
     public Visit getVisitById(long id){
         try {
             TypedQuery<Visit> query = em.createQuery("SELECT visit FROM Visit visit WHERE id = :id",Visit.class);
