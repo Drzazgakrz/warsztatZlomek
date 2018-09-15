@@ -61,5 +61,7 @@ public class InvoiceBuffer implements Serializable {
     @OneToMany(mappedBy = "invoiceBuffer")
     private Set<InvoiceBufferPosition> invoiceBufferPositions;
 
-    ///jeszcze konstruktora i rlacji z dane  serwisu i bufor dane serwisu
+    @NotNull
+    @ManyToOne
+    private CarServiceData carServiceData;
 }
