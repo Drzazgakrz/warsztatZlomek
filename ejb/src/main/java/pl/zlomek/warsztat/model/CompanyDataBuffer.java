@@ -8,6 +8,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Set;
+
 
 @NoArgsConstructor
 @Getter
@@ -21,8 +23,10 @@ public class CompanyDataBuffer implements Serializable {
     private long id;
 
     @NotNull
-    @Size(min = 14,max=14)
-    private String NIP;
+    @Size(min = 14,max = 14)
+    @Column(name = "NIP")
+    private String nip;
+
 
     @NotNull
     @Size(min = 2, max = 40)
@@ -53,13 +57,18 @@ public class CompanyDataBuffer implements Serializable {
     @Column(name = "zip_code")
     private String zipCode;
 
-    public CompanyDataBuffer(String NIP, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode){
-        this.NIP = NIP;
+    @NotNull
+    @OneToMany(mappedBy = "companyDataBuffer")
+    private Set<InvoiceBuffer> invoicesBuffer;
+
+    public CompanyDataBuffer(String nip, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode) {
+        this.nip = nip;
         this.companyName = companyName;
         this.cityName = cityName;
         this.streetName = streetName;
         this.buildingNum = buildingNum;
         this.aptNum = aptNum;
         this.zipCode = zipCode;
+        this.invoicesBuffer = invoicesBuffer;
     }
 }

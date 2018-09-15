@@ -28,6 +28,8 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <jta-data-source>java:/warsztatZlomekDS</jta-data-source>
         <class>pl.zlomek.warsztat.model.Company</class>
+        <class>pl.zlomek.warsztat.model.CompanyData</class>
+        <class>pl.zlomek.warsztat.model.CompanyDataBuffer</class>
         <class>pl.zlomek.warsztat.model.Client</class>
         <class>pl.zlomek.warsztat.model.Car</class>
         <class>pl.zlomek.warsztat.model.CarBrand</class>
@@ -36,10 +38,13 @@
         <class>pl.zlomek.warsztat.model.Employee</class>
         <class>pl.zlomek.warsztat.model.Visit</class>
         <class>pl.zlomek.warsztat.model.Service</class>
+        <class>pl.zlomek.warsztat.model.Invoice</class>
+        <class>pl.zlomek.warsztat.model.InvoicePosition</class>
+        <class>pl.zlomek.warsztat.model.InvoiceBuffer</class>
+        <class>pl.zlomek.warsztat.model.InvoiceBufferPosition</class>
         <class>pl.zlomek.warsztat.model.VisitsParts</class>
         <class>pl.zlomek.warsztat.model.VisitsServices</class>
         <class>pl.zlomek.warsztat.model.CarServiceData</class>
-        <class>pl.zlomek.warsztat.model.CompanyDataBuffer</class>
         <class>pl.zlomek.warsztat.model.CarsHasOwners</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
@@ -48,7 +53,7 @@
             <property name="hibernate.show_sql" value="true"/>
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="javax.persistence.jdbc.user" value="postgres"/>
-            <property name="javax.persistence.jdbc.password" value="poldg7j8"/>
+            <property name="javax.persistence.jdbc.password" value="Brylant2013."/>
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/warsztatZlomekDS"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL82Dialect"/>
             <property name="hibernate.enable_lazy_load_no_trans" value="true" />
