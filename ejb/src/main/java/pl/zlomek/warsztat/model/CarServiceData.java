@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Set;
 
 @NoArgsConstructor
 @Getter
@@ -56,6 +57,14 @@ public class CarServiceData implements Serializable {
     @Size(max = 6, min = 6)
     @Column(name = "zip_code")
     private String zipCode;
+
+    @NotNull
+    @OneToMany(mappedBy = "carServiceData")
+    private Set<Invoice> invoices;
+
+    @NotNull
+    @OneToMany(mappedBy = "carServiceData")
+    private Set<InvoiceBuffer> invoicesBuffer;
 
     public CarServiceData(String NIP, String email, String serviceName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode){
         this.NIP = NIP;

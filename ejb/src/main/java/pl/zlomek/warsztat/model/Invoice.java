@@ -55,7 +55,21 @@ public class Invoice implements Serializable {
 
     @OneToOne
     private Invoice corectionInvoice;
-    ///jeszcze sama do siebie i konstruktora i rlacji z dane  serwisu, jeszcze itemów
 
+    @NotNull
+    @ManyToOne
+    private CarServiceData carServiceData;
 
+    public Invoice(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue, BigDecimal valueOfVat, String invoiceNumber, CompanyData companyData, CarServiceData carServiceData) {
+        this.discount = discount;
+        this.tax = tax;
+        this.methodOfPayment = methodOfPayment;
+        this.netValue = netValue;
+        this.grossValue = grossValue;
+        this.valueOfVat = valueOfVat;
+        this.invoiceNumber = invoiceNumber;
+        this.companyData = companyData;
+        this.corectionInvoice = null;
+        this.carServiceData = carServiceData;
+    }
 }
