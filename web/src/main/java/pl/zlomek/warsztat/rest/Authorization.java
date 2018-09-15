@@ -47,7 +47,7 @@ public class Authorization {
             repository.registerUser(client);
             String token = repository.generateToken(client);
             client.setAccessToken(token);
-            return Response.ok().build();
+            return Response.status(200).entity(token).build();
         } return Response.status(400).build();
     }
 

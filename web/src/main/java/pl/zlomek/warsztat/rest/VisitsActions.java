@@ -28,6 +28,8 @@ public class VisitsActions {
 
     @Inject
     private EmployeesRepository employeesRepository;
+
+
     /*@POST
     @Path("/submit")
     public Response submitVisit(SubmitVisitForm form){
@@ -70,7 +72,8 @@ public class VisitsActions {
             String accessToken = clientsRepository.generateToken(client);
             return Response.status(400).entity(accessToken).build();
         }
-        if(!client.checkCar(car)){
+        CarsHasOwners cho = new CarsHasOwners(car, client, OwnershipStatus.CURRENT_OWNER);
+        if(!client.getCars().contains(cho)){
             String accessToken = clientsRepository.generateToken(client);
             return Response.status(401).entity(accessToken).build();
         }
