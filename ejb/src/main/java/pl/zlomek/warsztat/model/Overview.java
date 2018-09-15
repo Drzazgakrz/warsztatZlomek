@@ -1,17 +1,21 @@
 package pl.zlomek.warsztat.model;
 
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.io.Serializable;
+import java.sql.Date;
 
 
 @lombok.AllArgsConstructor
 @lombok.Setter
 @lombok.Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "overviews")
-public class Overview {
+public class Overview implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

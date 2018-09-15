@@ -33,6 +33,7 @@
         <class>pl.zlomek.warsztat.model.Client</class>
         <class>pl.zlomek.warsztat.model.Car</class>
         <class>pl.zlomek.warsztat.model.CarBrand</class>
+        <class>pl.zlomek.warsztat.model.CarPart</class>
         <class>pl.zlomek.warsztat.model.Overview</class>
         <class>pl.zlomek.warsztat.model.Employee</class>
         <class>pl.zlomek.warsztat.model.Visit</class>
@@ -41,6 +42,10 @@
         <class>pl.zlomek.warsztat.model.InvoicePosition</class>
         <class>pl.zlomek.warsztat.model.InvoiceBuffer</class>
         <class>pl.zlomek.warsztat.model.InvoiceBufferPosition</class>
+        <class>pl.zlomek.warsztat.model.VisitsParts</class>
+        <class>pl.zlomek.warsztat.model.VisitsServices</class>
+        <class>pl.zlomek.warsztat.model.CarServiceData</class>
+        <class>pl.zlomek.warsztat.model.CarsHasOwners</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Properties for Hibernate -->
@@ -51,7 +56,7 @@
             <property name="javax.persistence.jdbc.password" value="Brylant2013."/>
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/warsztatZlomekDS"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL82Dialect"/>
-
+            <property name="hibernate.enable_lazy_load_no_trans" value="true" />
             <!-- alternatively to <class> and <property> declarations, you can use a regular hibernate.cfg.xml file -->
             <!-- property name="hibernate.ejb.cfgfile" value="/org/hibernate/ejb/test/hibernate.cfg.xml"/ -->
         </properties>

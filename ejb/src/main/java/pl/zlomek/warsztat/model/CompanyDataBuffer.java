@@ -1,16 +1,22 @@
 package pl.zlomek.warsztat.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
 
-@lombok.AllArgsConstructor
-@lombok.Getter
-@lombok.Setter
+
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
-@Table(name = "companies_data_buffer")
+@Table(name = "company_data_buffer")
+
 public class CompanyDataBuffer implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,10 +27,12 @@ public class CompanyDataBuffer implements Serializable {
     @Column(name = "NIP")
     private String nip;
 
+
     @NotNull
     @Size(min = 2, max = 40)
     @Column(name = "company_name")
     private String companyName;
+
     @NotNull
     @Size(max = 20, min = 2)
     @Column(name = "city_name")
@@ -52,4 +60,15 @@ public class CompanyDataBuffer implements Serializable {
     @NotNull
     @OneToMany(mappedBy = "companyDataBuffer")
     private Set<InvoiceBuffer> invoicesBuffer;
+
+    public CompanyDataBuffer(String nip, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode) {
+        this.nip = nip;
+        this.companyName = companyName;
+        this.cityName = cityName;
+        this.streetName = streetName;
+        this.buildingNum = buildingNum;
+        this.aptNum = aptNum;
+        this.zipCode = zipCode;
+        this.invoicesBuffer = invoicesBuffer;
+    }
 }

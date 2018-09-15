@@ -2,15 +2,19 @@ package pl.zlomek.warsztat.model;
 
 
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @lombok.Getter
 @lombok.Setter
 @lombok.AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "companies")
 public class Company implements Serializable {
@@ -58,19 +62,19 @@ public class Company implements Serializable {
 
     @ManyToMany
     @JoinTable(name = "company_has_employees",
-            joinColumns = @JoinColumn(name = "client_id"),
-            inverseJoinColumns = @JoinColumn(name = "company_id")
+            joinColumns = @JoinColumn(name = "company_id"),
+            inverseJoinColumns = @JoinColumn(name = "client_id")
     )
-    private List<Client> employees;
+    private Set<Client> employees;
 
     @ManyToMany
     @JoinTable(name = "company_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "company_id")
+            joinColumns = @JoinColumn(name = "company_id"),
+            inverseJoinColumns = @JoinColumn(name = "car_id")
     )
-    private List<Car> cars;
+    private Set<Car> cars;
 
-    public Company(String nip, String email, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode, List<Car> cars){
+    public Company(String nip, String email, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode){
         this.nip = nip;
         this.email = email;
         this.companyName = companyName;
@@ -79,6 +83,7 @@ public class Company implements Serializable {
         this.buildingNum = buildingNum;
         this.aptNum = aptNum;
         this.zipCode = zipCode;
-        this.cars = cars;
+        this.employees = new HashSet<>();
+        this.cars = new HashSet<>();
     }
 }

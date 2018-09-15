@@ -1,27 +1,31 @@
 package pl.zlomek.warsztat.model;
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.io.Serializable;
+import java.sql.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @lombok.Getter
 @lombok.Setter
 @lombok.AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "visits")
-public class Visit {
+public class Visit implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @NotNull
-    private LocalDateTime visitDate;
+    private Date visitDate;
 
     @NotNull
     private VisitStatus status;
 
-    @NotNull
     @ManyToOne
     private Employee employee;
 
@@ -33,13 +37,24 @@ public class Visit {
     @NotNull
     @JoinTable(name = "visits_has_services", joinColumns = @JoinColumn(name = "service_id"),
     inverseJoinColumns = @JoinColumn(name = "visit_id"))
-    private List<Service> services;
+    private Set<Service> services;
 
-    public Visit(LocalDateTime date, VisitStatus status, Employee employee, Car car, List<Service> services){
+    @OneToMany(mappedBy = "visit")
+    private Set<VisitsParts> parts;
+
+
+    public Visit(Date date, Car car){
+
         this.visitDate = date;
-        this.services = services;
-        this.status = status;
-        this.employee = employee;
+        this.services = new HashSet<>();
+        this.status = VisitStatus.ACCEPTED;
         this.car = car;
+        this.parts = new HashSet<>();
+    }
+
+    public void addPartToVisit(CarPart part, int count, double singlePrice){
+        VisitsParts relation = new VisitsParts(this, part,count, singlePrice);
+        this.parts.add(relation);
+        part.addVisit(relation);
     }
 }

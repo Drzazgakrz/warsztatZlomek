@@ -1,36 +1,26 @@
 package pl.zlomek.warsztat.model;
 
 import org.bouncycastle.jcajce.provider.digest.SHA3;
+import org.bouncycastle.util.encoders.Hex;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Stream;
 
 @lombok.AllArgsConstructor
 @lombok.Setter
 @lombok.Getter
+@lombok.ToString
+@lombok.NoArgsConstructor
 @Entity
 @Table(name = "clients")
-public class Client {
+public class Client extends Account{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_id")
     private long clientId;
-
-    @NotNull
-    @Size(max = 30, min = 3)
-    @Column(name = "first_name")
-    private String firstName;
-
-    @NotNull
-    @Size(max = 30, min = 2)
-    @Column(name = "last_name")
-    private String lastName;
-
-    @NotNull
-    @Size(max = 30, min = 6)
-    private String email;
 
     @NotNull
     @Size(max = 15, min = 9)
@@ -61,41 +51,58 @@ public class Client {
     @Column(name = "zip_code")
     private String zipCode;
 
-    @NotNull
-    @Size(max=256, min = 256)
-    private String password;
-
-    @ManyToMany
-    @JoinTable(name = "clients_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
+    @ManyToMany(
+            fetch = FetchType.LAZY
     )
-    private List<Company> companies;
+    private Set<Company> companies;
 
-    @ManyToMany
-    @NotNull
-    @JoinTable(name = "clients_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "car"
     )
-    private List<Car> cars;
+    private Set<CarsHasOwners> cars;
 
     public Client(String firstName, String lastName, String email, String phoneNumber, String cityName,
                   String streetName, String buildNum, String aptNum, String zipCode, String password,
-                  List<Company> companies, List<Car> cars){
+                  String accessToken){
+        super(email, firstName, lastName);
         this.aptNum = aptNum;
         this.buildNum = buildNum;
         this.cityName = cityName;
-        this.companies = companies;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this. streetName = streetName;
         this.zipCode = zipCode;
         SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
-        sha3.update(password.getBytes());
-        this.password = sha3.digest().toString();
-        this.cars = cars;
+        byte[] digest = sha3.digest(password.getBytes());
+        super.password = Hex.toHexString(digest);
+        this.cars = new HashSet<>();
+        this.companies = new HashSet<>();
+        this.accessToken = accessToken;
+    }
+
+    public boolean checkCar(Car car){
+        return cars.stream().allMatch(clientCar-> clientCar.equals(car));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Client)) return false;
+        Client client = (Client) o;
+        return clientId == client.clientId &&
+                Objects.equals(phoneNumber, client.phoneNumber) &&
+                Objects.equals(cityName, client.cityName) &&
+                Objects.equals(streetName, client.streetName) &&
+                Objects.equals(buildNum, client.buildNum) &&
+                Objects.equals(aptNum, client.aptNum) &&
+                Objects.equals(zipCode, client.zipCode) &&
+                Objects.equals(companies, client.companies) &&
+                Objects.equals(cars, client.cars);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(clientId, phoneNumber, cityName, streetName, buildNum, aptNum, zipCode, companies, cars);
     }
 }

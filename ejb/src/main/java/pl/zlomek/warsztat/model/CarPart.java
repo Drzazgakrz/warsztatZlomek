@@ -1,31 +1,33 @@
 package pl.zlomek.warsztat.model;
 
-
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-@lombok.AllArgsConstructor
-@lombok.Setter
 @lombok.Getter
+@lombok.Setter
+@lombok.AllArgsConstructor
 @NoArgsConstructor
+@lombok.ToString
 @Entity
-@Table(name = "services")
-public class Service implements Serializable {
+@Table(name = "car_parts")
+public class CarPart implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "service_name")
     @NotNull
+    @Size(max = 255, min = 6)
     private String name;
 
-    @ManyToMany
-    @NotNull
-    private Set<Visit> visits;
+    @OneToMany(mappedBy = "part")
+    private Set<VisitsParts> visits;
+
+    public void addVisit(VisitsParts visit){
+        this.visits.add(visit);
+    }
 }

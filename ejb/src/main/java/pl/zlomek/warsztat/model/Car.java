@@ -4,15 +4,17 @@ package pl.zlomek.warsztat.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
+import java.io.Serializable;
+import java.util.*;
 
 @lombok.Getter
 @lombok.Setter
 @lombok.ToString
 @lombok.AllArgsConstructor
+@lombok.NoArgsConstructor
 @Entity
 @Table(name = "cars")
-public class Car {
+public class Car implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -27,37 +29,59 @@ public class Car {
     private String model;
 
     @NotNull
-    @Size(min = 4, max = 4)
     @Column(name = "prod_year")
     private int prodYear;
+
+    @NotNull
+    @Size(min = 17, max = 17)
+    @Column(name = "vin_number")
+    private String vin;
 
     @ManyToOne
     @NotNull
     CarBrand brand;
 
-    @NotNull
-    @ManyToMany
-    @JoinTable(name = "clients_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
-    )
-    List<Client> owners;
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "owner")
+    Set<CarsHasOwners> owners;
 
     @ManyToMany
-    @JoinTable(name = "company_has_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "company_id")
-    )
-    private List<Company> companiesCars;
+    private Set<Company> companiesCars;
 
-    public Car(String registrationNumber, String model, int prodYear, CarBrand brand, List<Client> owners,
-               List<Company> companiesCars){
+    public Car(String registrationNumber, String vin, String model, int prodYear, CarBrand brand, Client client){
         this.registrationNumber = registrationNumber;
         this.brand = brand;
         this.model = model;
         this.prodYear = prodYear;
-        this.owners = owners;
-        this.companiesCars = companiesCars;
+        this.owners = new HashSet<>();
+        this.vin = vin;
+        this.companiesCars = new HashSet<>();
     }
 
+    public CarsHasOwners addCarOwner(Client client){
+        CarsHasOwners cho = new CarsHasOwners(this, client, OwnershipStatus.CURRENT_OWNER);
+        this.owners.add(cho);
+        client.getCars().add(cho);
+        return cho;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Car)) return false;
+        Car car = (Car) o;
+        return id == car.id &&
+                prodYear == car.prodYear &&
+                Objects.equals(registrationNumber, car.registrationNumber) &&
+                Objects.equals(model, car.model) &&
+                Objects.equals(vin, car.vin) &&
+                Objects.equals(brand, car.brand) &&
+                Objects.equals(owners, car.owners) &&
+                Objects.equals(companiesCars, car.companiesCars);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, registrationNumber, model, prodYear, vin, brand, owners, companiesCars);
+    }
 }
