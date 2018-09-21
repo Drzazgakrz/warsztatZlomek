@@ -4,6 +4,8 @@ package pl.zlomek.warsztat.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bouncycastle.jcajce.provider.digest.SHA3;
+import org.bouncycastle.util.encoders.Hex;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -50,9 +52,12 @@ public abstract class Account {
         this.email = email;
     }
 
-    public Account(String email, String firstname, String lastName){
+    public Account(String email, String firstname, String lastName, String password){
         this.email = email;
         this.firstName = firstname;
         this.lastName = lastName;
+        SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
+        byte[] digest = sha3.digest(password.getBytes());
+        this.password = Hex.toHexString(digest);
     }
 }

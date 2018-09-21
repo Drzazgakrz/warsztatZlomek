@@ -6,8 +6,15 @@ import pl.zlomek.warsztat.model.Employee;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 
 public class EmployeesRepository extends AccountsRepository {
+
+    @Transactional
+    public void registerEmployee(Employee employee){
+        em.persist(employee);
+    }
+
     @Override
     public <Type extends Account> Type findByToken(String accessToken) {
         try{

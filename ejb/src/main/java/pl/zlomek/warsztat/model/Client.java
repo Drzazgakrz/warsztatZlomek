@@ -65,16 +65,13 @@ public class Client extends Account{
     public Client(String firstName, String lastName, String email, String phoneNumber, String cityName,
                   String streetName, String buildNum, String aptNum, String zipCode, String password,
                   String accessToken){
-        super(email, firstName, lastName);
+        super(email, firstName, lastName, password);
         this.aptNum = aptNum;
         this.buildNum = buildNum;
         this.cityName = cityName;
         this.phoneNumber = phoneNumber;
         this. streetName = streetName;
         this.zipCode = zipCode;
-        SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
-        byte[] digest = sha3.digest(password.getBytes());
-        super.password = Hex.toHexString(digest);
         this.cars = new HashSet<>();
         this.companies = new HashSet<>();
         this.accessToken = accessToken;

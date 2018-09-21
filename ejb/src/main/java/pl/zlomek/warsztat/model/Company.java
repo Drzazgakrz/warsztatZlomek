@@ -72,6 +72,7 @@ public class Company implements Serializable {
             joinColumns = @JoinColumn(name = "company_id"),
             inverseJoinColumns = @JoinColumn(name = "car_id")
     )
+
     private Set<Car> cars;
 
     public Company(String nip, String email, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode){

@@ -27,6 +27,10 @@ public class CarPart implements Serializable {
     @OneToMany(mappedBy = "part")
     private Set<VisitsParts> visits;
 
+    public CarPart(String name){
+        this.name = name;
+    }
+
     public void addVisit(VisitsParts visit){
         this.visits.add(visit);
     }
