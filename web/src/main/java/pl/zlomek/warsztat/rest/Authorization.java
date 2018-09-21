@@ -3,9 +3,8 @@ package pl.zlomek.warsztat.rest;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import pl.zlomek.warsztat.data.ClientsRepository;
-import pl.zlomek.warsztat.model.Client;
-import pl.zlomek.warsztat.model.RegisterForm;
-import pl.zlomek.warsztat.model.SignInForm;
+import pl.zlomek.warsztat.data.EmployeesRepository;
+import pl.zlomek.warsztat.model.*;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -25,6 +24,9 @@ public class Authorization {
 
     @Inject
     private ClientsRepository repository;
+
+    @Inject
+    private EmployeesRepository employeesRepository;
 
     //ścieżka localhost:8080/warsztatZlomek/rest/authorization/register
     @POST
@@ -66,4 +68,24 @@ public class Authorization {
         }
         return Response.status(403).build();
     }
+
+    @POST
+    @Path("/registerEmployee")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response registerEmployee(EmployeeRegisterForm newEmployeeData){
+
+        if(newEmployeeData.getPassword().equals(newEmployeeData.getConfirmPassword())) {
+            String firstName = newEmployeeData.getFirstName();
+            String lastName = newEmployeeData.getLastName();
+            String email = newEmployeeData.getEmail();
+            String password = newEmployeeData.getPassword();
+            Date hireDate = newEmployeeData.getHireDate();
+            Employee employee = new Employee(firstName, lastName, hireDate, null, password, email, EmployeeStatus.employed);
+            employeesRepository.registerEmployee(employee);
+            String token = employeesRepository.generateToken(employee);
+            employee.setAccessToken(token);
+            return Response.status(200).entity(token).build();
+        } return Response.status(400).build();
+    }
+
 }
