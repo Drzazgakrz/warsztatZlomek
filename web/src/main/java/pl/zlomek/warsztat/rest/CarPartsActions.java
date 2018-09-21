@@ -22,6 +22,7 @@ public class CarPartsActions {
     @Inject
     private EmployeesRepository employeesRepository;
 
+    //ścieżka localhost:8080/warsztatZlomek/rest/CarParts/addCarPart
     @POST
     @Path("/addCarPart")
     @Consumes(MediaType.APPLICATION_JSON)
