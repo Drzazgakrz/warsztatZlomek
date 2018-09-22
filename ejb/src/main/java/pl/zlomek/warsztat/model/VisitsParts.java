@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @NoArgsConstructor
@@ -25,15 +26,14 @@ public class VisitsParts implements Serializable {
     @ManyToOne(cascade = CascadeType.ALL)
     private CarPart part;
 
-    private double singlePartPrice;
+    private BigDecimal singlePartPrice;
 
     private int count;
 
     @Embeddable
     @Getter
     @Setter
-    @NoArgsConstructor
-    private class VisitsPartsId implements Serializable{
+    static class VisitsPartsId implements Serializable{
         private long partId;
         private long visitId;
 
@@ -51,11 +51,13 @@ public class VisitsParts implements Serializable {
             return Objects.hash(partId, visitId);
         }
         public VisitsPartsId(Visit visit, CarPart carPart){
-
+            this.partId = carPart.getId();
+            this.visitId = visit.getId();
         }
+        public VisitsPartsId(){}
     }
 
-    public VisitsParts(Visit visit, CarPart carPart, int count, double singlePartPrice){
+    public VisitsParts(Visit visit, CarPart carPart, int count, BigDecimal singlePartPrice){
         this.id = new VisitsPartsId(visit, carPart);
         this.count = count;
         this.visit = visit;

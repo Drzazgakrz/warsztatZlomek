@@ -1,6 +1,7 @@
 package pl.zlomek.warsztat.data;
 
 import pl.zlomek.warsztat.model.Visit;
+import pl.zlomek.warsztat.model.VisitsParts;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -15,6 +16,10 @@ public class VisitsRepository {
     @Transactional
     public void createVisit(Visit visit){
         em.persist(visit);
+    }
+
+    public void createVisitPart(VisitsParts parts){
+        em.persist(parts);
     }
 
     public void updateVisit(Visit visit){
