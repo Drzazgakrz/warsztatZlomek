@@ -28,13 +28,10 @@ public class ClientsRepository extends AccountsRepository {
 
     public Client signIn(String username, String password){
         try {
-            SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
-            byte[] bytes = sha3.digest(password.getBytes());
-            String encrypted = Hex.toHexString(bytes);
             TypedQuery<Client> getClient = em.createQuery("select client from Client client where email = :username "
                     +"and password = :password",Client.class);
             getClient.setParameter("username", username);
-            getClient.setParameter("password", encrypted);
+            getClient.setParameter("password", Account.hashPassord(password));
             return getClient.getSingleResult();
         }catch (Exception e){
             e.printStackTrace();

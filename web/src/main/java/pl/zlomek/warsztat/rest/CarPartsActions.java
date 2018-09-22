@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 @Path("/CarParts")
 public class CarPartsActions {
     @Inject
-    CarPartsRepository carPartsRepository;
+    private CarPartsRepository carPartsRepository;
 
     @Inject
     private EmployeesRepository employeesRepository;
