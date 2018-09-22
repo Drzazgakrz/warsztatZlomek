@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -52,7 +53,7 @@ public class Visit implements Serializable {
         this.parts = new HashSet<>();
     }
 
-    public void addPartToVisit(CarPart part, int count, double singlePrice){
+    public void addPartToVisit(CarPart part, int count, BigDecimal singlePrice){
         VisitsParts relation = new VisitsParts(this, part,count, singlePrice);
         this.parts.add(relation);
         part.addVisit(relation);

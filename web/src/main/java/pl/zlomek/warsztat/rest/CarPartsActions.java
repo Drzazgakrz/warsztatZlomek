@@ -39,7 +39,8 @@ public class CarPartsActions {
             if(carPartsRepository.getCarPartByName(name) == null)
             {
                 carPartsRepository.saveCarPart(part);
-                return Response.status(200).build();
+                String accessToken = employeesRepository.generateToken(employee);
+                return Response.status(200).entity(accessToken).build();
             }
             else
                 return Response.status(409).build();
