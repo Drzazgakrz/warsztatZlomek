@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,6 +44,9 @@ public class Visit implements Serializable {
     @OneToMany(mappedBy = "visit")
     private Set<VisitsParts> parts;
 
+    private Timestamp createdAt;
+
+    private Timestamp updatedAt;
 
     public Visit(Date date, Car car){
 
@@ -51,6 +55,8 @@ public class Visit implements Serializable {
         this.status = VisitStatus.ACCEPTED;
         this.car = car;
         this.parts = new HashSet<>();
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
     public void addPartToVisit(CarPart part, int count, BigDecimal singlePrice){
