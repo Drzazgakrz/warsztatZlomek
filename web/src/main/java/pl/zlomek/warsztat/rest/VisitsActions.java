@@ -100,7 +100,7 @@ public class VisitsActions {
             return Response.status(400).entity(accessToken).build();
         }
         CarsHasOwners cho = new CarsHasOwners(car, client, OwnershipStatus.CURRENT_OWNER);
-        if(!client.getCars().contains(cho)){
+        if(!client.checkCar(car)){
             return Response.status(401).entity(accessToken).build();
         }
         Visit visit = new Visit(form.getVisitDate(), car);
