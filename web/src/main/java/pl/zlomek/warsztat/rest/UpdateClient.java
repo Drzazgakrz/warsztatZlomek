@@ -45,7 +45,7 @@ public class UpdateClient {
         }
 
         CarBrand carBrand = carRepository.getCarBrandByName(carData.getBrandName());
-        car = new Car(carData.getRegistrationNumber(), carData.getVin(), carData.getModel(), carData.getProductionYear(), carBrand, client);
+        car = new Car(carData.getRegistrationNumber(), carData.getVin(), carData.getModel(), carData.getProductionYear(), carBrand);
         car = carRepository.updateCar(car);
         CarsHasOwners cho = car.addCarOwner(client);
         carRepository.insertOwnership(cho);

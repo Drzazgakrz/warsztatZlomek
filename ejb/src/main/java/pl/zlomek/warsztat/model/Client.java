@@ -103,10 +103,4 @@ public class Client extends Account{
                 Objects.equals(companies, client.companies) &&
                 Objects.equals(cars, client.cars);
     }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(clientId, phoneNumber, cityName, streetName, buildNum, aptNum, zipCode, companies, cars);
-    }
 }

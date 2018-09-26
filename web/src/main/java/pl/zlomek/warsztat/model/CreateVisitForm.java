@@ -14,5 +14,5 @@ public class CreateVisitForm {
     private long carId;
     @JsonFormat
             (shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private Date VisitDate;
+    private Date visitDate;
 }

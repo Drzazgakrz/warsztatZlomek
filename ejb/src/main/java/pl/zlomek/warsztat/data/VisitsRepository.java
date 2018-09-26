@@ -13,9 +13,12 @@ public class VisitsRepository {
     @Inject
     private EntityManager em;
 
-    @Transactional
     public void createVisit(Visit visit){
         em.persist(visit);
+    }
+
+    public void removeVisit(Visit visit){
+        em.remove(visit);
     }
 
     public void createVisitPart(VisitsParts parts){
