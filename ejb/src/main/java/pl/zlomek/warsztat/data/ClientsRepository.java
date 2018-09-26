@@ -21,7 +21,6 @@ public class ClientsRepository extends AccountsRepository {
 
     private Logger log = LoggerFactory.getLogger(ClientsRepository.class);
 
-    @Transactional
     public void registerUser(Client client){
         em.persist(client);
     }

@@ -11,6 +11,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Path("/visits")
 public class VisitsActions {
@@ -94,19 +95,35 @@ public class VisitsActions {
         if (client == null)
             return Response.status(403).build();
         Car car = carsRepository.getCarById(form.getCarId());
-
+        String accessToken = clientsRepository.generateToken(client);
         if(car == null) {
-            String accessToken = clientsRepository.generateToken(client);
             return Response.status(400).entity(accessToken).build();
         }
         CarsHasOwners cho = new CarsHasOwners(car, client, OwnershipStatus.CURRENT_OWNER);
         if(!client.getCars().contains(cho)){
-            String accessToken = clientsRepository.generateToken(client);
             return Response.status(401).entity(accessToken).build();
         }
         Visit visit = new Visit(form.getVisitDate(), car);
         visitsRepository.createVisit(visit);
+        return Response.status(200).entity(accessToken).build();
+    }
+
+    @POST
+    @Path("/removeVisit")
+    @Transactional
+    public Response removeVisit(ReomoveVisitForm form){
+        Client client = clientsRepository.findByToken(form.getAccessToken());
+        if(client == null){
+            return Response.status(403).build();
+        }
         String accessToken = clientsRepository.generateToken(client);
+        Visit visit = visitsRepository.getVisitById(form.getVisitId());
+        if(visit == null){
+            return Response.status(400).entity(accessToken).build();
+        }else if(!visit.getStatus().equals(VisitStatus.ACCEPTED)){
+            return Response.status(400).entity(accessToken).build();
+        }
+        visitsRepository.removeVisit(visit);
         return Response.status(200).entity(accessToken).build();
     }
 }

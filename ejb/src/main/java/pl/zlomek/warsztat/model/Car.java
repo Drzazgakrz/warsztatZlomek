@@ -47,7 +47,7 @@ public class Car implements Serializable {
     @ManyToMany
     private Set<Company> companiesCars;
 
-    public Car(String registrationNumber, String vin, String model, int prodYear, CarBrand brand, Client client){
+    public Car(String registrationNumber, String vin, String model, int prodYear, CarBrand brand){
         this.registrationNumber = registrationNumber;
         this.brand = brand;
         this.model = model;
@@ -77,11 +77,5 @@ public class Car implements Serializable {
                 Objects.equals(brand, car.brand) &&
                 Objects.equals(owners, car.owners) &&
                 Objects.equals(companiesCars, car.companiesCars);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(id, registrationNumber, model, prodYear, vin, brand, owners, companiesCars);
     }
 }

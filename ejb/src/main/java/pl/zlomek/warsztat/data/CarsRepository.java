@@ -19,8 +19,7 @@ public class CarsRepository {
     }
 
     public Car updateCar(Car car){
-       Car savedCar =  em.merge(car);
-       return savedCar;
+       return em.merge(car);
     }
 
     public void insertOwnership(CarsHasOwners cho){
