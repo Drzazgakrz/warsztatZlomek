@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
+import java.util.Calendar;
 
 
 @lombok.AllArgsConstructor
@@ -29,8 +30,16 @@ public class Overview implements Serializable {
     @NotNull
     private Car car;
 
+    private Date overviewLastDay;
+
     public Overview(Date date, Car car){
         this.overviewDate = date;
         this.car = car;
+    }
+    public void addTerminateOverview(int years){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(this.overviewDate);
+        calendar.add(Calendar.YEAR, years);
+        this.overviewLastDay = calendar.getTime();
     }
 }
