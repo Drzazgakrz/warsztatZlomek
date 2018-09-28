@@ -1,5 +1,6 @@
 package pl.zlomek.warsztat.data;
 
+import pl.zlomek.warsztat.model.Overview;
 import pl.zlomek.warsztat.model.Visit;
 import pl.zlomek.warsztat.model.VisitsParts;
 
@@ -28,6 +29,8 @@ public class VisitsRepository {
     public void updateVisit(Visit visit){
         em.merge(visit);
     }
+
+    public void createOverview(Overview overview){em.persist(overview);}
 
     public Visit getVisitById(long id){
         try {

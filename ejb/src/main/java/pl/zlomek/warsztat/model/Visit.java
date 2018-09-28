@@ -6,7 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.util.Date;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +31,9 @@ public class Visit implements Serializable {
     @ManyToOne
     private Employee employee;
 
+    @OneToOne
+    private Overview overview;
+
     @NotNull
     @ManyToOne
     private Car car;
@@ -48,7 +51,7 @@ public class Visit implements Serializable {
 
     private Timestamp updatedAt;
 
-    public Visit(Date date, Car car){
+    public Visit(Date date, Car car, Overview overview){
 
         this.visitDate = date;
         this.services = new HashSet<>();
@@ -57,6 +60,7 @@ public class Visit implements Serializable {
         this.parts = new HashSet<>();
         this.createdAt = new Timestamp(System.currentTimeMillis());
         this.updatedAt = new Timestamp(System.currentTimeMillis());
+        this.overview = overview;
     }
 
     public void addPartToVisit(CarPart part, int count, BigDecimal singlePrice){

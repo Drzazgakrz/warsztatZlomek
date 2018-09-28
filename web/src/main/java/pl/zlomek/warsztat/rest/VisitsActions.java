@@ -37,31 +37,43 @@ public class VisitsActions {
     @Transactional
     @Path("/submit")
     public Response submitVisit(SubmitVisitForm form){
-        Employee employee = employeesRepository.findByToken(form.getAccessToken());
-        if(employee == null){
-            return Response.status(403).build();
-        }
-        Visit visit = visitsRepository.getVisitById(form.getVisitId());
-        if(visit == null){
-            String accessToken = employeesRepository.generateToken(employee);
-            return Response.status(400).entity(accessToken).build();
-        }
-        visit.setStatus(VisitStatus.FINISHED);
-        List<CarPartModel> carPartModelList = Arrays.asList(form.getCarParts());
-        carPartModelList.forEach(carPartModel->{
-            CarPart carPart = carPartsRepository.getCarPartByName(carPartModel.getName());
-            if(carPart == null){
-                return;
+        try {
+            Employee employee = employeesRepository.findByToken(form.getAccessToken());
+            if (employee == null) {
+                return Response.status(403).build();
             }
-            VisitsParts part = new VisitsParts(visit, carPart,carPartModel.getCount(), carPartModel.getPrice());
-            visitsRepository.createVisitPart(part);
-            visit.getParts().add(part);
-            carPart.addVisit(part);
-            carPartsRepository.updateCarPart(carPart);
-        });
-        visitsRepository.updateVisit(visit);
-        String accessToken = employeesRepository.generateToken(employee);
-        return Response.status(200).entity(accessToken).build();
+            String accessToken = employeesRepository.generateToken(employee);
+            Visit visit = visitsRepository.getVisitById(form.getVisitId());
+            if (visit == null) {
+                return Response.status(400).entity(accessToken).build();
+            }
+            Overview overview = visit.getOverview();
+            if (overview != null && form.getCountYears() != null) {
+                overview.addTerminateOverview(form.getCountYears());
+            } else if (overview != null && form.getCountYears() == null) {
+                return Response.status(400).entity(accessToken).build();
+            }
+            if(visit.getStatus()!= VisitStatus.IN_PROGRESS){
+                return Response.status(400).entity(accessToken).build();
+            }
+            visit.setStatus(VisitStatus.FINISHED);
+            List<CarPartModel> carPartModelList = Arrays.asList(form.getCarParts());
+            carPartModelList.forEach(carPartModel -> {
+                CarPart carPart = carPartsRepository.getCarPartByName(carPartModel.getName());
+                if (carPart == null) {
+                    return;
+                }
+                VisitsParts part = new VisitsParts(visit, carPart, carPartModel.getCount(), carPartModel.getPrice());
+                visitsRepository.createVisitPart(part);
+                visit.getParts().add(part);
+                carPart.addVisit(part);
+                carPartsRepository.updateCarPart(carPart);
+            });
+            visitsRepository.updateVisit(visit);
+            return Response.status(200).entity(accessToken).build();
+        }catch (Exception e){
+            return Response.status(419).build();
+        }
     }
 
     @POST
@@ -99,11 +111,15 @@ public class VisitsActions {
         if(car == null) {
             return Response.status(400).entity(accessToken).build();
         }
-        CarsHasOwners cho = new CarsHasOwners(car, client, OwnershipStatus.CURRENT_OWNER);
         if(!client.checkCar(car)){
             return Response.status(401).entity(accessToken).build();
         }
-        Visit visit = new Visit(form.getVisitDate(), car);
+        Overview overview = null;
+        if(form.isOverview()){
+            overview = new Overview(form.getVisitDate(), car);
+            visitsRepository.createOverview(overview);
+        }
+        Visit visit = new Visit(form.getVisitDate(), car, overview);
         visitsRepository.createVisit(visit);
         return Response.status(200).entity(accessToken).build();
     }
