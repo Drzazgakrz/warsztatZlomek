@@ -7,6 +7,7 @@ import pl.zlomek.warsztat.data.EmployeesRepository;
 import pl.zlomek.warsztat.model.*;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -15,6 +16,8 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Path("/authorization")
@@ -30,6 +33,7 @@ public class Authorization {
 
     //ścieżka localhost:8080/warsztatZlomek/rest/authorization/register
     @POST
+    @Transactional
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response registerUser(RegisterForm newUserData){
@@ -54,23 +58,25 @@ public class Authorization {
     }
 
     @POST
+    @Transactional
     @Path("/signIn")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response signIn(SignInForm signInForm){
         if(signInForm.getPassword()!= null || signInForm.getUsername()!=null){
             Client client = repository.signIn(signInForm.getUsername(), signInForm.getPassword());
             if(client==null){
-                return Response.status(403).build();
+                return Response.status(401).build();
             }
             String token = repository.generateToken(client);
             client.setAccessToken(token);
             return Response.ok(token).build();
         }
-        return Response.status(403).build();
+        return Response.status(400).build();
     }
 
     @POST
     @Path("/registerEmployee")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     public Response registerEmployee(EmployeeRegisterForm newEmployeeData){
 
@@ -79,7 +85,7 @@ public class Authorization {
             String lastName = newEmployeeData.getLastName();
             String email = newEmployeeData.getEmail();
             String password = newEmployeeData.getPassword();
-            Date hireDate = newEmployeeData.getHireDate();
+            LocalDate hireDate = newEmployeeData.getHireDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             Employee employee = new Employee(firstName, lastName, hireDate, null, password, email, EmployeeStatus.employed);
             employeesRepository.registerEmployee(employee);
             String token = employeesRepository.generateToken(employee);

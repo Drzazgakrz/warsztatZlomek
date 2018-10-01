@@ -8,6 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 
 @ApplicationScoped
 public class CarsRepository {
@@ -22,6 +23,7 @@ public class CarsRepository {
        return em.merge(car);
     }
 
+    @Transactional
     public void insertOwnership(CarsHasOwners cho){
         em.persist(cho);
     }

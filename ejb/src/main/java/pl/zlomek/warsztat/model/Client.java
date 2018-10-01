@@ -6,7 +6,7 @@ import org.bouncycastle.util.encoders.Hex;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -63,9 +63,9 @@ public class Client extends Account{
     )
     private Set<CarsHasOwners> cars;
 
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
-    private Timestamp lastLoggedIn;
+    private LocalDateTime lastLoggedIn;
 
     public Client(String firstName, String lastName, String email, String phoneNumber, String cityName,
                   String streetName, String buildNum, String aptNum, String zipCode, String password,
@@ -80,8 +80,8 @@ public class Client extends Account{
         this.cars = new HashSet<>();
         this.companies = new HashSet<>();
         this.accessToken = accessToken;
-        this.createdAt = new Timestamp(System.currentTimeMillis());
-        this.lastLoggedIn = new Timestamp(System.currentTimeMillis());
+        this.createdAt = LocalDateTime.now();
+        this.lastLoggedIn = LocalDateTime.now();
     }
 
     public boolean checkCar(Car car){

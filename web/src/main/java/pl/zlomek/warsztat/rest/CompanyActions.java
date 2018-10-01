@@ -24,7 +24,6 @@ public class CompanyActions {
     public Response addCompany(AddCompanyForm form){
         Company company = companiesRepository.getCompanyByName(form.getName());
         if(company != null){
-            log.info("nie istnieje");
             return Response.status(400).entity(new ErrorResponse("Podana funkcja istnieje")).build();
         }
         String companyName = form.getName();
