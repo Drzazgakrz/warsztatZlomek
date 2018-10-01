@@ -7,6 +7,8 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -28,6 +30,10 @@ public class CarsHasOwners implements Serializable {
     @NotNull
     private OwnershipStatus status;
 
+    @NotNull
+    private LocalDate beginOwnershipDate;
+
+    private LocalDate endOwnershipDate;
 
     @Embeddable
     @Getter
@@ -69,6 +75,7 @@ public class CarsHasOwners implements Serializable {
         this.car = car;
         this.owner = client;
         this.status = status;
+        this.beginOwnershipDate = LocalDate.now();
     }
 
     @Override

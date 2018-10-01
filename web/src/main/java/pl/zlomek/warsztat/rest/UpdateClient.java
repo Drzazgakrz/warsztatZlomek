@@ -46,9 +46,10 @@ public class UpdateClient {
 
         CarBrand carBrand = carRepository.getCarBrandByName(carData.getBrandName());
         car = new Car(carData.getRegistrationNumber(), carData.getVin(), carData.getModel(), carData.getProductionYear(), carBrand);
-        car = carRepository.updateCar(car);
+
         CarsHasOwners cho = car.addCarOwner(client);
         carRepository.insertOwnership(cho);
+        carRepository.insertCar(car);
         String token = clientsRepository.generateToken(client);
         return Response.ok(token).build();
     }
@@ -59,7 +60,7 @@ public class UpdateClient {
     public Response addClientToCompany(AddClientForm form){
         Client client = clientsRepository.findClientByUsername(form.getUsername());
         if(client == null){
-            return Response.status(403).build();
+            return Response.status(401).build();
         }
         Company clientsCompany = companiesRepository.getCompanyByName(form.getCompanyName());
         if(clientsCompany == null){

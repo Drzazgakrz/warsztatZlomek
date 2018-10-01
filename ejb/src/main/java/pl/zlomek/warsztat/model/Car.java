@@ -37,14 +37,14 @@ public class Car implements Serializable {
     @Column(name = "vin_number")
     private String vin;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     CarBrand brand;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "owner")
+    @OneToMany(fetch = FetchType.LAZY ,mappedBy = "owner")
     Set<CarsHasOwners> owners;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Company> companiesCars;
 
     public Car(String registrationNumber, String vin, String model, int prodYear, CarBrand brand){

@@ -16,7 +16,6 @@ public abstract class AccountsRepository {
     @Inject
     protected EntityManager em;
 
-    @Transactional
     public <Type extends Account> String generateToken(Type account){
         Algorithm algorithm = Algorithm.HMAC256("secret");
         String token = JWT.create()

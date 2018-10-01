@@ -1,6 +1,7 @@
 package pl.zlomek.warsztat.rest;
 
 
+import org.slf4j.LoggerFactory;
 import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
 
@@ -8,10 +9,15 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
+import org.slf4j.Logger;
+
 
 @Path("/visits")
 public class VisitsActions {
@@ -32,6 +38,7 @@ public class VisitsActions {
     @Inject
     private CarPartsRepository carPartsRepository;
 
+    private Logger log = LoggerFactory.getLogger(VisitsActions.class);
 
     @POST
     @Transactional
@@ -40,7 +47,7 @@ public class VisitsActions {
         try {
             Employee employee = employeesRepository.findByToken(form.getAccessToken());
             if (employee == null) {
-                return Response.status(403).build();
+                return Response.status(401).build();
             }
             String accessToken = employeesRepository.generateToken(employee);
             Visit visit = visitsRepository.getVisitById(form.getVisitId());
@@ -57,22 +64,21 @@ public class VisitsActions {
                 return Response.status(400).entity(accessToken).build();
             }
             visit.setStatus(VisitStatus.FINISHED);
-            List<CarPartModel> carPartModelList = Arrays.asList(form.getCarParts());
-            carPartModelList.forEach(carPartModel -> {
-                CarPart carPart = carPartsRepository.getCarPartByName(carPartModel.getName());
-                if (carPart == null) {
-                    return;
-                }
-                VisitsParts part = new VisitsParts(visit, carPart, carPartModel.getCount(), carPartModel.getPrice());
-                visitsRepository.createVisitPart(part);
-                visit.getParts().add(part);
-                carPart.addVisit(part);
-                carPartsRepository.updateCarPart(carPart);
-            });
+            if(form.getCarParts() != null) {
+                List<CarPartModel> carPartModelList = Arrays.asList(form.getCarParts());
+                carPartModelList.forEach(carPartModel -> {
+                    CarPart carPart = carPartsRepository.getCarPartByName(carPartModel.getName());
+                    if (carPart == null) {
+                        return;
+                    }
+                    visit.addPartToVisit(carPart, carPartModel.getCount(), carPartModel.getPrice());
+                    carPartsRepository.updateCarPart(carPart);
+                });
+            }
             visitsRepository.updateVisit(visit);
             return Response.status(200).entity(accessToken).build();
         }catch (Exception e){
-            return Response.status(419).build();
+            return Response.status(406).build();
         }
     }
 
@@ -83,7 +89,7 @@ public class VisitsActions {
 
         Employee employee = employeesRepository.findByToken(form.getAccessToken());
         if(employee == null){
-            return Response.status(403).build();
+            return Response.status(401).build();
         }
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
         if(visit == null || !visit.getStatus().equals(VisitStatus.ACCEPTED)){
@@ -105,21 +111,22 @@ public class VisitsActions {
     public Response addVisit(CreateVisitForm form){
         Client client = clientsRepository.findByToken(form.getAccessToken());
         if (client == null)
-            return Response.status(403).build();
+            return Response.status(401).build();
         Car car = carsRepository.getCarById(form.getCarId());
         String accessToken = clientsRepository.generateToken(client);
         if(car == null) {
             return Response.status(400).entity(accessToken).build();
         }
         if(!client.checkCar(car)){
-            return Response.status(401).entity(accessToken).build();
+            return Response.status(403).entity(accessToken).build();
         }
         Overview overview = null;
+        LocalDate visitDate = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         if(form.isOverview()){
-            overview = new Overview(form.getVisitDate(), car);
+            overview = new Overview(visitDate, car);
             visitsRepository.createOverview(overview);
         }
-        Visit visit = new Visit(form.getVisitDate(), car, overview);
+        Visit visit = new Visit(visitDate, car, overview);
         visitsRepository.createVisit(visit);
         return Response.status(200).entity(accessToken).build();
     }
@@ -130,7 +137,7 @@ public class VisitsActions {
     public Response removeVisit(ReomoveVisitForm form){
         Client client = clientsRepository.findByToken(form.getAccessToken());
         if(client == null){
-            return Response.status(403).build();
+            return Response.status(401).build();
         }
         String accessToken = clientsRepository.generateToken(client);
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
@@ -141,5 +148,26 @@ public class VisitsActions {
         }
         visitsRepository.removeVisit(visit);
         return Response.status(200).entity(accessToken).build();
+    }
+
+    @POST
+    @Path("/getAllClientsVisits")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllClientsVisits(GetAllClientsVisitsForm form){
+        try {
+            Client client = clientsRepository.findByToken(form.getAccessToken());
+            if (client == null) {
+                return Response.status(401).build();
+            }
+            String accessToken = clientsRepository.generateToken(client);
+            List<Visit> visits = visitsRepository.getClientVisits(client);
+            Visit[] visitsArray = new Visit[visits.size()];
+            visitsArray = visits.toArray(visitsArray);
+            GetAllVisitsResponse responseObject = new GetAllVisitsResponse(accessToken, visitsArray);
+            return Response.status(200).entity(responseObject).build();
+        }catch (Exception e){
+            return Response.status(500).build();
+        }
     }
 }
