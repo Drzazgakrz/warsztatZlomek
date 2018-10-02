@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
@@ -127,6 +128,8 @@ public class VisitsActions {
             visitsRepository.createOverview(overview);
         }
         Visit visit = new Visit(visitDate, car, overview);
+        car.getVisits().add(visit);
+        carsRepository.updateCar(car);
         visitsRepository.createVisit(visit);
         return Response.status(200).entity(accessToken).build();
     }
@@ -161,7 +164,15 @@ public class VisitsActions {
                 return Response.status(401).build();
             }
             String accessToken = clientsRepository.generateToken(client);
-            List<Visit> visits = visitsRepository.getClientVisits(client);
+            //List<Visit> visits = visitsRepository.getClientVisits(client);
+            List<Visit> visits = new ArrayList<>();
+            List<Visit> allVisits = visitsRepository.getAllVisits();
+            client.getCars().forEach(carsHasOwners -> {
+                Car car = carsHasOwners.getCar();
+                visits.addAll(car.getVisits());
+            });
+            log.info("Wszystkie" + Integer.toString(allVisits.size()));
+            log.info("Lista" + Integer.toString(visits.size()));
             Visit[] visitsArray = new Visit[visits.size()];
             visitsArray = visits.toArray(visitsArray);
             GetAllVisitsResponse responseObject = new GetAllVisitsResponse(accessToken, visitsArray);

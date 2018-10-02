@@ -55,9 +55,9 @@ public class VisitsRepository {
         try {
             LocalDate endDate = (cho.getEndOwnershipDate() == null) ? LocalDate.now() : cho.getEndOwnershipDate();
             LocalDate beginDate = cho.getBeginOwnershipDate();
-            TypedQuery<Visit> query = em.createQuery("SELECT visits FROM Visit visits JOIN FETCH visits.car" +
-                    " JOIN FETCH visits.employee JOIN FETCH visits.overview JOIN FETCH visits.parts JOIN FETCH visits.services " +
-                    "WHERE visits.visitDate>=:beginDate AND visits.visitDate<=:endDate AND "+
+            TypedQuery<Visit> query = em.createQuery("SELECT visits FROM Visit visits JOIN FETCH visits.car car" +
+                    " JOIN FETCH visits.employee employee JOIN FETCH visits.overview overview JOIN FETCH visits.parts parts " +
+                    "JOIN FETCH visits.services services WHERE visits.visitDate>=:beginDate AND visits.visitDate<=:endDate AND "+
                     "visits.car = :car", Visit.class);
             query.setParameter("beginDate", beginDate);
             query.setParameter("endDate", endDate);
@@ -65,6 +65,15 @@ public class VisitsRepository {
             return query.getResultList();
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public List<Visit> getAllVisits(){
+        try {
+            TypedQuery<Visit> query = em.createQuery("SELECT visits FROM Visit visits", Visit.class);
+            return query.getResultList();
+        }catch (Exception e){
+            return new ArrayList<>();
         }
     }
 
