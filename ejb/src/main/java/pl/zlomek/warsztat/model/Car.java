@@ -47,6 +47,9 @@ public class Car implements Serializable {
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Company> companiesCars;
 
+    @OneToMany(mappedBy = "car")
+    private Set<Visit> visits;
+
     public Car(String registrationNumber, String vin, String model, int prodYear, CarBrand brand){
         this.registrationNumber = registrationNumber;
         this.brand = brand;
@@ -69,13 +72,7 @@ public class Car implements Serializable {
         if (this == o) return true;
         if (!(o instanceof Car)) return false;
         Car car = (Car) o;
-        return id == car.id &&
-                prodYear == car.prodYear &&
-                Objects.equals(registrationNumber, car.registrationNumber) &&
-                Objects.equals(model, car.model) &&
-                Objects.equals(vin, car.vin) &&
-                Objects.equals(brand, car.brand) &&
-                Objects.equals(owners, car.owners) &&
-                Objects.equals(companiesCars, car.companiesCars);
+        return Objects.equals(vin, car.vin);
+
     }
 }
