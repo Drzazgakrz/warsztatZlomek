@@ -10,7 +10,6 @@ import javax.transaction.Transactional;
 
 public class EmployeesRepository extends AccountsRepository {
 
-    @Transactional
     public void registerEmployee(Employee employee){
         em.persist(employee);
     }

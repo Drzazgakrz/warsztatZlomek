@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.sql.Date;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.Calendar;
 
 
 @lombok.AllArgsConstructor
@@ -23,14 +25,19 @@ public class Overview implements Serializable {
 
     @NotNull
     @Column(name = "overview_date")
-    private Date overviewDate;
+    private LocalDate overviewDate;
 
     @ManyToOne
     @NotNull
     private Car car;
 
-    public Overview(Date date, Car car){
+    private LocalDate overviewLastDay;
+
+    public Overview(LocalDate date, Car car){
         this.overviewDate = date;
         this.car = car;
+    }
+    public void addTerminateOverview(int years){
+        this.overviewLastDay = overviewDate.plusYears(years);
     }
 }
