@@ -56,8 +56,12 @@ public abstract class Account {
         this.email = email;
         this.firstName = firstname;
         this.lastName = lastName;
+        this.password = hashPassord(password);
+    }
+
+    public static String hashPassord(String password){
         SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
         byte[] digest = sha3.digest(password.getBytes());
-        this.password = Hex.toHexString(digest);
+        return Hex.toHexString(digest);
     }
 }

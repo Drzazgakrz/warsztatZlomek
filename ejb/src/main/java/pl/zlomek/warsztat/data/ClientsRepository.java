@@ -30,7 +30,6 @@ public class ClientsRepository extends AccountsRepository {
 
     public Client signIn(String username, String password){
         try {
-
             TypedQuery<Client> getClient = em.createQuery("SELECT client FROM Client client "+
                     "WHERE client.email = :username and client.password = :password",Client.class);
             getClient.setParameter("username", username);

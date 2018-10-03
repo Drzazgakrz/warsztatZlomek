@@ -95,11 +95,14 @@ public class Authorization {
 
     @POST
     @Path("/signInEmployee")
-    @Transactional
-    public Response signInEmployee(SignInForm form){
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response signInEmployee(EmployeeSignInForm form){
+        if(form.getPassword() == null || form.getUsername() == null){
+            return Response.status(400).build();
+        }
         Employee employee = employeesRepository.signIn(form.getUsername(), form.getPassword());
         if(employee == null){
-            return Response.status(400).build();
+            return Response.status(403).build();
         }
         String accessToken = employeesRepository.generateToken(employee);
         return Response.status(200).entity(accessToken).build();
