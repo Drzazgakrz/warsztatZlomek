@@ -24,4 +24,15 @@ public class EmployeesRepository extends AccountsRepository {
             return null;
         }
     }
+
+    public Employee signIn(String password, String username){
+        try {
+            TypedQuery<Employee> query = em.createQuery("SELECT employee FROM Employee employee WHERE email = :username AND password = :password", Employee.class);
+            query.setParameter("password",super.hashPassword(password));
+            query.setParameter("username", username);
+            return query.getSingleResult();
+        }catch (Exception e){
+            return null;
+        }
+    }
 }
