@@ -30,10 +30,10 @@ public class ClientsRepository extends AccountsRepository {
 
     public Client signIn(String username, String password){
         try {
-            TypedQuery<Client> getClient = em.createQuery("select client from Client client where email = :username "
-                    +"and password = :password",Client.class);
+            TypedQuery<Client> getClient = em.createQuery("SELECT client FROM Client client "+
+                    "WHERE client.email = :username and client.password = :password",Client.class);
             getClient.setParameter("username", username);
-            getClient.setParameter("password", Account.hashPassord(password));
+            getClient.setParameter("password", super.hashPassword(password));
             return getClient.getSingleResult();
         }catch (Exception e){
             e.printStackTrace();

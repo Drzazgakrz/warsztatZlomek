@@ -68,7 +68,6 @@ public class Authorization {
                 return Response.status(401).build();
             }
             String token = repository.generateToken(client);
-            client.setAccessToken(token);
             return Response.ok(token).build();
         }
         return Response.status(400).build();
@@ -94,7 +93,6 @@ public class Authorization {
         } return Response.status(400).build();
     }
 
-
     @POST
     @Path("/signInEmployee")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -108,5 +106,31 @@ public class Authorization {
         }
         String accessToken = employeesRepository.generateToken(employee);
         return Response.status(200).entity(accessToken).build();
+    }
+
+    @POST
+    @Path("/signOut")
+    @Transactional
+    public Response signOut(SignOutForm form){
+        Client client = repository.findByToken(form.getAccessToken());
+        if(client == null){
+            return Response.status(401).build();
+        }
+        client.setAccessToken(null);
+        repository.update(client);
+        return Response.status(200).build();
+    }
+
+    @POST
+    @Path("/signOutEmployee")
+    @Transactional
+    public Response signOutEmployee(SignOutForm form){
+        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).build();
+        }
+        employee.setAccessToken(null);
+        repository.update(employee);
+        return Response.status(200).build();
     }
 }

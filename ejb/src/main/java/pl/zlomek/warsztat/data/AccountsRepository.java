@@ -2,6 +2,8 @@ package pl.zlomek.warsztat.data;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.bouncycastle.jcajce.provider.digest.SHA3;
+import org.bouncycastle.util.encoders.Hex;
 import pl.zlomek.warsztat.model.Account;
 import pl.zlomek.warsztat.model.Client;
 
@@ -35,5 +37,11 @@ public abstract class AccountsRepository {
 
     public <Type extends Account> void update(Type account){
         em.merge(account);
+    }
+
+    public String hashPassword (String password){
+        SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
+        byte[] bytes = sha3.digest(password.getBytes());
+        return Hex.toHexString(bytes);
     }
 }
