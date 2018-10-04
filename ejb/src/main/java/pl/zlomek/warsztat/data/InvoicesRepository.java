@@ -1,11 +1,13 @@
 package pl.zlomek.warsztat.data;
 
 import pl.zlomek.warsztat.model.Invoice;
+import pl.zlomek.warsztat.model.InvoicesModel;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -14,6 +16,11 @@ public class InvoicesRepository {
 
     @Inject
     EntityManager em;
+
+    @Transactional
+    public void insertInvoice(Invoice invoice){
+        em.persist(invoice);
+    }
 
 
     public int countInvoicesInMonth(){
@@ -26,7 +33,5 @@ public class InvoicesRepository {
         }catch (Exception e){
             return -1;
         }
-
-
     }
 }

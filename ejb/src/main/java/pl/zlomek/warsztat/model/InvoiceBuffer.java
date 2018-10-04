@@ -21,9 +21,6 @@ public class InvoiceBuffer extends InvoicesModel implements Serializable {
     @Column(name = "ststus")
     private InvoiceBufferStatus invoiceBufferStatus;
 
-    @NotNull
-    @ManyToOne
-    private Invoice invoice;
 
     @NotNull
     @ManyToOne

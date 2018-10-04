@@ -18,10 +18,9 @@ public class Invoice extends InvoicesModel implements Serializable {
     private long id;
 
     @ManyToOne
-    @NotNull
     private CompanyData companyData;
 
-    @NotNull
+    //@NotNull
     @OneToMany (mappedBy = "invoice")
     private Set<InvoicePosition> invoicePositions;
 
@@ -32,7 +31,8 @@ public class Invoice extends InvoicesModel implements Serializable {
     @ManyToOne
     private CarServiceData carServiceData;
 
-    public Invoice(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue, BigDecimal valueOfVat, CompanyData companyData, CarServiceData carServiceData) throws Exception {
+    public Invoice(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue,
+                   BigDecimal valueOfVat, CompanyData companyData, CarServiceData carServiceData) throws Exception {
         super(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat);
         this.companyData = companyData;
         this.corectionInvoice = null;

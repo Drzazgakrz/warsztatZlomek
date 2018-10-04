@@ -22,14 +22,11 @@ public abstract class InvoicesModel {
 
 
     @Transient
-    private InvoicesRepository repository;
+    private InvoicesRepository repository = new InvoicesRepository();
 
-    @NotNull //???
-    @Size(min = 1, max = 2)
     protected int discount;
 
     @NotNull
-    @Size(min = 2, max = 2)
     protected int tax;
 
     @NotNull
