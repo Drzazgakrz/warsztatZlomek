@@ -18,30 +18,26 @@ public abstract class AccountsRepository {
     @Inject
     protected EntityManager em;
 
-    public <Type extends Account> String generateToken(Type account){
+    public <Type extends Account> String generateToken(Type account) {
         Algorithm algorithm = Algorithm.HMAC256("secret");
         String token = JWT.create()
-                .withIssuer(account.getEmail()+(new Date()).getTime())
+                .withIssuer(account.getEmail() + (new Date()).getTime())
                 .sign(algorithm);
-        while(this.findByToken(token)!=null){
+        while (this.findByToken(token) != null) {
             algorithm = Algorithm.HMAC256("secret");
             token = JWT.create()
-                    .withIssuer(account.getEmail()+(new Date()).getTime())
+                    .withIssuer(account.getEmail() + (new Date()).getTime())
                     .sign(algorithm);
         }
         account.setAccessToken(token);
         update(account);
         return token;
     }
+
     public abstract <Type extends Account> Type findByToken(String accessToken);
 
-    public <Type extends Account> void update(Type account){
+    public <Type extends Account> void update(Type account) {
         em.merge(account);
     }
-
-    public String hashPassword (String password){
-        SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
-        byte[] bytes = sha3.digest(password.getBytes());
-        return Hex.toHexString(bytes);
-    }
 }
+

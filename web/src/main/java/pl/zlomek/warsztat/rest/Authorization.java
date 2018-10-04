@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
@@ -67,6 +68,7 @@ public class Authorization {
             if(client==null){
                 return Response.status(401).build();
             }
+            client.setLastLoggedIn(LocalDateTime.now());
             String token = repository.generateToken(client);
             return Response.ok(token).build();
         }
@@ -96,14 +98,16 @@ public class Authorization {
     @POST
     @Path("/signInEmployee")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response signInEmployee(EmployeeSignInForm form){
         if(form.getPassword() == null || form.getUsername() == null){
             return Response.status(400).build();
         }
-        Employee employee = employeesRepository.signIn(form.getUsername(), form.getPassword());
+        Employee employee = employeesRepository.signIn(form.getPassword(), form.getUsername());
         if(employee == null){
-            return Response.status(403).build();
+            return Response.status(401).build();
         }
+        employee.setLastLoggedIn(LocalDateTime.now());
         String accessToken = employeesRepository.generateToken(employee);
         return Response.status(200).entity(accessToken).build();
     }
@@ -133,4 +137,24 @@ public class Authorization {
         repository.update(employee);
         return Response.status(200).build();
     }
+
+    @POST
+    @Path("/banUser")
+    @Transactional
+    public Response banUser(BanUserForm form){
+        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).build();
+        }
+        Client client = repository.findClientByUsername(form.getUsername());
+        if(client == null){
+            String accessToken = employeesRepository.generateToken(employee);
+            return Response.status(400).entity(accessToken).build();
+        }
+        client.setStatus(ClientStatus.BANNED);
+        repository.update(client);
+        String accessToken = employeesRepository.generateToken(employee);
+        return Response.status(200).entity(accessToken).build();
+    }
+
 }

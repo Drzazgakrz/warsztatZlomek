@@ -63,14 +63,12 @@ public class Client extends Account{
     )
     private Set<CarsHasOwners> cars;
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime lastLoggedIn;
+    private ClientStatus status;
 
     public Client(String firstName, String lastName, String email, String phoneNumber, String cityName,
                   String streetName, String buildNum, String aptNum, String zipCode, String password,
                   String accessToken){
-        super(email, firstName, lastName, password);
+        super(email, firstName, lastName, password, LocalDateTime.now(), LocalDateTime.now());
         this.aptNum = aptNum;
         this.buildNum = buildNum;
         this.cityName = cityName;
@@ -80,8 +78,7 @@ public class Client extends Account{
         this.cars = new HashSet<>();
         this.companies = new HashSet<>();
         this.accessToken = accessToken;
-        this.createdAt = LocalDateTime.now();
-        this.lastLoggedIn = LocalDateTime.now();
+        this.status = ClientStatus.ACTIVE;
     }
 
     public boolean checkCar(Car car){

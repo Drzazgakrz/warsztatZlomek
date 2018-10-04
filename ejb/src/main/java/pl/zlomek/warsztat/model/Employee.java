@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -37,7 +38,7 @@ public class Employee extends Account implements Serializable {
 
     public Employee(String firstName, String lastName, LocalDate hireDate, LocalDate quitDate, String password, String email,
                     EmployeeStatus status){
-        super(email, firstName, lastName, password);
+        super(email, firstName, lastName, password, LocalDateTime.now(), LocalDateTime.now());
         this.hireDate = hireDate;
         this.quitDate = quitDate;
         this.status = status;
