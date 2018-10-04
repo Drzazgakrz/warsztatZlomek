@@ -14,4 +14,5 @@ public class AddCompanyForm {
     private String buildingNum;
     private String aptNum;
     private String zipCode;
+    private String accessToken;
 }

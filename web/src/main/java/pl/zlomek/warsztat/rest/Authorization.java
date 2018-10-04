@@ -7,6 +7,7 @@ import pl.zlomek.warsztat.data.EmployeesRepository;
 import pl.zlomek.warsztat.model.*;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -15,6 +16,9 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Path("/authorization")
@@ -30,6 +34,7 @@ public class Authorization {
 
     //ścieżka localhost:8080/warsztatZlomek/rest/authorization/register
     @POST
+    @Transactional
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response registerUser(RegisterForm newUserData){
@@ -54,23 +59,25 @@ public class Authorization {
     }
 
     @POST
+    @Transactional
     @Path("/signIn")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response signIn(SignInForm signInForm){
         if(signInForm.getPassword()!= null || signInForm.getUsername()!=null){
             Client client = repository.signIn(signInForm.getUsername(), signInForm.getPassword());
             if(client==null){
-                return Response.status(403).build();
+                return Response.status(401).build();
             }
+            client.setLastLoggedIn(LocalDateTime.now());
             String token = repository.generateToken(client);
-            client.setAccessToken(token);
             return Response.ok(token).build();
         }
-        return Response.status(403).build();
+        return Response.status(400).build();
     }
 
     @POST
     @Path("/registerEmployee")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     public Response registerEmployee(EmployeeRegisterForm newEmployeeData){
 
@@ -79,7 +86,7 @@ public class Authorization {
             String lastName = newEmployeeData.getLastName();
             String email = newEmployeeData.getEmail();
             String password = newEmployeeData.getPassword();
-            Date hireDate = newEmployeeData.getHireDate();
+            LocalDate hireDate = newEmployeeData.getHireDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             Employee employee = new Employee(firstName, lastName, hireDate, null, password, email, EmployeeStatus.employed);
             employeesRepository.registerEmployee(employee);
             String token = employeesRepository.generateToken(employee);
@@ -88,19 +95,66 @@ public class Authorization {
         } return Response.status(400).build();
     }
 
-
     @POST
     @Path("/signInEmployee")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response signInEmployee(EmployeeSignInForm form){
         if(form.getPassword() == null || form.getUsername() == null){
             return Response.status(400).build();
         }
-        Employee employee = employeesRepository.signIn(form.getUsername(), form.getPassword());
+        Employee employee = employeesRepository.signIn(form.getPassword(), form.getUsername());
         if(employee == null){
-            return Response.status(403).build();
+            return Response.status(401).build();
         }
+        employee.setLastLoggedIn(LocalDateTime.now());
         String accessToken = employeesRepository.generateToken(employee);
         return Response.status(200).entity(accessToken).build();
     }
+
+    @POST
+    @Path("/signOut")
+    @Transactional
+    public Response signOut(SignOutForm form){
+        Client client = repository.findByToken(form.getAccessToken());
+        if(client == null){
+            return Response.status(401).build();
+        }
+        client.setAccessToken(null);
+        repository.update(client);
+        return Response.status(200).build();
+    }
+
+    @POST
+    @Path("/signOutEmployee")
+    @Transactional
+    public Response signOutEmployee(SignOutForm form){
+        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).build();
+        }
+        employee.setAccessToken(null);
+        repository.update(employee);
+        return Response.status(200).build();
+    }
+
+    @POST
+    @Path("/banUser")
+    @Transactional
+    public Response banUser(BanUserForm form){
+        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).build();
+        }
+        Client client = repository.findClientByUsername(form.getUsername());
+        if(client == null){
+            String accessToken = employeesRepository.generateToken(employee);
+            return Response.status(400).entity(accessToken).build();
+        }
+        client.setStatus(ClientStatus.BANNED);
+        repository.update(client);
+        String accessToken = employeesRepository.generateToken(employee);
+        return Response.status(200).entity(accessToken).build();
+    }
+
 }

@@ -3,6 +3,7 @@ package pl.zlomek.warsztat.data;
 import pl.zlomek.warsztat.model.Invoice;
 import pl.zlomek.warsztat.model.InvoicesModel;
 
+import javax.ejb.NoSuchEntityException;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -30,7 +31,10 @@ public class InvoicesRepository {
             TypedQuery<Integer> query = em.createQuery("SELECT COUNT(invoice) FROM Invoice invoice WHERE Invoice.invoiceNumber LIKE :invoiceNumber", Integer.class);
             query.setParameter("invoiceNumber", regex);
             return query.getSingleResult()+1;
-        }catch (Exception e){
+        }catch (NoSuchEntityException e){
+            return 1;
+        }
+        catch (Exception e){
             return -1;
         }
     }

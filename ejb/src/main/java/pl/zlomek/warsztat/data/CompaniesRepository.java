@@ -14,7 +14,6 @@ public class CompaniesRepository implements Serializable {
     @Inject
     private EntityManager em;
 
-    @Transactional
     public void insert(Company company){
         em.persist(company);
     }

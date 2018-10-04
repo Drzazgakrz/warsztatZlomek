@@ -10,7 +10,6 @@ import javax.transaction.Transactional;
 
 public class EmployeesRepository extends AccountsRepository {
 
-    @Transactional
     public void registerEmployee(Employee employee){
         em.persist(employee);
     }
@@ -26,11 +25,11 @@ public class EmployeesRepository extends AccountsRepository {
         }
     }
 
-    public Employee signIn(String username, String password){
+    public Employee signIn(String password, String username){
         try {
-            TypedQuery<Employee> query = em.createQuery("SELECT employee FROM Employee employee WHERE employee.email = :username AND employee.password = :password",Employee.class);
+            TypedQuery<Employee> query = em.createQuery("SELECT employee FROM Employee employee WHERE email = :username AND password = :password", Employee.class);
+            query.setParameter("password",Account.hashPassword(password));
             query.setParameter("username", username);
-            query.setParameter("password", Account.hashPassord(password));
             return query.getSingleResult();
         }catch (Exception e){
             return null;

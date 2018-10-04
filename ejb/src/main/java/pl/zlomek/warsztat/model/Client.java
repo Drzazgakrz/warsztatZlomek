@@ -6,6 +6,7 @@ import org.bouncycastle.util.encoders.Hex;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -62,10 +63,12 @@ public class Client extends Account{
     )
     private Set<CarsHasOwners> cars;
 
+    private ClientStatus status;
+
     public Client(String firstName, String lastName, String email, String phoneNumber, String cityName,
                   String streetName, String buildNum, String aptNum, String zipCode, String password,
                   String accessToken){
-        super(email, firstName, lastName, password);
+        super(email, firstName, lastName, password, LocalDateTime.now(), LocalDateTime.now());
         this.aptNum = aptNum;
         this.buildNum = buildNum;
         this.cityName = cityName;
@@ -75,6 +78,7 @@ public class Client extends Account{
         this.cars = new HashSet<>();
         this.companies = new HashSet<>();
         this.accessToken = accessToken;
+        this.status = ClientStatus.ACTIVE;
     }
 
     public boolean checkCar(Car car){
@@ -95,11 +99,5 @@ public class Client extends Account{
                 Objects.equals(zipCode, client.zipCode) &&
                 Objects.equals(companies, client.companies) &&
                 Objects.equals(cars, client.cars);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(clientId, phoneNumber, cityName, streetName, buildNum, aptNum, zipCode, companies, cars);
     }
 }
