@@ -22,7 +22,7 @@ public class CarServiceData implements Serializable {
     private long id;
 
     @NotNull
-    @Size(min = 14,max=14)
+    @Size(min = 13,max=13)
     private String NIP;
 
     @NotNull
@@ -58,11 +58,9 @@ public class CarServiceData implements Serializable {
     @Column(name = "zip_code")
     private String zipCode;
 
-    @NotNull
     @OneToMany(mappedBy = "carServiceData")
     private Set<Invoice> invoices;
 
-    @NotNull
     @OneToMany(mappedBy = "carServiceData")
     private Set<InvoiceBuffer> invoicesBuffer;
 

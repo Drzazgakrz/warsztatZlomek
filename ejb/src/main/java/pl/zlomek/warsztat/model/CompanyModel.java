@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
 public abstract class CompanyModel {
 
     @NotNull
-    @Size(min = 14,max=14)
+    @Size(min = 13,max=13)
     @Column(name = "NIP")
     protected String nip;
 
