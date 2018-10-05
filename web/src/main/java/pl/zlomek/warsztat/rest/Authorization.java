@@ -146,14 +146,13 @@ public class Authorization {
         if(employee == null){
             return Response.status(401).build();
         }
+        String accessToken = employeesRepository.generateToken(employee);
         Client client = repository.findClientByUsername(form.getUsername());
         if(client == null){
-            String accessToken = employeesRepository.generateToken(employee);
             return Response.status(400).entity(accessToken).build();
         }
         client.setStatus(ClientStatus.BANNED);
         repository.update(client);
-        String accessToken = employeesRepository.generateToken(employee);
         return Response.status(200).entity(accessToken).build();
     }
 

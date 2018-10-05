@@ -44,7 +44,7 @@ public class ClientsRepository extends AccountsRepository {
 
     public Client findClientByUsername(String username){
         try {
-            TypedQuery<Client> getClient = em.createQuery("select cars from Client client "+
+            TypedQuery<Client> getClient = em.createQuery("select client from Client client "+
                             "where client.email = :username ",Client.class);
             getClient.setParameter("username", username);
             return getClient.getSingleResult();
