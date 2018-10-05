@@ -111,7 +111,7 @@ public class VisitsActions {
     @Path("/add")
     public Response addVisit(CreateVisitForm form){
         Client client = clientsRepository.findByToken(form.getAccessToken());
-        if (client == null)
+        if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE))
             return Response.status(401).build();
         Car car = carsRepository.getCarById(form.getCarId());
         String accessToken = clientsRepository.generateToken(client);
