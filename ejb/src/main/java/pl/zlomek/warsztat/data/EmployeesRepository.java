@@ -3,11 +3,13 @@ package pl.zlomek.warsztat.data;
 import pl.zlomek.warsztat.model.Account;
 import pl.zlomek.warsztat.model.Employee;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
+@ApplicationScoped
 public class EmployeesRepository extends AccountsRepository {
 
     public void registerEmployee(Employee employee){

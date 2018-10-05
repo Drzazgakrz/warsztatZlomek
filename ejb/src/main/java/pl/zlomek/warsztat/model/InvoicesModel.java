@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.zlomek.warsztat.data.InvoicesRepository;
 
+import javax.inject.Inject;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
@@ -22,7 +23,8 @@ public abstract class InvoicesModel {
 
 
     @Transient
-    private InvoicesRepository repository = new InvoicesRepository();
+    @Inject
+    private InvoicesRepository repository;
 
     protected int discount;
 
@@ -50,10 +52,10 @@ public abstract class InvoicesModel {
     protected String invoiceNumber;
 
     public String createInvoiceNumber() throws Exception {
-        int number = repository.countInvoicesInMonth();
+        long number = repository.countInvoicesInMonth();
         if (number == -1)
             throw new Exception();
-        StringBuilder invoiceNumberBuilder = new StringBuilder(number).append("/").append(GregorianCalendar.MONTH);
+        StringBuilder invoiceNumberBuilder = new StringBuilder().append(number).append("/").append(GregorianCalendar.MONTH);
         return invoiceNumberBuilder.append("/").append(GregorianCalendar.YEAR).toString();
     }
 

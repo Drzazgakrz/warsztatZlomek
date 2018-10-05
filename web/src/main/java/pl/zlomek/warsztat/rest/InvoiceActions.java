@@ -6,12 +6,14 @@ import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.util.GregorianCalendar;
 
 @Path("/invoice")
 public class InvoiceActions {
@@ -26,13 +28,18 @@ public class InvoiceActions {
     private CompanyDataRespository companyDataRespository;
 
     @Inject
+    private CompaniesRepository companiesRepository;
+
+    @Inject
     CarServiceDataRespository carServiceDataRespository;
+
+    private Logger log = LoggerFactory.getLogger(InvoiceActions.class);
 
     @POST
     @Path("/addInvoice")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response addInvoice(AddInvoiceForm newInvoice){
-        Logger log = LoggerFactory.getLogger(InvoiceActions.class);
         Employee employee = employeesRepository.findByToken(newInvoice.getAccessToken());
         if(employee == null )
             return Response.status(403).build();
@@ -52,7 +59,7 @@ public class InvoiceActions {
         BigDecimal grossValue = newInvoice.getGrossValue();
         BigDecimal valueOfVat = newInvoice.getValueOfVat();
         CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
-        CompanyData companyData = companyDataRespository.getCompanyDataByName(newInvoice.getCompanyName());
+        Company companyData = companiesRepository.getCompanyByName(newInvoice.getCompanyName());
         if(carServiceData != null && companyData != null && methodOfPayment != null){
             Invoice invoice = createInvoice(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat, companyData, carServiceData);
             if(invoice != null)
@@ -67,13 +74,17 @@ public class InvoiceActions {
             return Response.status(402).entity(accessToken).build();
     }
 
-    public Invoice createInvoice(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue, BigDecimal valueOfVat, CompanyData companyData, CarServiceData carServiceData){
+    public Invoice createInvoice(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue, BigDecimal valueOfVat, Company company, CarServiceData carServiceData){
         try{
-            Invoice invoice = new Invoice(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat, companyData, carServiceData);
-            return invoice;
+            CompanyData companyData = new CompanyData(company);
+            companyDataRespository.insert(companyData);
+             Invoice invoice =  new Invoice(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat, companyData, carServiceData);
+             StringBuilder invoiceNumberBuilder = new StringBuilder().append(invoicesRepository.countInvoicesInMonth());
+             String invoiceNumber = invoiceNumberBuilder.append("/").append(GregorianCalendar.MONTH).append("/").append(GregorianCalendar.YEAR).toString();
+             invoice.setInvoiceNumber(invoiceNumber);
+             return invoice;
         } catch (Exception e){
-            Logger log = LoggerFactory.getLogger(InvoiceActions.class);
-            log.info(e.toString());
+            e.printStackTrace();
             return null;
         }
     }
