@@ -55,9 +55,9 @@ public class InvoiceActions {
             case("TRANSFER") : methodOfPayment = MethodOfPayment.TRANSFER; break;
         }
 
-        BigDecimal netValue = newInvoice.getNetValue();
-        BigDecimal grossValue = newInvoice.getGrossValue();
-        BigDecimal valueOfVat = newInvoice.getValueOfVat();
+        BigDecimal netValue = new BigDecimal(newInvoice.getNetValue());
+        BigDecimal grossValue = new BigDecimal(newInvoice.getGrossValue());
+        BigDecimal valueOfVat = new BigDecimal(newInvoice.getValueOfVat());
         CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
         Company companyData = companiesRepository.getCompanyByName(newInvoice.getCompanyName());
         if(carServiceData != null && companyData != null && methodOfPayment != null){
