@@ -37,13 +37,13 @@ public class Invoice extends InvoicesModel implements Serializable {
         this.companyData = companyData;
         this.corectionInvoice = null;
         this.carServiceData = carServiceData;
-        super.invoiceNumber = super.createInvoiceNumber();
+        //super.invoiceNumber = super.createInvoiceNumber();
     }
 
     public Invoice(InvoiceBuffer buffer, CompanyModel company, CarServiceData data) throws Exception{
         super(buffer.getDiscount(),buffer.getTax(), buffer.getMethodOfPayment(), buffer.getNetValue(), buffer.getGrossValue(), buffer.getValueOfVat());
         companyData = (CompanyData) company;
         carServiceData = data;
-        super.invoiceNumber = super.createInvoiceNumber();
+        //super.invoiceNumber = super.createInvoiceNumber();
     }
 }

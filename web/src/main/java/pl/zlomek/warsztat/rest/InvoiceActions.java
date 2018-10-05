@@ -6,6 +6,7 @@ import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -28,9 +29,12 @@ public class InvoiceActions {
     @Inject
     CarServiceDataRespository carServiceDataRespository;
 
+    private Logger log = LoggerFactory.getLogger(InvoiceActions.class);
+
     @POST
     @Path("/addInvoice")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response addInvoice(AddInvoiceForm newInvoice){
         Logger log = LoggerFactory.getLogger(InvoiceActions.class);
         Employee employee = employeesRepository.findByToken(newInvoice.getAccessToken());
@@ -70,9 +74,9 @@ public class InvoiceActions {
     public Invoice createInvoice(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue, BigDecimal valueOfVat, CompanyData companyData, CarServiceData carServiceData){
         try{
             Invoice invoice = new Invoice(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat, companyData, carServiceData);
+            invoice.setInvoiceNumber(invoice.getInvoiceNumber());
             return invoice;
         } catch (Exception e){
-            Logger log = LoggerFactory.getLogger(InvoiceActions.class);
             log.info(e.toString());
             return null;
         }
