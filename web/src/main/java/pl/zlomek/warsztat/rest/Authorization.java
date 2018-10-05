@@ -65,7 +65,7 @@ public class Authorization {
     public Response signIn(SignInForm signInForm){
         if(signInForm.getPassword()!= null || signInForm.getUsername()!=null){
             Client client = repository.signIn(signInForm.getUsername(), signInForm.getPassword());
-            if(client==null){
+            if(client==null || !client.getStatus().equals(ClientStatus.ACTIVE)){
                 return Response.status(401).build();
             }
             client.setLastLoggedIn(LocalDateTime.now());
@@ -151,9 +151,24 @@ public class Authorization {
         if(client == null){
             return Response.status(400).entity(accessToken).build();
         }
+        client.setAccessToken(null);
         client.setStatus(ClientStatus.BANNED);
         repository.update(client);
         return Response.status(200).entity(accessToken).build();
+    }
+
+    @POST
+    @Path("/deleteAccount")
+    @Transactional
+    public Response deleteAccount(RemoveUserForm form){
+        Client client = repository.findByToken(form.getAccessToken());
+        if(client == null || client.getStatus().equals(ClientStatus.ACTIVE)){
+            return Response.status(401).build();
+        }
+        client.setAccessToken(null);
+        client.setStatus(ClientStatus.REMOVED);
+        repository.update(client);
+        return Response.status(200).build();
     }
 
 }

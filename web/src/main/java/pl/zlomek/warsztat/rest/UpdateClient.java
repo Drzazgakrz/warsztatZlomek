@@ -35,8 +35,8 @@ public class UpdateClient {
     @Path("/addCar")
     public Response addCar(CarDataForm carData){
         Client client = clientsRepository.findByToken(carData.getAccessToken());
-        if(client == null)
-            return Response.status(403).build();
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE))
+            return Response.status(401).build();
         Car car = carRepository.getCarByVin(carData.getVin());
 
         if(car!=null){
@@ -59,7 +59,7 @@ public class UpdateClient {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addClientToCompany(AddClientForm form){
         Client client = clientsRepository.findClientByUsername(form.getUsername());
-        if(client == null){
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
             return Response.status(401).build();
         }
         Company clientsCompany = companiesRepository.getCompanyByName(form.getCompanyName());
