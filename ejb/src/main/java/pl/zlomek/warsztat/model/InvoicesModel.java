@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.zlomek.warsztat.data.InvoicesRepository;
 
+import javax.inject.Inject;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
@@ -22,6 +23,7 @@ public abstract class InvoicesModel {
 
 
     /*@Transient
+    @Inject
     private InvoicesRepository repository = new InvoicesRepository();*/
 
     protected int discount;
@@ -34,15 +36,15 @@ public abstract class InvoicesModel {
     protected MethodOfPayment methodOfPayment;
 
     @NotNull
-    @Column(name = "net_value", precision = 3, scale = 3)
+    @Column(name = "net_value", precision = 8, scale = 3)
     protected BigDecimal netValue;
 
     @NotNull
-    @Column(name = "gross_value", precision = 3, scale = 3)
+    @Column(name = "gross_value", precision = 8, scale = 3)
     protected BigDecimal grossValue;
 
     @NotNull
-    @Column(name = "value_of_VAT", precision = 3, scale = 3)
+    @Column(name = "value_of_VAT", precision = 8, scale = 3)
     protected BigDecimal valueOfVat;
 
     //@NotNull
@@ -53,7 +55,7 @@ public abstract class InvoicesModel {
         //int number = repository.countInvoicesInMonth();
         if (number == -1)
             throw new Exception();
-        StringBuilder invoiceNumberBuilder = new StringBuilder(number).append("/").append(GregorianCalendar.MONTH);
+        StringBuilder invoiceNumberBuilder = new StringBuilder().append(number).append("/").append(GregorianCalendar.MONTH);
         return invoiceNumberBuilder.append("/").append(GregorianCalendar.YEAR).toString();
     }*/
 

@@ -4,6 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 @lombok.NoArgsConstructor
@@ -23,5 +24,11 @@ public class CompanyData extends CompanyModel implements Serializable {
     public CompanyData(String nip, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode) {
         super(nip, companyName, cityName, streetName, buildingNum, aptNum, zipCode);
         this.invoices = invoices;
+    }
+
+    public CompanyData(Company company){
+        super(company.getNip(), company.getCompanyName(), company.getCityName(), company.getStreetName(),
+                company.getBuildingNum(), company.getAptNum(), company.getZipCode());
+        this.invoices = new HashSet<>();
     }
 }

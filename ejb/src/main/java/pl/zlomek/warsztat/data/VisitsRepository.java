@@ -18,6 +18,7 @@ public class VisitsRepository {
 
     @Inject
     private EntityManager em;
+
     @Inject
     ClientsRepository repository;
 
