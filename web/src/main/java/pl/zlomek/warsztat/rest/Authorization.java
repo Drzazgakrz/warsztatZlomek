@@ -171,4 +171,24 @@ public class Authorization {
         return Response.status(200).build();
     }
 
+    @POST
+    @Path("/removeEmployee")
+    @Transactional
+    public Response removeEmployee(RemoveEmployeeForm form){
+        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).build();
+        }
+        String accessToken = employeesRepository.generateToken(employee);
+        Employee employeeToRemove = employeesRepository.findByUsername(form.getEmployeeMail());
+        if(employeeToRemove == null || employee.equals(employeeToRemove)){
+            return Response.status(400).entity(accessToken).build();
+        }
+        employee.setStatus(EmployeeStatus.quit);
+        LocalDate date = form.getQuitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        employee.setQuitDate(date);
+        employeesRepository.update(employee);
+        return Response.status(200).entity(accessToken).build();
+    }
+
 }
