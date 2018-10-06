@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddCompanyForm {
-    private String name;
+public class AddCarServiceDataForm {
+    private String serviceName;
     private String nip;
     private String email;
     private String cityName;
@@ -14,5 +14,4 @@ public class AddCompanyForm {
     private String buildingNum;
     private String aptNum;
     private String zipCode;
-    private String accessToken;
 }

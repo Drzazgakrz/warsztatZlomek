@@ -7,51 +7,20 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Set;
 
-@lombok.AllArgsConstructor
+@lombok.NoArgsConstructor
 @lombok.Getter
 @lombok.Setter
 @Entity
 @Table(name = "invoices_Buffer")
-public class InvoiceBuffer implements Serializable {
+public class InvoiceBuffer extends InvoicesModel implements Serializable {
     @Id
     @GeneratedValue(strategy =GenerationType.IDENTITY)
     private long id;
-
-    @NotNull //???
-    @Size(min=1, max=2)
-    private int discount;
-
-    @NotNull
-    @Size(min=2, max=2)
-    private  int tax;
-
-    @NotNull
-    @Column(name = "method_of_payment")
-    private MethodOfPayment methodOfPayment;
-
-    @NotNull
-    @Column(name = "net_value", precision=2 , scale =2 )
-    private BigDecimal netValue;
-
-    @NotNull
-    @Column(name = "gross_value", precision=2 , scale =2 )
-    private  BigDecimal grossValue;
-
-    @NotNull
-    @Column(name = "value_of_VAT", precision=2 , scale =2 )
-    private BigDecimal valueOfVat;
-
-    @NotNull
-    @Column(name = "invoice_number")
-    private String invoiceNumber;
 
     @NotNull
     @Column(name = "ststus")
     private InvoiceBufferStatus invoiceBufferStatus;
 
-    @NotNull
-    @ManyToOne
-    private Invoice invoice;
 
     @NotNull
     @ManyToOne
@@ -64,4 +33,12 @@ public class InvoiceBuffer implements Serializable {
     @NotNull
     @ManyToOne
     private CarServiceData carServiceData;
+
+    public InvoiceBuffer(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue,
+                         BigDecimal grossValue, BigDecimal valueOfVat, String invoiceNumber,
+                         CompanyDataBuffer companyData, CarServiceData carServiceData) throws Exception{
+        super(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat);
+        this.companyDataBuffer = companyData;
+        this.carServiceData = carServiceData;
+    }
 }

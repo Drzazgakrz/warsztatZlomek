@@ -1,17 +1,24 @@
 package pl.zlomek.warsztat.rest;
 
 
-import pl.zlomek.warsztat.data.CarsRepository;
-import pl.zlomek.warsztat.data.ClientsRepository;
-import pl.zlomek.warsztat.data.EmployeesRepository;
-import pl.zlomek.warsztat.data.VisitsRepository;
+import org.slf4j.LoggerFactory;
+import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.slf4j.Logger;
+
 
 @Path("/visits")
 public class VisitsActions {
@@ -28,11 +35,53 @@ public class VisitsActions {
 
     @Inject
     private EmployeesRepository employeesRepository;
-    /*@POST
+
+    @Inject
+    private CarPartsRepository carPartsRepository;
+
+    private Logger log = LoggerFactory.getLogger(VisitsActions.class);
+
+    @POST
+    @Transactional
     @Path("/submit")
     public Response submitVisit(SubmitVisitForm form){
-
-    }*/
+        try {
+            Employee employee = employeesRepository.findByToken(form.getAccessToken());
+            if (employee == null) {
+                return Response.status(401).build();
+            }
+            String accessToken = employeesRepository.generateToken(employee);
+            Visit visit = visitsRepository.getVisitById(form.getVisitId());
+            if (visit == null) {
+                return Response.status(400).entity(accessToken).build();
+            }
+            Overview overview = visit.getOverview();
+            if (overview != null && form.getCountYears() != null) {
+                overview.addTerminateOverview(form.getCountYears());
+            } else if (overview != null && form.getCountYears() == null) {
+                return Response.status(400).entity(accessToken).build();
+            }
+            if(visit.getStatus()!= VisitStatus.IN_PROGRESS){
+                return Response.status(400).entity(accessToken).build();
+            }
+            visit.setStatus(VisitStatus.FINISHED);
+            if(form.getCarParts() != null) {
+                List<CarPartModel> carPartModelList = Arrays.asList(form.getCarParts());
+                carPartModelList.forEach(carPartModel -> {
+                    CarPart carPart = carPartsRepository.getCarPartByName(carPartModel.getName());
+                    if (carPart == null) {
+                        return;
+                    }
+                    visit.addPartToVisit(carPart, carPartModel.getCount(), carPartModel.getPrice());
+                    carPartsRepository.updateCarPart(carPart);
+                });
+            }
+            visitsRepository.updateVisit(visit);
+            return Response.status(200).entity(accessToken).build();
+        }catch (Exception e){
+            return Response.status(406).build();
+        }
+    }
 
     @POST
     @Transactional
@@ -41,7 +90,7 @@ public class VisitsActions {
 
         Employee employee = employeesRepository.findByToken(form.getAccessToken());
         if(employee == null){
-            return Response.status(403).build();
+            return Response.status(401).build();
         }
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
         if(visit == null || !visit.getStatus().equals(VisitStatus.ACCEPTED)){
@@ -62,21 +111,74 @@ public class VisitsActions {
     @Path("/add")
     public Response addVisit(CreateVisitForm form){
         Client client = clientsRepository.findByToken(form.getAccessToken());
-        if (client == null)
-            return Response.status(403).build();
+        if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE))
+            return Response.status(401).build();
         Car car = carsRepository.getCarById(form.getCarId());
-
+        String accessToken = clientsRepository.generateToken(client);
         if(car == null) {
-            String accessToken = clientsRepository.generateToken(client);
             return Response.status(400).entity(accessToken).build();
         }
         if(!client.checkCar(car)){
-            String accessToken = clientsRepository.generateToken(client);
-            return Response.status(401).entity(accessToken).build();
+            return Response.status(403).entity(accessToken).build();
         }
-        Visit visit = new Visit(form.getVisitDate(), car);
+        Overview overview = null;
+        LocalDate visitDate = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        if(form.isOverview()){
+            overview = new Overview(visitDate, car);
+            visitsRepository.createOverview(overview);
+        }
+        Visit visit = new Visit(visitDate, car, overview);
+        car.getVisits().add(visit);
+        carsRepository.updateCar(car);
         visitsRepository.createVisit(visit);
-        String accessToken = clientsRepository.generateToken(client);
         return Response.status(200).entity(accessToken).build();
+    }
+
+    @POST
+    @Path("/removeVisit")
+    @Transactional
+    public Response removeVisit(ReomoveVisitForm form){
+        Client client = clientsRepository.findByToken(form.getAccessToken());
+        if(client == null){
+            return Response.status(401).build();
+        }
+        String accessToken = clientsRepository.generateToken(client);
+        Visit visit = visitsRepository.getVisitById(form.getVisitId());
+        if(visit == null){
+            return Response.status(400).entity(accessToken).build();
+        }else if(!visit.getStatus().equals(VisitStatus.ACCEPTED)){
+            return Response.status(400).entity(accessToken).build();
+        }
+        visitsRepository.removeVisit(visit);
+        return Response.status(200).entity(accessToken).build();
+    }
+
+    @POST
+    @Path("/getAllClientsVisits")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllClientsVisits(GetAllClientsVisitsForm form){
+        try {
+            Client client = clientsRepository.findByToken(form.getAccessToken());
+            if (client == null) {
+                return Response.status(401).build();
+            }
+            String accessToken = clientsRepository.generateToken(client);
+            //List<Visit> visits = visitsRepository.getClientVisits(client);
+            List<Visit> visits = new ArrayList<>();
+            List<Visit> allVisits = visitsRepository.getAllVisits();
+            client.getCars().forEach(carsHasOwners -> {
+                Car car = carsHasOwners.getCar();
+                visits.addAll(car.getVisits());
+            });
+            log.info("Wszystkie" + Integer.toString(allVisits.size()));
+            log.info("Lista" + Integer.toString(visits.size()));
+            Visit[] visitsArray = new Visit[visits.size()];
+            visitsArray = visits.toArray(visitsArray);
+            GetAllVisitsResponse responseObject = new GetAllVisitsResponse(accessToken, visitsArray);
+            return Response.status(200).entity(responseObject).build();
+        }catch (Exception e){
+            return Response.status(500).build();
+        }
     }
 }

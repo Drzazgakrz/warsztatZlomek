@@ -7,6 +7,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.zlomek.warsztat.model.Account;
+import pl.zlomek.warsztat.model.CarsHasOwners;
 import pl.zlomek.warsztat.model.Client;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,27 +15,26 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @ApplicationScoped
 public class ClientsRepository extends AccountsRepository {
 
     private Logger log = LoggerFactory.getLogger(ClientsRepository.class);
 
-    @Transactional
     public void registerUser(Client client){
         em.persist(client);
     }
 
     public Client signIn(String username, String password){
         try {
-            SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
-            byte[] bytes = sha3.digest(password.getBytes());
-            String encrypted = Hex.toHexString(bytes);
-            TypedQuery<Client> getClient = em.createQuery("select client from Client client where email = :username "
-                    +"and password = :password",Client.class);
+
+            TypedQuery<Client> getClient = em.createQuery("SELECT client FROM Client client "+
+                    "WHERE client.email = :username and client.password = :password",Client.class);
             getClient.setParameter("username", username);
-            getClient.setParameter("password", encrypted);
+            getClient.setParameter("password", Account.hashPassword(password));
             return getClient.getSingleResult();
         }catch (Exception e){
             e.printStackTrace();
@@ -44,8 +44,8 @@ public class ClientsRepository extends AccountsRepository {
 
     public Client findClientByUsername(String username){
         try {
-            TypedQuery<Client> getClient = em.createQuery("select client from Client client where email = :username "
-                    ,Client.class);
+            TypedQuery<Client> getClient = em.createQuery("select client from Client client "+
+                            "where client.email = :username ",Client.class);
             getClient.setParameter("username", username);
             return getClient.getSingleResult();
         }catch (Exception e){
@@ -65,5 +65,15 @@ public class ClientsRepository extends AccountsRepository {
             e.printStackTrace();
             return null;
         }
+    }
+    public List<CarsHasOwners> getClientsCar(Client client){
+        try {
+            TypedQuery<CarsHasOwners> query = em.createQuery("SELECT cho FROM  CarsHasOwners cho WHERE cho.owner = :client", CarsHasOwners.class);
+            query.setParameter("client", client);
+            return query.getResultList();
+        }catch (Exception e){
+            return new ArrayList<>();
+        }
+
     }
 }

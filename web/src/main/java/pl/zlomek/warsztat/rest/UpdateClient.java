@@ -35,8 +35,8 @@ public class UpdateClient {
     @Path("/addCar")
     public Response addCar(CarDataForm carData){
         Client client = clientsRepository.findByToken(carData.getAccessToken());
-        if(client == null)
-            return Response.status(403).build();
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE))
+            return Response.status(401).build();
         Car car = carRepository.getCarByVin(carData.getVin());
 
         if(car!=null){
@@ -45,10 +45,11 @@ public class UpdateClient {
         }
 
         CarBrand carBrand = carRepository.getCarBrandByName(carData.getBrandName());
-        car = new Car(carData.getRegistrationNumber(), carData.getVin(), carData.getModel(), carData.getProductionYear(), carBrand, client);
-        car = carRepository.updateCar(car);
+        car = new Car(carData.getRegistrationNumber(), carData.getVin(), carData.getModel(), carData.getProductionYear(), carBrand);
+
         CarsHasOwners cho = car.addCarOwner(client);
         carRepository.insertOwnership(cho);
+        carRepository.insertCar(car);
         String token = clientsRepository.generateToken(client);
         return Response.ok(token).build();
     }
@@ -58,8 +59,8 @@ public class UpdateClient {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addClientToCompany(AddClientForm form){
         Client client = clientsRepository.findClientByUsername(form.getUsername());
-        if(client == null){
-            return Response.status(403).build();
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
+            return Response.status(401).build();
         }
         Company clientsCompany = companiesRepository.getCompanyByName(form.getCompanyName());
         if(clientsCompany == null){

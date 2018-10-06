@@ -7,49 +7,20 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Set;
 
-@lombok.AllArgsConstructor
+@lombok.NoArgsConstructor
 @lombok.Getter
 @lombok.Setter
 @Entity
 @Table(name = "invoices")
-public class Invoice implements Serializable {
+public class Invoice extends InvoicesModel implements Serializable {
     @Id
     @GeneratedValue(strategy =GenerationType.IDENTITY)
     private long id;
 
-    @NotNull //???
-    @Size(min=1, max=2)
-    private int discount;
-
-    @NotNull
-    @Size(min=2, max=2)
-    private  int tax;
-
-    @NotNull
-    @Column(name = "method_of_payment")
-    private MethodOfPayment methodOfPayment;
-
-    @NotNull
-    @Column(name = "net_value", precision=2 , scale =2 )
-    private BigDecimal netValue;
-
-    @NotNull
-    @Column(name = "gross_value", precision=2 , scale =2 )
-    private  BigDecimal grossValue;
-
-    @NotNull
-    @Column(name = "value_of_VAT", precision=2 , scale =2 )
-    private BigDecimal valueOfVat;
-
-    @NotNull
-    @Column(name = "invoice_number")
-    private String invoiceNumber;
-
     @ManyToOne
-    @NotNull
     private CompanyData companyData;
 
-    @NotNull
+    //@NotNull
     @OneToMany (mappedBy = "invoice")
     private Set<InvoicePosition> invoicePositions;
 
@@ -60,16 +31,19 @@ public class Invoice implements Serializable {
     @ManyToOne
     private CarServiceData carServiceData;
 
-    public Invoice(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue, BigDecimal valueOfVat, String invoiceNumber, CompanyData companyData, CarServiceData carServiceData) {
-        this.discount = discount;
-        this.tax = tax;
-        this.methodOfPayment = methodOfPayment;
-        this.netValue = netValue;
-        this.grossValue = grossValue;
-        this.valueOfVat = valueOfVat;
-        this.invoiceNumber = invoiceNumber;
+    public Invoice(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue,
+                   BigDecimal valueOfVat, CompanyData companyData, CarServiceData carServiceData) throws Exception {
+        super(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat);
         this.companyData = companyData;
         this.corectionInvoice = null;
         this.carServiceData = carServiceData;
+        //super.invoiceNumber = super.createInvoiceNumber();
+    }
+
+    public Invoice(InvoiceBuffer buffer, CompanyModel company, CarServiceData data) throws Exception{
+        super(buffer.getDiscount(),buffer.getTax(), buffer.getMethodOfPayment(), buffer.getNetValue(), buffer.getGrossValue(), buffer.getValueOfVat());
+        companyData = (CompanyData) company;
+        carServiceData = data;
+        //super.invoiceNumber = super.createInvoiceNumber();
     }
 }

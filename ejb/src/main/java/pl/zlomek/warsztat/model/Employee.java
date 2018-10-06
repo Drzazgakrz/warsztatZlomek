@@ -2,10 +2,13 @@ package pl.zlomek.warsztat.model;
 
 import lombok.NoArgsConstructor;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
+import org.bouncycastle.util.encoders.Hex;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -22,14 +25,10 @@ public class Employee extends Account implements Serializable {
 
     @NotNull
     @Column(name = "hire_date")
-    private Date hireDate;
+    private LocalDate hireDate;
 
     @Column(name = "quit_date")
-    private Date quitDate;
-
-    @NotNull
-    private String password;
-
+    private LocalDate quitDate;
 
     @NotNull
     private EmployeeStatus status;
@@ -37,14 +36,11 @@ public class Employee extends Account implements Serializable {
     @OneToMany (mappedBy = "employee")
     private Set<Visit> visits;
 
-    public Employee(String firstName, String lastName, Date hireDate, Date quitDate, String password, String email,
+    public Employee(String firstName, String lastName, LocalDate hireDate, LocalDate quitDate, String password, String email,
                     EmployeeStatus status){
-        super(email, firstName, lastName);
+        super(email, firstName, lastName, password, LocalDateTime.now(), LocalDateTime.now());
         this.hireDate = hireDate;
         this.quitDate = quitDate;
-        SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
-        sha3.update(password.getBytes());
-        super.password = sha3.digest().toString();
         this.status = status;
     }
 }
