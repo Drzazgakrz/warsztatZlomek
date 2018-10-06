@@ -53,7 +53,7 @@
             <property name="hibernate.show_sql" value="true"/>
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="javax.persistence.jdbc.user" value="postgres"/>
-            <property name="javax.persistence.jdbc.password" value="Brylant2013."/>
+            <property name="javax.persistence.jdbc.password" value="abc123"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/warsztatZlomekDS"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL82Dialect"/>
             <property name="hibernate.enable_lazy_load_no_trans" value="true" />
