@@ -62,7 +62,22 @@
          <artifactId>cdi-api</artifactId>
          <scope>provided</scope>
       </dependency>
-      
+
+      <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
+         <version>1.7.25</version>
+      </dependency>
+
+
+
+      <dependency>
+         <groupId>org.projectlombok</groupId>
+         <artifactId>lombok</artifactId>
+         <version>1.18.2</version>
+         <scope>provided</scope>
+      </dependency>
       <!-- Import the JSF API, we use provided scope as the API is included in JBoss EAP 6 -->
       <dependency>
          <groupId>org.jboss.spec.javax.faces</groupId>
@@ -126,6 +141,14 @@
                <failOnMissingWebXml>false</failOnMissingWebXml>
             </configuration>
          </plugin>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>8</source>
+                  <target>8</target>
+              </configuration>
+          </plugin>
       </plugins>
    </build>
 

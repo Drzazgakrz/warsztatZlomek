@@ -2,49 +2,50 @@ package pl.zlomek.warsztat.model;
 
 
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @lombok.Getter
 @lombok.Setter
-@lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
-@lombok.ToString
+@NoArgsConstructor
 @Entity
 @Table(name = "companies")
-public class Company implements Serializable {
+public class Company extends CompanyModel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @NotNull
-    private String NIP;
+    @Size(max = 30, min = 6)
+    private String email;
 
-    @NotNull
-    private String companyName;
 
-    @NotNull
-    private String cityName;
+    @ManyToMany
+    @JoinTable(name = "company_has_employees",
+            joinColumns = @JoinColumn(name = "company_id"),
+            inverseJoinColumns = @JoinColumn(name = "client_id")
+    )
+    private Set<Client> employees;
 
-    @NotNull
-    private String streetName;
+    @ManyToMany
+    @JoinTable(name = "company_has_cars",
+            joinColumns = @JoinColumn(name = "company_id"),
+            inverseJoinColumns = @JoinColumn(name = "car_id")
+    )
 
-    @NotNull
-    private String buildingNum;
+    private Set<Car> cars;
 
-    private String aptNum;
-
-    @NotNull
-    private String zipCode;
-
-    public Company(String NIP, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode){
-        this.NIP = NIP;
-        this.companyName = companyName;
-        this.cityName = cityName;
-        this.streetName = streetName;
-        this.buildingNum = buildingNum;
-        this.aptNum = aptNum;
-        this.zipCode = zipCode;
+    public Company(String nip, String email, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode){
+        super(nip, companyName, cityName, streetName, buildingNum, aptNum, zipCode);
+        this.email = email;
+        this.employees = new HashSet<>();
+        this.cars = new HashSet<>();
     }
 }
