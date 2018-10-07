@@ -9,8 +9,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ErrorResponse {
     private String error;
-
-    public ErrorResponse(String error) {
+    private String accessToken;
+    public ErrorResponse(String error, String accessToken) {
         this.error = error;
+        this.accessToken = accessToken;
     }
 }

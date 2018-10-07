@@ -39,11 +39,12 @@ public class InvoiceActions {
     @POST
     @Path("/addInvoice")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response addInvoice(AddInvoiceForm newInvoice) {
         Employee employee = employeesRepository.findByToken(newInvoice.getAccessToken());
         if (employee == null)
-            return Response.status(403).build();
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         String accessToken = employeesRepository.generateToken(employee);
         Company company = companiesRepository.getCompanyByName(newInvoice.getCompanyName());
         CompanyData companyData = new CompanyData(company);
@@ -51,28 +52,29 @@ public class InvoiceActions {
         Invoice invoice = createInvoice(newInvoice, companyData);
         if (invoice != null) {
             invoicesRepository.insertInvoice(invoice);
-            return Response.status(200).entity(accessToken).build();
+            return Response.status(200).entity(new PositiveResponse(accessToken)).build();
         } else
-            return Response.status(401).entity(accessToken).build();
+            return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury",accessToken)).build();
+    }
+
+    public MethodOfPayment createMethodOfPayment(String method){
+        switch (method) {
+            case ("CASH"):
+                return MethodOfPayment.CASH;
+            case ("CARD"):
+                return MethodOfPayment.CARD;
+            case ("TRANSFER"):
+                return MethodOfPayment.TRANSFER;
+        }
+        return null;
     }
 
     public Invoice createInvoice(AddInvoiceForm newInvoice, CompanyData companyData) {
         try {
             int discount = newInvoice.getDiscount();
             int tax = newInvoice.getTax();
-            MethodOfPayment methodOfPayment = null;
-            String method = newInvoice.getMethodOfPayment();
-            switch (method) {
-                case ("CASH"):
-                    methodOfPayment = MethodOfPayment.CASH;
-                    break;
-                case ("CARD"):
-                    methodOfPayment = MethodOfPayment.CARD;
-                    break;
-                case ("TRANSFER"):
-                    methodOfPayment = MethodOfPayment.TRANSFER;
-                    break;
-            }
+
+            MethodOfPayment methodOfPayment = createMethodOfPayment(newInvoice.getMethodOfPayment());
 
             BigDecimal netValue = new BigDecimal(newInvoice.getNetValue());
             BigDecimal grossValue = new BigDecimal(newInvoice.getGrossValue());
@@ -87,9 +89,6 @@ public class InvoiceActions {
                 invoice.setInvoiceNumber(invoiceNumber);
                 return invoice;
             }
-            log.info("CarService"+Boolean.toString(carServiceData == null));
-            log.info("CompanyData"+Boolean.toString(companyData == null));
-            log.info("methodOfPayment"+Boolean.toString(methodOfPayment == null));
             return null;
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,22 +103,22 @@ public class InvoiceActions {
     public Response editInvoice(EditInvoiceForm form) {
         Employee employee = employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
-            return Response.status(401).build();
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         String accessToken = employeesRepository.generateToken(employee);
         Invoice invoice = invoicesRepository.getInvoiceById(form.getInvoiceId());
 
         if (invoice == null) {
-            return Response.status(400).entity(new ErrorResponse("Brak faktury")).build();
+            return Response.status(400).entity(new ErrorResponse("Brak faktury", accessToken)).build();
         }
 
         Invoice newInvoice = createInvoice(form, invoice.getCompanyData());
         if (newInvoice == null) {
-            return Response.status(400).entity(new ErrorResponse("Nie utworzono nowej faktury")).build();
+            return Response.status(400).entity(new ErrorResponse("Nie utworzono nowej faktury", accessToken)).build();
         }
         invoicesRepository.insertInvoice(newInvoice);
         invoice.setCorectionInvoice(newInvoice);
         invoicesRepository.updateInvoice(invoice);
-        return Response.status(200).entity(accessToken).build();
+        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
     }
 }
