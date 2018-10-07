@@ -10,6 +10,7 @@ import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
@@ -38,54 +39,86 @@ public class InvoiceActions {
     @POST
     @Path("/addInvoice")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response addInvoice(AddInvoiceForm newInvoice){
+    public Response addInvoice(AddInvoiceForm newInvoice) {
         Employee employee = employeesRepository.findByToken(newInvoice.getAccessToken());
-        if(employee == null )
-            return Response.status(403).build();
+        if (employee == null)
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         String accessToken = employeesRepository.generateToken(employee);
-
-        int discount = newInvoice.getDiscount();
-        int tax = newInvoice.getTax();
-        MethodOfPayment methodOfPayment = null;
-        String method = newInvoice.getMethodOfPayment();
-        switch (method){
-            case("CASH") : methodOfPayment = MethodOfPayment.CASH; break;
-            case("CARD") : methodOfPayment = MethodOfPayment.CARD; break;
-            case("TRANSFER") : methodOfPayment = MethodOfPayment.TRANSFER; break;
-        }
-
-        BigDecimal netValue = new BigDecimal(newInvoice.getNetValue());
-        BigDecimal grossValue = new BigDecimal(newInvoice.getGrossValue());
-        BigDecimal valueOfVat = new BigDecimal(newInvoice.getValueOfVat());
-        CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
-        Company companyData = companiesRepository.getCompanyByName(newInvoice.getCompanyName());
-        if(carServiceData != null && companyData != null && methodOfPayment != null){
-            Invoice invoice = createInvoice(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat, companyData, carServiceData);
-            if(invoice != null)
-            {
-                invoicesRepository.insertInvoice(invoice);
-                return Response.status(200).entity(accessToken).build();
-            }
-            else
-                return Response.status(401).entity(accessToken).build();
-        }
-        else
-            return Response.status(402).entity(accessToken).build();
+        Company company = companiesRepository.getCompanyByName(newInvoice.getCompanyName());
+        CompanyData companyData = new CompanyData(company);
+        companyDataRespository.insert(companyData);
+        Invoice invoice = createInvoice(newInvoice, companyData);
+        if (invoice != null) {
+            invoicesRepository.insertInvoice(invoice);
+            return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        } else
+            return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury",accessToken)).build();
     }
 
-    public Invoice createInvoice(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue, BigDecimal valueOfVat, Company company, CarServiceData carServiceData){
-        try{
-            CompanyData companyData = new CompanyData(company);
-            companyDataRespository.insert(companyData);
-             Invoice invoice =  new Invoice(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat, companyData, carServiceData);
-             StringBuilder invoiceNumberBuilder = new StringBuilder().append(invoicesRepository.countInvoicesInMonth());
-             String invoiceNumber = invoiceNumberBuilder.append("/").append(GregorianCalendar.MONTH).append("/").append(GregorianCalendar.YEAR).toString();
-             invoice.setInvoiceNumber(invoiceNumber);
-             return invoice;
-        } catch (Exception e){
+    public MethodOfPayment createMethodOfPayment(String method){
+        switch (method) {
+            case ("CASH"):
+                return MethodOfPayment.CASH;
+            case ("CARD"):
+                return MethodOfPayment.CARD;
+            case ("TRANSFER"):
+                return MethodOfPayment.TRANSFER;
+        }
+        return null;
+    }
+
+    public Invoice createInvoice(AddInvoiceForm newInvoice, CompanyData companyData) {
+        try {
+            int discount = newInvoice.getDiscount();
+            int tax = newInvoice.getTax();
+
+            MethodOfPayment methodOfPayment = createMethodOfPayment(newInvoice.getMethodOfPayment());
+
+            BigDecimal netValue = new BigDecimal(newInvoice.getNetValue());
+            BigDecimal grossValue = new BigDecimal(newInvoice.getGrossValue());
+            BigDecimal valueOfVat = new BigDecimal(newInvoice.getValueOfVat());
+            CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
+
+            if (carServiceData != null && companyData != null && methodOfPayment != null) {
+
+                Invoice invoice = new Invoice(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat, companyData, carServiceData);
+                StringBuilder invoiceNumberBuilder = new StringBuilder().append(invoicesRepository.countInvoicesInMonth());
+                String invoiceNumber = invoiceNumberBuilder.append("/").append(GregorianCalendar.MONTH).append("/").append(GregorianCalendar.YEAR).toString();
+                invoice.setInvoiceNumber(invoiceNumber);
+                return invoice;
+            }
+            return null;
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @POST
+    @Path("/editInvoice")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response editInvoice(EditInvoiceForm form) {
+        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null) {
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        String accessToken = employeesRepository.generateToken(employee);
+        Invoice invoice = invoicesRepository.getInvoiceById(form.getInvoiceId());
+
+        if (invoice == null) {
+            return Response.status(400).entity(new ErrorResponse("Brak faktury", accessToken)).build();
+        }
+
+        Invoice newInvoice = createInvoice(form, invoice.getCompanyData());
+        if (newInvoice == null) {
+            return Response.status(400).entity(new ErrorResponse("Nie utworzono nowej faktury", accessToken)).build();
+        }
+        invoicesRepository.insertInvoice(newInvoice);
+        invoice.setCorectionInvoice(newInvoice);
+        invoicesRepository.updateInvoice(invoice);
+        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
     }
 }

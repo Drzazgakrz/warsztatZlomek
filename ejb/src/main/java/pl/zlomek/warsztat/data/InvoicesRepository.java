@@ -42,4 +42,14 @@ public class InvoicesRepository {
             return -1L;
         }
     }
+    public Invoice getInvoiceById(long id){
+        try {
+            TypedQuery<Invoice> query = em.createQuery("SELECT invoice FROM Invoice invoice WHERE id = :id", Invoice.class);
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        }catch (Exception e){
+            return null;
+        }
+    }
+    public void updateInvoice(Invoice invoice){em.merge(invoice);}
 }

@@ -37,4 +37,14 @@ public class EmployeesRepository extends AccountsRepository {
             return null;
         }
     }
+
+    public Employee findByUsername(String username){
+        try{
+            TypedQuery<Employee> query = em.createQuery("SELECT employee FROM Employee employee WHERE email = :username",Employee.class);
+            query.setParameter("username",username);
+            return query.getSingleResult();
+        }catch (Exception e){
+            return null;
+        }
+    }
 }
