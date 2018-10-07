@@ -179,8 +179,7 @@ public class VisitsActions {
             log.info("Lista" + Integer.toString(visits.size()));
             Visit[] visitsArray = new Visit[visits.size()];
             visitsArray = visits.toArray(visitsArray);
-            GetAllVisitsResponse responseObject = new GetAllVisitsResponse(accessToken, visitsArray);
-            return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+            return Response.status(200).entity(new GetAllVisitsResponse(accessToken, visitsArray)).build();
         }catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Wystąpił nieoczekiwany błąd przepraszamy", null)).build();
         }
