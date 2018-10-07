@@ -35,6 +35,9 @@ public class CompaniesRepository implements Serializable {
             return null;
         }
     }
+    public void updateCompany(Company company){
+        em.merge(company);
+    }
 
     @Transactional
     public void addClient(Company company){
