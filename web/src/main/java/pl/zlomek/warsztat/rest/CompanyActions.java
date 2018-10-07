@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("/companies")
@@ -33,10 +35,16 @@ public class CompanyActions {
     @POST
     @Path("/addCompany")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
     public Response addCompany(AddCompanyForm form){
+        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null){
+            return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
+        }
+        String accessToken = employeesRepository.generateToken(employee);
         Company company = companiesRepository.getCompanyByName(form.getName());
         if(company != null){
-            return Response.status(400).entity(new ErrorResponse("Podana firma istnieje")).build();
+            return Response.status(400).entity(new ErrorResponse("Podana firma istnieje",accessToken)).build();
         }
         String companyName = form.getName();
         String nip = form.getNip();
@@ -48,16 +56,22 @@ public class CompanyActions {
         String buildNum = form.getBuildingNum();
         company = new Company(nip,email,companyName,cityName,streetName, buildNum, aptName, zipCode);
         companiesRepository.insert(company);
-        return Response.status(200).build();
+        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
     }
 
     @POST
     @Path("/addCompanyData")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
     public Response addCompanyData(AddCompanyDataForm form){
+        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null){
+            return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
+        }
+        String accessToken = employeesRepository.generateToken(employee);
         CompanyData companyData =  companyDataRespository.getCompanyDataByName(form.getName());
         if(companyData != null){
-            return Response.status(400).entity(new ErrorResponse("Podana firma istnieje juz w bazie")).build();
+            return Response.status(400).entity(new ErrorResponse("Podana firma istnieje juz w bazie", accessToken)).build();
         }
         String companyName = form.getName();
         String nip = form.getNip();
@@ -68,13 +82,19 @@ public class CompanyActions {
         String buildNum = form.getBuildingNum();
         companyData = new CompanyData(nip, companyName, cityName, streetName, buildNum, aptNum, zipCode);
         companyDataRespository.insert(companyData);
-        return Response.status(200).build();
+        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
     }
 
     @POST
     @Path("/addCarServiceData")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
     public Response addCarServiceData(AddCarServiceDataForm form){
+        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null){
+            return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
+        }
+        String accessToken = employeesRepository.generateToken(employee);
         String serviceName = form.getServiceName();
         String nip = form.getNip();
         String cityName = form.getCityName();
@@ -85,25 +105,26 @@ public class CompanyActions {
         String buildNum = form.getBuildingNum();
         CarServiceData carServiceData = new CarServiceData(nip, email, serviceName, cityName, streetName, buildNum, aptNum, zipCode);
         carServiceDataRespository.insert(carServiceData);
-        return Response.status(200).build();
+        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
     }
 
     @POST
     @Path("/editCompany")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
     public Response editCompany(EditCompanyForm form){
         Employee employee = employeesRepository.findByToken(form.getAccessToken());
         if(employee == null){
-            return Response.status(401).build();
+            return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
         }
         String accessToken = employeesRepository.generateToken(employee);
         Company company = companiesRepository.getCompanyByName(form.getCurrentName());
         if (company == null){
-            return Response.status(400).entity(accessToken).build();
+            return Response.status(400).entity(new ErrorResponse("Brak firmy o podanej nazwie", accessToken)).build();
         }
         setCompanyFields(company,form);
         companiesRepository.updateCompany(company);
-        return Response.status(200).entity(accessToken).build();
+        return Response.status(200).entity(new PositiveResponse((accessToken))).build();
     }
 
     public void setCompanyFields(Company company, EditCompanyForm form){

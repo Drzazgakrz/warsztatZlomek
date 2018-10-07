@@ -6,12 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetAllVisitsResponse {
-    private String accessToken;
+public class GetAllVisitsResponse extends PositiveResponse {
     private Visit[] visits;
 
     public GetAllVisitsResponse(String accessToken, Visit[] visits) {
-        this.accessToken = accessToken;
+        super(accessToken);
         this.visits = visits;
     }
 }
