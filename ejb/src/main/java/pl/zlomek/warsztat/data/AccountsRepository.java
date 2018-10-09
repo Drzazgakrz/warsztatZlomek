@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public abstract class AccountsRepository {
@@ -30,6 +31,8 @@ public abstract class AccountsRepository {
                     .sign(algorithm);
         }
         account.setAccessToken(token);
+        LocalDateTime expirationDate = LocalDateTime.now().plusMinutes(20);
+        account.setTokenExpiration(expirationDate);
         update(account);
         return token;
     }

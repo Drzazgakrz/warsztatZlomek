@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +49,7 @@ public class VisitsActions {
     public Response submitVisit(SubmitVisitForm form){
         try {
             Employee employee = employeesRepository.findByToken(form.getAccessToken());
-            if (employee == null) {
+            if (employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1) {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
             }
             String accessToken = employeesRepository.generateToken(employee);
@@ -91,7 +92,7 @@ public class VisitsActions {
     public Response addEmployee(AddEmployeeForm form){
 
         Employee employee = employeesRepository.findByToken(form.getAccessToken());
-        if(employee == null){
+        if(employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
@@ -114,7 +115,7 @@ public class VisitsActions {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addVisit(CreateVisitForm form){
         Client client = clientsRepository.findByToken(form.getAccessToken());
-        if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE))
+        if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE) || LocalDateTime.now().compareTo(client.getTokenExpiration())==1)
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         Car car = carsRepository.getCarById(form.getCarId());
         String accessToken = clientsRepository.generateToken(client);
@@ -143,7 +144,7 @@ public class VisitsActions {
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeVisit(ReomoveVisitForm form){
         Client client = clientsRepository.findByToken(form.getAccessToken());
-        if(client == null){
+        if(client == null || LocalDateTime.now().compareTo(client.getTokenExpiration())==1){
             return Response.status(401).build();
         }
         String accessToken = clientsRepository.generateToken(client);
@@ -164,23 +165,23 @@ public class VisitsActions {
     public Response getAllClientsVisits(GetAllClientsVisitsForm form){
         try {
             Client client = clientsRepository.findByToken(form.getAccessToken());
-            if (client == null) {
+            if (client == null || LocalDateTime.now().compareTo(client.getTokenExpiration())==1) {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
             }
             String accessToken = clientsRepository.generateToken(client);
-            //List<Visit> visits = visitsRepository.getClientVisits(client);
-            List<Visit> visits = new ArrayList<>();
+            List<Visit> visits = visitsRepository.getClientVisits(client);
+            /*List<Visit> visits = new ArrayList<>();
             List<Visit> allVisits = visitsRepository.getAllVisits();
             client.getCars().forEach(carsHasOwners -> {
                 Car car = carsHasOwners.getCar();
                 visits.addAll(car.getVisits());
-            });
-            log.info("Wszystkie" + Integer.toString(allVisits.size()));
+            });*/
+            log.info("Wszystkie" + Integer.toString(client.getCars().size()));
             log.info("Lista" + Integer.toString(visits.size()));
+            log.info("Samochod"+((CarsHasOwners)client.getCars().toArray()[0]).getCar().getVin());
             Visit[] visitsArray = new Visit[visits.size()];
             visitsArray = visits.toArray(visitsArray);
-            GetAllVisitsResponse responseObject = new GetAllVisitsResponse(accessToken, visitsArray);
-            return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+            return Response.status(200).entity(new GetAllVisitsResponse(accessToken, visitsArray)).build();
         }catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Wystąpił nieoczekiwany błąd przepraszamy", null)).build();
         }
