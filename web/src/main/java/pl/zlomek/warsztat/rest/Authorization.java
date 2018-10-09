@@ -151,7 +151,7 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     public Response banUser(BanUserForm form){
         Employee employee = employeesRepository.findByToken(form.getAccessToken());
-        if(employee == null){
+        if(employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         String accessToken = employeesRepository.generateToken(employee);
@@ -171,7 +171,7 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteAccount(RemoveUserForm form){
         Client client = repository.findByToken(form.getAccessToken());
-        if(client == null || client.getStatus().equals(ClientStatus.ACTIVE)){
+        if(client == null || client.getStatus().equals(ClientStatus.ACTIVE) || LocalDateTime.now().compareTo(client.getTokenExpiration())==1){
             return Response.status(401).entity(new ErrorResponse("Nie udało się autoryzować", null)).build();
         }
         client.setAccessToken(null);
@@ -186,7 +186,7 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeEmployee(RemoveEmployeeForm form){
         Employee employee = employeesRepository.findByToken(form.getAccessToken());
-        if(employee == null){
+        if(employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1){
             return Response.status(401).entity(new ErrorResponse("Nie udało się autoryzować", null)).build();
         }
         String accessToken = employeesRepository.generateToken(employee);

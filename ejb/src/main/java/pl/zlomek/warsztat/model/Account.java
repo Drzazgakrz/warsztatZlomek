@@ -42,6 +42,8 @@ public abstract class Account {
     protected LocalDateTime createdAt;
 
     protected  LocalDateTime lastLoggedIn;
+
+    protected LocalDateTime tokenExpiration;
     public String getAccessToken() {
         return accessToken;
     }

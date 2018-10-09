@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.GregorianCalendar;
 
 @Path("/invoice")
@@ -43,7 +44,7 @@ public class InvoiceActions {
     @Transactional
     public Response addInvoice(AddInvoiceForm newInvoice) {
         Employee employee = employeesRepository.findByToken(newInvoice.getAccessToken());
-        if (employee == null)
+        if (employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1)
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         String accessToken = employeesRepository.generateToken(employee);
         Company company = companiesRepository.getCompanyByName(newInvoice.getCompanyName());
@@ -102,7 +103,7 @@ public class InvoiceActions {
     @Produces(MediaType.APPLICATION_JSON)
     public Response editInvoice(EditInvoiceForm form) {
         Employee employee = employeesRepository.findByToken(form.getAccessToken());
-        if (employee == null) {
+        if (employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         String accessToken = employeesRepository.generateToken(employee);
