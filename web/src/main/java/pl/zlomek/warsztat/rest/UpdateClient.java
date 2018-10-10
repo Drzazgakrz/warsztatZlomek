@@ -15,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.HashSet;
+import java.util.List;
 
 @Path("/updateClient")
 public class UpdateClient {
@@ -43,15 +44,22 @@ public class UpdateClient {
             String accessToken = clientsRepository.generateToken(client);
             return Response.status(400).entity(accessToken).build();
         }
-
         CarBrand carBrand = carRepository.getCarBrandByName(carData.getBrandName());
         car = new Car(carData.getRegistrationNumber(), carData.getVin(), carData.getModel(), carData.getProductionYear(), carBrand);
-
+        carRepository.insertCar(car);
         CarsHasOwners cho = car.addCarOwner(client);
         carRepository.insertOwnership(cho);
-        carRepository.insertCar(car);
         String token = clientsRepository.generateToken(client);
         return Response.ok(token).build();
+    }
+    @POST
+    @Transactional
+    @Path("/getCarS")
+    public int cars(){
+
+        //id client jest na sztywno
+        List<Car> carsByClientId = carRepository.getCarsByClientId(1);
+        return carsByClientId.size();  //zwrr\aca liczbę samochhodów dla danego klienta
     }
     @POST
     @Path("/addClientToCompany")

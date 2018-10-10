@@ -41,7 +41,7 @@ public class Car implements Serializable {
     @NotNull
     CarBrand brand;
 
-    @OneToMany(fetch = FetchType.LAZY ,mappedBy = "owner")
+    @OneToMany(fetch = FetchType.LAZY ,mappedBy = "car")
     Set<CarsHasOwners> owners;
 
     @ManyToMany(fetch = FetchType.LAZY)

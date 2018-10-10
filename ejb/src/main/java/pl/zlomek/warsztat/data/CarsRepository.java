@@ -1,5 +1,6 @@
 package pl.zlomek.warsztat.data;
 
+import org.hibernate.mapping.Collection;
 import pl.zlomek.warsztat.model.Car;
 import pl.zlomek.warsztat.model.CarBrand;
 import pl.zlomek.warsztat.model.CarsHasOwners;
@@ -9,6 +10,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
 public class CarsRepository {
@@ -50,10 +54,22 @@ public class CarsRepository {
 
     public Car getCarById(long id){
         try {
-            TypedQuery<Car> getCarQuery = em.createQuery("select car from Car car where id = :id",Car.class);
+            String query = "select car from Car car where id = :id";
+            TypedQuery<Car> getCarQuery = em.createQuery(query,Car.class);
             getCarQuery.setParameter("id",id);
             return getCarQuery.getSingleResult();
         }catch (Exception e){
+            return null;
+        }
+    }
+    public List<Car> getCarsByClientId(long clientId) {
+        String query = "select car from Car car  join fetch car.owners own where own.owner.clientId = :clientIdparam";
+        try {
+            TypedQuery<Car> choQuery = em.createQuery(query, Car.class);
+            choQuery.setParameter("clientIdparam", clientId);
+            List<Car> clientCarsList = choQuery.getResultList();
+            return clientCarsList;
+        } catch (Exception e) {
             return null;
         }
     }
