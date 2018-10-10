@@ -59,7 +59,7 @@ public class Client extends Account{
 
     @OneToMany(
             fetch = FetchType.LAZY,
-            mappedBy = "car"
+            mappedBy = "owner"
     )
     private Set<CarsHasOwners> cars;
 
@@ -82,7 +82,7 @@ public class Client extends Account{
     }
 
     public boolean checkCar(Car car){
-        return cars.stream().allMatch(clientCar-> clientCar.equals(car));
+        return cars.stream().anyMatch(clientCar-> clientCar.equals(car));
     }
 
     @Override

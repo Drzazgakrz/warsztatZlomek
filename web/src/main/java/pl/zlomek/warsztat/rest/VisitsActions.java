@@ -172,6 +172,7 @@ public class VisitsActions {
             List<Visit> visits = visitsRepository.getClientVisits(client);
             /*List<Visit> visits = new ArrayList<>();
             List<Visit> allVisits = visitsRepository.getAllVisits();
+            System.out.println(allVisits.size());
             client.getCars().forEach(carsHasOwners -> {
                 Car car = carsHasOwners.getCar();
                 visits.addAll(car.getVisits());
