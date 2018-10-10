@@ -20,4 +20,8 @@ public class CarBrand implements Serializable {
 
     @Column(name = "brand_name")
     private String brandName;
+
+    public CarBrand(String name){
+        this.brandName = name;
+    }
 }

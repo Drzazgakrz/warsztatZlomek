@@ -8,12 +8,12 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class AddInvoiceForm {
-    private int discount;
-    private int tax;
-    private String methodOfPayment;
-    private String netValue;
-    private String grossValue;
-    private String valueOfVat;
-    private String companyName;
-    private String accessToken;
+    protected int discount;
+    protected int tax;
+    protected String methodOfPayment;
+    protected String netValue;
+    protected String grossValue;
+    protected String valueOfVat;
+    protected String companyName;
+    protected String accessToken;
 }
