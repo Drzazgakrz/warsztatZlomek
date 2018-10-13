@@ -1,15 +1,18 @@
 package pl.zlomek.warsztat.model;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.zlomek.warsztat.VisitResponseModel;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
-public class GetAllVisitsResponse extends PositiveResponse {
-    private Visit[] visits;
+public class GetAllVisitsResponse extends PositiveResponse implements Serializable {
+    private VisitResponseModel[] visits;
 
-    public GetAllVisitsResponse(String accessToken, Visit[] visits) {
+    public GetAllVisitsResponse(String accessToken, VisitResponseModel
+            [] visits) {
         super(accessToken);
         this.visits = visits;
     }

@@ -1,6 +1,7 @@
 package pl.zlomek.warsztat.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "car_brand")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class CarBrand implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

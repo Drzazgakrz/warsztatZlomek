@@ -2,6 +2,7 @@ package pl.zlomek.warsztat.rest;
 
 
 import org.slf4j.LoggerFactory;
+import pl.zlomek.warsztat.VisitResponseModel;
 import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
 
@@ -15,9 +16,8 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
 import org.slf4j.Logger;
 
 
@@ -179,12 +179,35 @@ public class VisitsActions {
             });*/
             log.info("Wszystkie" + Integer.toString(client.getCars().size()));
             log.info("Lista" + Integer.toString(visits.size()));
-            log.info("Samochod"+((CarsHasOwners)client.getCars().toArray()[0]).getCar().getVin());
-            Visit[] visitsArray = new Visit[visits.size()];
-            visitsArray = visits.toArray(visitsArray);
+            VisitResponseModel[] visitsArray = visitsListToArray(visits);
             return Response.status(200).entity(new GetAllVisitsResponse(accessToken, visitsArray)).build();
         }catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Wystąpił nieoczekiwany błąd przepraszamy", null)).build();
         }
+    }
+
+    public VisitResponseModel[] visitsListToArray(Collection<Visit> visitsList){
+        VisitResponseModel[] visits = new VisitResponseModel[visitsList.size()];
+        int i = 0;
+        for(Visit visit: visitsList){
+            visits[i] = new VisitResponseModel(visit);
+            i++;
+        }
+        return visits;
+    }
+
+    @POST
+    @Path("/getAllCarVisits")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllCarVisits(GetAllCarVisitsForm form){
+        Car car = carsRepository.getCarByVin(form.getVin());
+        if (car == null){
+            return Response.status(400).entity(new ErrorResponse("Brak samochodów o podanym numerze VIN", null)).build();
+        }
+        log.info(Integer.toString(car.getVisits().size()));
+        VisitResponseModel[] visits = visitsListToArray(car.getVisits());
+
+        return Response.status(200).entity(new GetAllVisitsResponse(null, visits)).build();
     }
 }
