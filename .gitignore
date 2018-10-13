@@ -1,4 +1,4 @@
 .idea/**
 **/target/**
-**/persistence.xml
+**/**.xml
 **/warsztatZlomek-web.iml
