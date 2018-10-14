@@ -169,7 +169,7 @@ public class VisitsActions {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
             }
             String accessToken = clientsRepository.generateToken(client);
-            List<Visit> visits = visitsRepository.getClientVisits(client);
+            //List<Visit> visits = visitsRepository.getClientVisits(client);
             /*List<Visit> visits = new ArrayList<>();
             List<Visit> allVisits = visitsRepository.getAllVisits();
             System.out.println(allVisits.size());
@@ -177,6 +177,11 @@ public class VisitsActions {
                 Car car = carsHasOwners.getCar();
                 visits.addAll(car.getVisits());
             });*/
+            Set<Visit> visits = new HashSet<>();
+            for (CarsHasOwners cho: client.getCars())
+            {
+                visits.addAll(cho.getCar().getVisits());
+            }
             log.info("Wszystkie" + Integer.toString(client.getCars().size()));
             log.info("Lista" + Integer.toString(visits.size()));
             VisitResponseModel[] visitsArray = visitsListToArray(visits);
