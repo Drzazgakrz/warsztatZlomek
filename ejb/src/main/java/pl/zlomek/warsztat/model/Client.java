@@ -63,6 +63,12 @@ public class Client extends Account{
     )
     private Set<CarsHasOwners> cars;
 
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "client"
+    )
+    private Set<Visit> visits;
+
     private ClientStatus status;
 
     public Client(String firstName, String lastName, String email, String phoneNumber, String cityName,
