@@ -163,7 +163,7 @@ public class VisitsActions {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllClientsVisits(GetAllClientsVisitsForm form){
-        try {
+        //try {
             Client client = clientsRepository.findByToken(form.getAccessToken());
             if (client == null || LocalDateTime.now().compareTo(client.getTokenExpiration())==1) {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
@@ -176,9 +176,9 @@ public class VisitsActions {
             }
             VisitResponseModel[] visitsArray = visitsListToArray(visits);
             return Response.status(200).entity(new GetAllVisitsResponse(accessToken, visitsArray)).build();
-        }catch (Exception e){
+        /*}catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Wystąpił nieoczekiwany błąd przepraszamy", null)).build();
-        }
+        }*/
     }
 
     public VisitResponseModel[] visitsListToArray(Collection<Visit> visitsList){
