@@ -35,6 +35,17 @@ public class CompaniesRepository implements Serializable {
             return null;
         }
     }
+
+    public Company getCompanyById(Long id){
+        try {
+            TypedQuery<Company> getCompany = em.createQuery("select companies from Company companies where companies.id = :id", Company.class);
+            getCompany.setParameter("id", id);
+            return getCompany.getSingleResult();
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
     public void updateCompany(Company company){
         em.merge(company);
     }

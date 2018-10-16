@@ -48,7 +48,6 @@ public class UpdateClient {
             List<CarsHasOwners> currentOwners = car.getOwners().stream().
                     filter((carsHasOwners -> carsHasOwners.getStatus().equals(OwnershipStatus.CURRENT_OWNER))).
                     collect(Collectors.toList());
-            log.info("Wszyscy = "+Integer.toString(currentOwners.size()));
             OwnershipStatus status = (currentOwners.size()!= 0)? OwnershipStatus.NOT_VERIFIED_OWNER:OwnershipStatus.CURRENT_OWNER;
             CarsHasOwners cho = car.addCarOwner(client, status, carData.getRegistrationNumber());
             carRepository.insertOwnership(cho);
