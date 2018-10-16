@@ -1,15 +1,14 @@
 package pl.zlomek.warsztat.rest;
 
-import pl.zlomek.warsztat.data.CarBrandsRespository;
-import pl.zlomek.warsztat.data.CarPartsRepository;
+import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
-import pl.zlomek.warsztat.data.EmployeesRepository;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -24,6 +23,15 @@ public class CarActions {
 
     @Inject
     private CarBrandsRespository carBrandsRespository;
+
+    @Inject
+    private ClientsRepository clientsRepository;
+
+    @Inject
+    private CarsRepository carsRepository;
+
+    @Inject
+    private CompaniesRepository companiesRepository;
 
     //ścieżka localhost:8080/warsztatZlomek/rest/CarParts/addCarPart
     @POST
@@ -75,6 +83,28 @@ public class CarActions {
         return Response.status(400).entity(accessToken).build();
     }
 
-
-
+    @POST
+    @Path("/addCarToCompany")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response addCarToCompany(AddCarToCompanyForm form){
+        Client client = clientsRepository.findByToken(form.getAccessToken());
+        if(client == null )
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        String accessToken = employeesRepository.generateToken(client);
+        Car car = carsRepository.getCarById(form.getCarId());
+        if(car==null){
+            return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu w bazie", accessToken)).build();
+        }
+        if(client.checkCar(car).length<1){
+            return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", accessToken)).build();
+        }
+        Company company = companiesRepository.getCompanyById(form.getCompanyId());
+        if(!client.getCompanies().contains(company)){
+            return Response.status(403).entity(new ErrorResponse("Firma nie jest dodana do tego klienta", accessToken)).build();
+        }
+        car.getCompaniesCars().add(company);
+        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+    }
 }
