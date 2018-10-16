@@ -1,4 +1,4 @@
-package pl.zlomek.warsztat;
+package pl.zlomek.warsztat.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,23 +8,25 @@ import pl.zlomek.warsztat.model.CarsHasOwners;
 import pl.zlomek.warsztat.model.Visit;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.stream.Stream;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class VisitResponseModel {
-    private LocalDate visitDate;
+    private Date visitDate;
     private String car;
     private String registrationNumber;
     public VisitResponseModel(Visit visit){
-        this.visitDate = visit.getVisitDate();
+        this.visitDate =Date.from(visit.getVisitDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
         Car car = visit.getCar();
         this.car = new StringBuilder(car.getBrand().getBrandName()).append(" ").append(car.getModel()).toString();
         Object[] cars=  car.getOwners().stream().filter((carsHasOwners ->
              (carsHasOwners.getEndOwnershipDate() == null ||
-                    (this.visitDate.isBefore(carsHasOwners.getEndOwnershipDate())&&
-                            this.visitDate.isAfter(carsHasOwners.getBeginOwnershipDate())))
+                    (visit.getVisitDate().isBefore(carsHasOwners.getEndOwnershipDate())&&
+                            visit.getVisitDate().isAfter(carsHasOwners.getBeginOwnershipDate())))
         )).limit(1).toArray();
         this.registrationNumber = ((CarsHasOwners)cars[0]).getRegistrationNumber();
     }

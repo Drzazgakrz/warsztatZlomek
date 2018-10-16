@@ -27,6 +27,10 @@ public class CarsRepository {
        return em.merge(car);
     }
 
+    public CarsHasOwners updateOwnership(CarsHasOwners cho){
+        return em.merge(cho);
+    }
+
     @Transactional
     public void insertOwnership(CarsHasOwners cho){
         em.persist(cho);

@@ -2,7 +2,7 @@ package pl.zlomek.warsztat.rest;
 
 
 import org.slf4j.LoggerFactory;
-import pl.zlomek.warsztat.VisitResponseModel;
+import pl.zlomek.warsztat.model.VisitResponseModel;
 import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
 
@@ -122,7 +122,7 @@ public class VisitsActions {
         if(car == null) {
             return Response.status(400).entity(new ErrorResponse("Podany samochód nie istnieje", accessToken)).build();
         }
-        if(!client.checkCar(car)){
+        if(client.checkCar(car).length<1){
             return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", accessToken)).build();
         }
         Overview overview = null;
