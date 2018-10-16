@@ -94,4 +94,32 @@ public class UpdateClient {
         companiesRepository.addClient(clientsCompany);
         return Response.status(200).entity(new PositiveResponse(accessToken)).build();
     }
+
+    @POST
+    @Path("/removeCar")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response removeCarFromClientsProfile(RemoveCarForm form){
+        try{
+            Client client = clientsRepository.findByToken(form.getAccessToken());
+            if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE) || LocalDateTime.now().compareTo(client.getTokenExpiration())==1){
+                return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+            }
+            String accessToken = clientsRepository.generateToken(client);
+            Car car = carRepository.getCarById(form.getCarId());
+            if(car == null){
+                return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu", accessToken)).build();
+            }
+            Object[] cho;
+            if( (cho = client.checkCar(car)).length<1){
+                return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", accessToken)).build();
+            }
+            CarsHasOwners ownership = ((CarsHasOwners) cho[0]);
+            ownership.setStatus(OwnershipStatus.FORMER_OWNER);
+            carRepository.updateOwnership(ownership);
+            return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        }catch (Exception e){
+            return Response.status(500).entity(new ErrorResponse("Błąd serwera. Przepraszamy", null)).build();
+        }
+    }
 }

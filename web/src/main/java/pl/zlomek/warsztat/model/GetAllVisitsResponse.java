@@ -2,7 +2,6 @@ package pl.zlomek.warsztat.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import pl.zlomek.warsztat.VisitResponseModel;
 
 import java.io.Serializable;
 

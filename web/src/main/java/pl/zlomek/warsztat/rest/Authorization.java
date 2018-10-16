@@ -73,7 +73,7 @@ public class Authorization {
             }
             client.setLastLoggedIn(LocalDateTime.now());
             String token = repository.generateToken(client);
-            return Response.ok(token).build();
+            return Response.status(200).entity(new PositiveResponse(token)).build();
         }
         return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych logowania", null)).build();
     }
@@ -96,7 +96,7 @@ public class Authorization {
             String token = employeesRepository.generateToken(employee);
             employee.setAccessToken(token);
             return Response.status(200).entity(new PositiveResponse(token)).build();
-        } return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych logowania", null)).build();
+        } return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych rejestracji", null)).build();
     }
 
     @POST
@@ -106,7 +106,7 @@ public class Authorization {
     @Transactional
     public Response signInEmployee(EmployeeSignInForm form){
         if(form.getPassword() == null || form.getUsername() == null){
-            return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych logowania", null)).build();
+            return Response.status(400).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         Employee employee = employeesRepository.signIn(form.getPassword(), form.getUsername());
         if(employee == null){
