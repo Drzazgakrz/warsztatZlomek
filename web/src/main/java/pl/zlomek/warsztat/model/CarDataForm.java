@@ -12,4 +12,5 @@ public class CarDataForm {
     private String model;
     private int productionYear;
     private String brandName;
+    private Boolean isCoowner;
 }

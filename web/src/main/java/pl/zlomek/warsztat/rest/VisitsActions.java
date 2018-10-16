@@ -169,21 +169,11 @@ public class VisitsActions {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
             }
             String accessToken = clientsRepository.generateToken(client);
-            //List<Visit> visits = visitsRepository.getClientVisits(client);
-            /*List<Visit> visits = new ArrayList<>();
-            List<Visit> allVisits = visitsRepository.getAllVisits();
-            System.out.println(allVisits.size());
-            client.getCars().forEach(carsHasOwners -> {
-                Car car = carsHasOwners.getCar();
-                visits.addAll(car.getVisits());
-            });*/
             Set<Visit> visits = new HashSet<>();
             for (CarsHasOwners cho: client.getCars())
             {
                 visits.addAll(cho.getCar().getVisits());
             }
-            log.info("Wszystkie" + Integer.toString(client.getCars().size()));
-            log.info("Lista" + Integer.toString(visits.size()));
             VisitResponseModel[] visitsArray = visitsListToArray(visits);
             return Response.status(200).entity(new GetAllVisitsResponse(accessToken, visitsArray)).build();
         }catch (Exception e){
@@ -210,7 +200,6 @@ public class VisitsActions {
         if (car == null){
             return Response.status(400).entity(new ErrorResponse("Brak samochodów o podanym numerze VIN", null)).build();
         }
-        log.info(Integer.toString(car.getVisits().size()));
         VisitResponseModel[] visits = visitsListToArray(car.getVisits());
 
         return Response.status(200).entity(new GetAllVisitsResponse(null, visits)).build();
