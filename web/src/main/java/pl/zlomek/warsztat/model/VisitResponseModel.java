@@ -3,14 +3,8 @@ package pl.zlomek.warsztat.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.zlomek.warsztat.model.Car;
-import pl.zlomek.warsztat.model.CarsHasOwners;
-import pl.zlomek.warsztat.model.Visit;
-
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.stream.Stream;
 
 @Getter
 @Setter

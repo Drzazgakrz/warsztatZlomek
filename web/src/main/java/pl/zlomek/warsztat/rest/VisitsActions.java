@@ -131,7 +131,7 @@ public class VisitsActions {
             overview = new Overview(visitDate, car);
             visitsRepository.createOverview(overview);
         }
-        Visit visit = new Visit(visitDate, car, overview);
+        Visit visit = new Visit(visitDate, car, overview, client);
         car.getVisits().add(visit);
         carsRepository.updateCar(car);
         visitsRepository.createVisit(visit);

@@ -60,7 +60,10 @@ public class Visit implements Serializable {
 
     private LocalDateTime updatedAt;
 
-    public Visit(LocalDate date, Car car, Overview overview){
+    @ManyToOne
+    private Client client;
+
+    public Visit(LocalDate date, Car car, Overview overview, Client client){
 
         this.visitDate = date;
         this.services = new HashSet<>();
@@ -70,6 +73,7 @@ public class Visit implements Serializable {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.overview = overview;
+        this.client = client;
     }
 
     public void addPartToVisit(CarPart part, int count, BigDecimal singlePrice){
