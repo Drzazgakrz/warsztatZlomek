@@ -60,8 +60,8 @@ public class Car implements Serializable {
         this.companiesCars = new HashSet<>();
     }
 
-    public CarsHasOwners addCarOwner(Client client){
-        CarsHasOwners cho = new CarsHasOwners(this, client, OwnershipStatus.CURRENT_OWNER);
+    public CarsHasOwners addCarOwner(Client client, OwnershipStatus status){
+        CarsHasOwners cho = new CarsHasOwners(this, client, status);
         this.owners.add(cho);
         client.getCars().add(cho);
         return cho;

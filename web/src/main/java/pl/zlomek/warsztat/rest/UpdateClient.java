@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/updateClient")
 public class UpdateClient {
@@ -44,27 +45,27 @@ public class UpdateClient {
         Car car = carRepository.getCarByVin(carData.getVin());
 
         if(car!=null){
+            List<CarsHasOwners> currentOwners = car.getOwners().stream().
+                    filter((carsHasOwners -> carsHasOwners.getStatus().equals(OwnershipStatus.CURRENT_OWNER))).
+                    collect(Collectors.toList());
+            log.info("Wszyscy = "+Integer.toString(currentOwners.size()));
+            OwnershipStatus status = (currentOwners.size()!= 0)? OwnershipStatus.NOT_VERIFIED_OWNER:OwnershipStatus.CURRENT_OWNER;
+            CarsHasOwners cho = car.addCarOwner(client, status);
+            carRepository.insertOwnership(cho);
+            carRepository.updateCar(car);
             String accessToken = clientsRepository.generateToken(client);
-            return Response.status(400).entity(new ErrorResponse("Brk samochodu w bazie", accessToken)).build();
+            return Response.status(200).entity(new PositiveResponse(accessToken)).build();
         }
         CarBrand carBrand = carRepository.getCarBrandByName(carData.getBrandName());
         car = new Car(carData.getRegistrationNumber(), carData.getVin(), carData.getModel(), carData.getProductionYear(), carBrand);
         carRepository.insertCar(car);
-        CarsHasOwners cho = car.addCarOwner(client);
+        CarsHasOwners cho = car.addCarOwner(client, OwnershipStatus.CURRENT_OWNER);
         carRepository.insertOwnership(cho);
         carRepository.updateCar(car);
         String token = clientsRepository.generateToken(client);
-        log.info(Integer.toString(client.getCars().size()));
         return Response.status(200).entity(new PositiveResponse(token)).build();
     }
-    @POST
-    @Transactional
-    @Path("/getCarS")
-    public int cars(){
-        //id client jest na sztywno
-        List<Car> carsByClientId = carRepository.getCarsByClientId(1);
-        return carsByClientId.size();  //zwraca liczbę samochhodów dla danego klienta
-    }
+
     @POST
     @Path("/addClientToCompany")
     @Transactional
