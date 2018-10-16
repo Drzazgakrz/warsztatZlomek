@@ -20,11 +20,6 @@ public class Car implements Serializable {
     private long id;
 
     @NotNull
-    @Size(min = 7, max = 8)
-    @Column(name = "registration_number")
-    private String registrationNumber;
-
-    @NotNull
     @Size(min = 2, max = 30)
     private String model;
 
@@ -51,7 +46,6 @@ public class Car implements Serializable {
     private Set<Visit> visits;
 
     public Car(String registrationNumber, String vin, String model, int prodYear, CarBrand brand){
-        this.registrationNumber = registrationNumber;
         this.brand = brand;
         this.model = model;
         this.prodYear = prodYear;
@@ -60,8 +54,8 @@ public class Car implements Serializable {
         this.companiesCars = new HashSet<>();
     }
 
-    public CarsHasOwners addCarOwner(Client client, OwnershipStatus status){
-        CarsHasOwners cho = new CarsHasOwners(this, client, status);
+    public CarsHasOwners addCarOwner(Client client, OwnershipStatus status, String registrationNumber){
+        CarsHasOwners cho = new CarsHasOwners(this, client, status, registrationNumber);
         this.owners.add(cho);
         client.getCars().add(cho);
         return cho;

@@ -50,7 +50,7 @@ public class UpdateClient {
                     collect(Collectors.toList());
             log.info("Wszyscy = "+Integer.toString(currentOwners.size()));
             OwnershipStatus status = (currentOwners.size()!= 0)? OwnershipStatus.NOT_VERIFIED_OWNER:OwnershipStatus.CURRENT_OWNER;
-            CarsHasOwners cho = car.addCarOwner(client, status);
+            CarsHasOwners cho = car.addCarOwner(client, status, carData.getRegistrationNumber());
             carRepository.insertOwnership(cho);
             carRepository.updateCar(car);
             String accessToken = clientsRepository.generateToken(client);
@@ -59,7 +59,7 @@ public class UpdateClient {
         CarBrand carBrand = carRepository.getCarBrandByName(carData.getBrandName());
         car = new Car(carData.getRegistrationNumber(), carData.getVin(), carData.getModel(), carData.getProductionYear(), carBrand);
         carRepository.insertCar(car);
-        CarsHasOwners cho = car.addCarOwner(client, OwnershipStatus.CURRENT_OWNER);
+        CarsHasOwners cho = car.addCarOwner(client, OwnershipStatus.CURRENT_OWNER, carData.getRegistrationNumber());
         carRepository.insertOwnership(cho);
         carRepository.updateCar(car);
         String token = clientsRepository.generateToken(client);

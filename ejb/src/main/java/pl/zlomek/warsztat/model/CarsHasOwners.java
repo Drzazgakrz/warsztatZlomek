@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
@@ -34,6 +35,11 @@ public class CarsHasOwners implements Serializable {
     private LocalDate beginOwnershipDate;
 
     private LocalDate endOwnershipDate;
+
+    @NotNull
+    @Size(min = 7, max = 8)
+    @Column(name = "registration_number")
+    private String registrationNumber;
 
     @Embeddable
     @Getter
@@ -70,12 +76,13 @@ public class CarsHasOwners implements Serializable {
         }
     }
 
-    public CarsHasOwners(Car car, Client client, OwnershipStatus status) {
+    public CarsHasOwners(Car car, Client client, OwnershipStatus status, String registrationNumber) {
         this.id = new CarHasOwnerId(car, client);
         this.car = car;
         this.owner = client;
         this.status = status;
         this.beginOwnershipDate = LocalDate.now();
+        this.registrationNumber = registrationNumber;
     }
 
     @Override
