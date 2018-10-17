@@ -6,15 +6,14 @@ import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.zlomek.warsztat.model.Account;
-import pl.zlomek.warsztat.model.CarsHasOwners;
-import pl.zlomek.warsztat.model.Client;
+import pl.zlomek.warsztat.model.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,10 +22,6 @@ import java.util.List;
 public class ClientsRepository extends AccountsRepository {
 
     private Logger log = LoggerFactory.getLogger(ClientsRepository.class);
-
-    public void registerUser(Client client){
-        em.persist(client);
-    }
 
     public Client signIn(String username, String password){
         try {
@@ -53,19 +48,6 @@ public class ClientsRepository extends AccountsRepository {
             return null;
         }
     }
-
-    @Override
-    public Client findByToken(String token){
-        try {
-            TypedQuery<Client> getClient = em.createQuery("select client from Client client where accessToken "+
-                            "= :token ",Client.class);
-            getClient.setParameter("token", token);
-            return getClient.getSingleResult();
-        }catch (Exception e){
-            e.printStackTrace();
-            return null;
-        }
-    }
     public List<CarsHasOwners> getClientsCar(Client client){
         try {
             TypedQuery<CarsHasOwners> query = em.createQuery("SELECT cho FROM  CarsHasOwners cho WHERE cho.owner = :client", CarsHasOwners.class);
@@ -75,5 +57,30 @@ public class ClientsRepository extends AccountsRepository {
             return new ArrayList<>();
         }
 
+    }
+
+    @Override
+    public Account findByToken(String accessToken) {
+        try {
+            TypedQuery<ClientToken> query = em.createQuery("SELECT clientToken FROM ClientToken clientToken where clientToken.accessToken = :accessToken", ClientToken.class);
+            query.setParameter("accessToken", accessToken);
+            AccessToken token =  query.getSingleResult();
+            if(token != null || token.getExpiration().compareTo(LocalDateTime.now())== -1){
+                return ((ClientToken) token).getClient();
+            }
+        }catch (Exception e){
+        }
+        return null;
+    }
+
+    @Override
+    public String generateToken(Account account) {
+        String token = createToken(account);
+        Client client = (Client) account;
+        ClientToken clientToken = new ClientToken(token, LocalDateTime.now().plusMinutes(20), client);
+        em.persist(clientToken);
+        client.getAccessToken().add(clientToken);
+        update(account);
+        return token;
     }
 }

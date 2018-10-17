@@ -52,10 +52,11 @@ public class Client extends Account{
     @Column(name = "zip_code")
     private String zipCode;
 
-    @ManyToMany(
-            fetch = FetchType.LAZY
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "client"
     )
-    private Set<Company> companies;
+    private Set<CompaniesHasEmployees> companies;
 
     @OneToMany(
             fetch = FetchType.LAZY,
@@ -68,6 +69,9 @@ public class Client extends Account{
             mappedBy = "client"
     )
     private Set<Visit> visits;
+
+    @OneToMany(mappedBy = "client")
+    protected Set<ClientToken> accessToken;
 
     private ClientStatus status;
 
@@ -83,7 +87,7 @@ public class Client extends Account{
         this.zipCode = zipCode;
         this.cars = new HashSet<>();
         this.companies = new HashSet<>();
-        this.accessToken = accessToken;
+        this.accessToken = new HashSet<>();
         this.status = ClientStatus.ACTIVE;
     }
 

@@ -28,8 +28,8 @@ public class CarPartsActions {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addCarPart(AddCarPartsForm newPart){
-        Employee employee = employeesRepository.findByToken(newPart.getAccessToken());
-        if(employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1 )
+        Employee employee = (Employee) employeesRepository.findByToken(newPart.getAccessToken());
+        if(employee == null)
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         String accessToken = employeesRepository.generateToken(employee);
         if(!newPart.getName().isEmpty())

@@ -43,8 +43,8 @@ public class InvoiceActions {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response addInvoice(AddInvoiceForm newInvoice) {
-        Employee employee = employeesRepository.findByToken(newInvoice.getAccessToken());
-        if (employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1)
+        Employee employee = (Employee) employeesRepository.findByToken(newInvoice.getAccessToken());
+        if (employee == null)
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         String accessToken = employeesRepository.generateToken(employee);
         Company company = companiesRepository.getCompanyByName(newInvoice.getCompanyName());
@@ -102,8 +102,8 @@ public class InvoiceActions {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response editInvoice(EditInvoiceForm form) {
-        Employee employee = employeesRepository.findByToken(form.getAccessToken());
-        if (employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1) {
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         String accessToken = employeesRepository.generateToken(employee);

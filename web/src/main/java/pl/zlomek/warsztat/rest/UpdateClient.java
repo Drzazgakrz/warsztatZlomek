@@ -39,8 +39,8 @@ public class UpdateClient {
     @Path("/addCar")
     @Produces(MediaType.APPLICATION_JSON)
     public Response addCar(CarDataForm carData){
-        Client client = clientsRepository.findByToken(carData.getAccessToken());
-        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)|| LocalDateTime.now().compareTo(client.getTokenExpiration())==1)
+        Client client = (Client)clientsRepository.findByToken(carData.getAccessToken());
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE))
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         Car car = carRepository.getCarByVin(carData.getVin());
 
@@ -72,7 +72,7 @@ public class UpdateClient {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addClientToCompany(AddClientForm form){
         Client client = clientsRepository.findClientByUsername(form.getUsername());
-        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE) || LocalDateTime.now().compareTo(client.getTokenExpiration())==1){
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         Company clientsCompany = companiesRepository.getCompanyByName(form.getCompanyName());
@@ -81,14 +81,8 @@ public class UpdateClient {
             String accessToken = clientsRepository.generateToken(client);
             return Response.status(400).entity(new ErrorResponse("Firma o podanej nazwie nie istnieje", accessToken)).build();
         }
-        if(client.getCompanies() == null){
-            client.setCompanies(new HashSet<Company>());
-        }
-        client.getCompanies().add(clientsCompany);
-        if(clientsCompany.getEmployees() == null){
-            clientsCompany.setEmployees(new HashSet<Client>());
-        }
-        clientsCompany.getEmployees().add(client);
+        CompaniesHasEmployees che = clientsCompany.addClientToCompany(client);
+        companiesRepository.insertCompanyEmployee(che);
         String accessToken = clientsRepository.generateToken(client);
         companiesRepository.updateCompany(clientsCompany);
         return Response.status(200).entity(new PositiveResponse(accessToken)).build();
@@ -100,8 +94,8 @@ public class UpdateClient {
     @Transactional
     public Response removeCarFromClientsProfile(RemoveCarForm form){
         try{
-            Client client = clientsRepository.findByToken(form.getAccessToken());
-            if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE) || LocalDateTime.now().compareTo(client.getTokenExpiration())==1){
+            Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
+            if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
             }
             String accessToken = clientsRepository.generateToken(client);
