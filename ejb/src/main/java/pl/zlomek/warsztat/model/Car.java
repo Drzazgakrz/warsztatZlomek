@@ -39,13 +39,13 @@ public class Car implements Serializable {
     @OneToMany(fetch = FetchType.LAZY ,mappedBy = "car")
     Set<CarsHasOwners> owners;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Company> companiesCars;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "car")
+    private Set<CompaniesHasCars> companiesCars;
 
     @OneToMany(mappedBy = "car")
     private Set<Visit> visits;
 
-    public Car(String registrationNumber, String vin, String model, int prodYear, CarBrand brand){
+    public Car(String vin, String model, int prodYear, CarBrand brand){
         this.brand = brand;
         this.model = model;
         this.prodYear = prodYear;

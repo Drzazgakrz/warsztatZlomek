@@ -3,7 +3,9 @@ package pl.zlomek.warsztat.model;
 
 
 import lombok.NoArgsConstructor;
+import pl.zlomek.warsztat.data.CompaniesRepository;
 
+import javax.inject.Inject;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -34,18 +36,21 @@ public class Company extends CompanyModel implements Serializable {
     )
     private Set<Client> employees;
 
-    @ManyToMany
-    @JoinTable(name = "company_has_cars",
-            joinColumns = @JoinColumn(name = "company_id"),
-            inverseJoinColumns = @JoinColumn(name = "car_id")
-    )
-
-    private Set<Car> cars;
+    @OneToMany(mappedBy = "company")
+    private Set<CompaniesHasCars> cars;
 
     public Company(String nip, String email, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode){
         super(nip, companyName, cityName, streetName, buildingNum, aptNum, zipCode);
         this.email = email;
         this.employees = new HashSet<>();
         this.cars = new HashSet<>();
+    }
+
+
+    public CompaniesHasCars addCar(Car car){
+        CompaniesHasCars companiesHasCars = new CompaniesHasCars(car, this);
+        this.cars.add(companiesHasCars);
+        car.getCompaniesCars().add(companiesHasCars);
+        return companiesHasCars;
     }
 }

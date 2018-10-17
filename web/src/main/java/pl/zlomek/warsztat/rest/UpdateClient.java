@@ -56,7 +56,7 @@ public class UpdateClient {
             return Response.status(200).entity(new PositiveResponse(accessToken)).build();
         }
         CarBrand carBrand = carRepository.getCarBrandByName(carData.getBrandName());
-        car = new Car(carData.getRegistrationNumber(), carData.getVin(), carData.getModel(), carData.getProductionYear(), carBrand);
+        car = new Car(carData.getVin(), carData.getModel(), carData.getProductionYear(), carBrand);
         carRepository.insertCar(car);
         CarsHasOwners cho = car.addCarOwner(client, OwnershipStatus.CURRENT_OWNER, carData.getRegistrationNumber());
         carRepository.insertOwnership(cho);
@@ -90,7 +90,7 @@ public class UpdateClient {
         }
         clientsCompany.getEmployees().add(client);
         String accessToken = clientsRepository.generateToken(client);
-        companiesRepository.addClient(clientsCompany);
+        companiesRepository.updateCompany(clientsCompany);
         return Response.status(200).entity(new PositiveResponse(accessToken)).build();
     }
 

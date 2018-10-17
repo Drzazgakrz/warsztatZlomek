@@ -9,6 +9,7 @@ import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.zlomek.warsztat.model.CompaniesHasCars;
 import pl.zlomek.warsztat.model.Company;
 
 @ApplicationScoped
@@ -50,8 +51,11 @@ public class CompaniesRepository implements Serializable {
         em.merge(company);
     }
 
-    @Transactional
-    public void addClient(Company company){
-        this.update(company);
+    public void insertCarInJoinTable(CompaniesHasCars chc){
+        em.persist(chc);
+    }
+
+    public void updateJoinTable(CompaniesHasCars chc){
+        em.merge(chc);
     }
 }

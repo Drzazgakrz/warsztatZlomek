@@ -1,5 +1,7 @@
 package pl.zlomek.warsztat.rest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
 
@@ -11,6 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
 
 
 @Path("/car")
@@ -32,6 +35,8 @@ public class CarActions {
 
     @Inject
     private CompaniesRepository companiesRepository;
+
+    Logger log = LoggerFactory.getLogger(CarActions.class);
 
     //ścieżka localhost:8080/warsztatZlomek/rest/CarParts/addCarPart
     @POST
@@ -104,7 +109,45 @@ public class CarActions {
         if(!client.getCompanies().contains(company)){
             return Response.status(403).entity(new ErrorResponse("Firma nie jest dodana do tego klienta", accessToken)).build();
         }
-        car.getCompaniesCars().add(company);
+        CompaniesHasCars companiesHasCars = company.addCar(car);
+        companiesRepository.insertCarInJoinTable(companiesHasCars);
+        companiesRepository.updateCompany(company);
+        carsRepository.updateCar(car);
         return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+    }
+    @POST
+    @Path("/removeCarFromCompany")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response removeCarFromCompany(RemoveCarFromCompanyForm form){
+       // try{
+            Client client = clientsRepository.findByToken(form.getAccessToken());
+            if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE) || LocalDateTime.now().compareTo(client.getTokenExpiration())==1){
+                return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+            }
+            String accessToken = clientsRepository.generateToken(client);
+            Car car = carsRepository.getCarById(form.getCarId());
+            if(car == null){
+                return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu", accessToken)).build();
+            }
+            Company company = companiesRepository.getCompanyById(form.getCompanyId());
+            if(!client.getCompanies().contains(company)){
+                return Response.status(403).entity(new ErrorResponse("Firma nie jest dodana do tego klienta", accessToken)).build();
+            }
+            log.info("Samochody"+Integer.toString(company.getCars().size()));
+            log.info("Vin:" + car.getVin());
+            Object[] companiesArray = company.getCars().stream().filter((chc)-> {
+                log.info("Vin1"+chc.getCar().getVin());
+                return chc.getCar().equals(car);}).toArray();
+            if(companiesArray.length<1){
+                return Response.status(400).entity(new ErrorResponse("Firma nie posiada tego samochodu", accessToken)).build();
+            }
+            CompaniesHasCars chc = (CompaniesHasCars)companiesArray[0];
+            chc.setStatus(CompanyOwnershipStatus.FORMER_OWNER_COMPANY);
+            companiesRepository.updateJoinTable(chc);
+            return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        /*}catch (Exception e){
+            return Response.status(500).entity(new ErrorResponse("Błąd serwera. Przepraszamy", null)).build();
+        }*/
     }
 }

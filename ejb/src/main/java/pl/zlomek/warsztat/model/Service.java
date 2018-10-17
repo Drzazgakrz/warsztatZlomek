@@ -25,7 +25,7 @@ public class Service implements Serializable {
     @NotNull
     private String name;
 
-    @ManyToMany
+    @OneToMany(mappedBy = "service")
     @NotNull
-    private Set<Visit> visits;
+    private Set<VisitsHasServices> visits;
 }

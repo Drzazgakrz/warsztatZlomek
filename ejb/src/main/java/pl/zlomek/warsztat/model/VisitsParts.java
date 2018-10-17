@@ -33,7 +33,7 @@ public class VisitsParts implements Serializable {
     @Embeddable
     @Getter
     @Setter
-    static class VisitsPartsId implements Serializable{
+    private static class VisitsPartsId implements Serializable{
         private long partId;
         private long visitId;
 

@@ -13,6 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -39,6 +40,9 @@ public class VisitsActions {
 
     @Inject
     private CarPartsRepository carPartsRepository;
+
+    @Inject
+    private ServicesRepository servicesRepository;
 
     private Logger log = LoggerFactory.getLogger(VisitsActions.class);
 
@@ -76,6 +80,17 @@ public class VisitsActions {
                     }
                     visit.addPartToVisit(carPart, carPartModel.getCount(), carPartModel.getPrice());
                     carPartsRepository.updateCarPart(carPart);
+                });
+            }
+            if(form.getServices() != null) {
+                List<ServiceModel> carPartModelList = Arrays.asList(form.getServices());
+                carPartModelList.forEach(serviceModel -> {
+                    Service service = servicesRepository.getServiceByName(serviceModel.getServiceName());
+                    if (service == null) {
+                        return;
+                    }
+                    visit.addServiceToVisit(service, serviceModel.getCount(), new BigDecimal(serviceModel.getPrice()));
+                    servicesRepository.updateService(service);
                 });
             }
             visitsRepository.updateVisit(visit);
@@ -163,7 +178,7 @@ public class VisitsActions {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllClientsVisits(GetAllClientsVisitsForm form){
-        //try {
+        try {
             Client client = clientsRepository.findByToken(form.getAccessToken());
             if (client == null || LocalDateTime.now().compareTo(client.getTokenExpiration())==1) {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
@@ -176,9 +191,9 @@ public class VisitsActions {
             }
             VisitResponseModel[] visitsArray = visitsListToArray(visits);
             return Response.status(200).entity(new GetAllVisitsResponse(accessToken, visitsArray)).build();
-        /*}catch (Exception e){
+        }catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Wystąpił nieoczekiwany błąd przepraszamy", null)).build();
-        }*/
+        }
     }
 
     public VisitResponseModel[] visitsListToArray(Collection<Visit> visitsList){
@@ -201,7 +216,6 @@ public class VisitsActions {
             return Response.status(400).entity(new ErrorResponse("Brak samochodów o podanym numerze VIN", null)).build();
         }
         VisitResponseModel[] visits = visitsListToArray(car.getVisits());
-
         return Response.status(200).entity(new GetAllVisitsResponse(null, visits)).build();
     }
 }
