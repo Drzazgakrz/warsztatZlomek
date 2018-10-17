@@ -43,9 +43,10 @@
         <class>pl.zlomek.warsztat.model.InvoiceBuffer</class>
         <class>pl.zlomek.warsztat.model.InvoiceBufferPosition</class>
         <class>pl.zlomek.warsztat.model.VisitsParts</class>
-        <class>pl.zlomek.warsztat.model.VisitsServices</class>
         <class>pl.zlomek.warsztat.model.CarServiceData</class>
         <class>pl.zlomek.warsztat.model.CarsHasOwners</class>
+        <class>pl.zlomek.warsztat.model.VisitsHasServices</class>
+        <class>pl.zlomek.warsztat.model.CompaniesHasCars</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Properties for Hibernate -->

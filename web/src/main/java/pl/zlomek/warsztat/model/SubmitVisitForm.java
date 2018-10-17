@@ -14,5 +14,6 @@ public class SubmitVisitForm {
     private long visitId;
     private String accessToken;
     private CarPartModel[] carParts;
+    private ServiceModel[] services;
     private Integer countYears;
 }

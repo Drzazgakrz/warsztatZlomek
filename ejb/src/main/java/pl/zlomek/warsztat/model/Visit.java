@@ -2,6 +2,7 @@ package pl.zlomek.warsztat.model;
 
 import lombok.NoArgsConstructor;
 import pl.zlomek.warsztat.data.CarPartsRepository;
+import pl.zlomek.warsztat.data.ServicesRepository;
 import pl.zlomek.warsztat.data.VisitsRepository;
 
 import javax.inject.Inject;
@@ -27,6 +28,10 @@ public class Visit implements Serializable {
     @Transient
     VisitsRepository repository;
 
+    @Inject
+    @Transient
+    ServicesRepository servicesRepository;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -47,11 +52,9 @@ public class Visit implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Car car;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "visit")
     @NotNull
-    @JoinTable(name = "visits_has_services", joinColumns = @JoinColumn(name = "service_id"),
-    inverseJoinColumns = @JoinColumn(name = "visit_id"))
-    private Set<Service> services;
+    private Set<VisitsHasServices> services;
 
     @OneToMany(mappedBy = "visit", fetch = FetchType.LAZY)
     private Set<VisitsParts> parts;
@@ -81,5 +84,12 @@ public class Visit implements Serializable {
         this.parts.add(relation);
         part.addVisit(relation);
         repository.createVisitPart(relation);
+    }
+
+    public void addServiceToVisit(Service service, int count, BigDecimal singlePrice){
+        VisitsHasServices relation = new VisitsHasServices( service, this,count, singlePrice);
+        this.services.add(relation);
+        service.getVisits().add(relation);
+        servicesRepository.insertVisitsServices(relation);
     }
 }
