@@ -47,6 +47,9 @@
         <class>pl.zlomek.warsztat.model.CarsHasOwners</class>
         <class>pl.zlomek.warsztat.model.VisitsHasServices</class>
         <class>pl.zlomek.warsztat.model.CompaniesHasCars</class>
+        <class>pl.zlomek.warsztat.model.CompaniesHasEmployees</class>
+        <class>pl.zlomek.warsztat.model.ClientToken</class>
+        <class>pl.zlomek.warsztat.model.EmployeeToken</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Properties for Hibernate -->

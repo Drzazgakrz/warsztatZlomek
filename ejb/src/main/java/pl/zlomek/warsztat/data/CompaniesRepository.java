@@ -9,7 +9,9 @@ import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.zlomek.warsztat.model.Client;
 import pl.zlomek.warsztat.model.CompaniesHasCars;
+import pl.zlomek.warsztat.model.CompaniesHasEmployees;
 import pl.zlomek.warsztat.model.Company;
 
 @ApplicationScoped
@@ -57,5 +59,9 @@ public class CompaniesRepository implements Serializable {
 
     public void updateJoinTable(CompaniesHasCars chc){
         em.merge(chc);
+    }
+
+    public void insertCompanyEmployee (CompaniesHasEmployees che){
+        em.persist(che);
     }
 }

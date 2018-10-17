@@ -53,9 +53,8 @@ public class Authorization {
             String zipCode = newUserData.getZipCode();
             String password = newUserData.getPassword();
             Client client = new Client(firstName,lastName,email,phoneNum, cityName,streetName,buildNum,aptNum, zipCode,password, null);
-            repository.registerUser(client);
+            repository.insert(client);
             String token = repository.generateToken(client);
-            client.setAccessToken(token);
             return Response.status(200).entity(new PositiveResponse(token)).build();
         } return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych logowania", null)).build();
     }
@@ -92,9 +91,8 @@ public class Authorization {
             String password = newEmployeeData.getPassword();
             LocalDate hireDate = newEmployeeData.getHireDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             Employee employee = new Employee(firstName, lastName, hireDate, null, password, email, EmployeeStatus.employed);
-            employeesRepository.registerEmployee(employee);
+            employeesRepository.insert(employee);
             String token = employeesRepository.generateToken(employee);
-            employee.setAccessToken(token);
             return Response.status(200).entity(new PositiveResponse(token)).build();
         } return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych rejestracji", null)).build();
     }
@@ -122,7 +120,7 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response signOut(SignOutForm form){
-        Client client = repository.findByToken(form.getAccessToken());
+        Client client = (Client) repository.findByToken(form.getAccessToken());
         if(client == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
@@ -136,7 +134,7 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response signOutEmployee(SignOutForm form){
-        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if(employee == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
@@ -150,8 +148,8 @@ public class Authorization {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response banUser(BanUserForm form){
-        Employee employee = employeesRepository.findByToken(form.getAccessToken());
-        if(employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         String accessToken = employeesRepository.generateToken(employee);
@@ -170,8 +168,8 @@ public class Authorization {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteAccount(RemoveUserForm form){
-        Client client = repository.findByToken(form.getAccessToken());
-        if(client == null || client.getStatus().equals(ClientStatus.ACTIVE) || LocalDateTime.now().compareTo(client.getTokenExpiration())==1){
+        Client client = (Client) repository.findByToken(form.getAccessToken());
+        if(client == null || client.getStatus().equals(ClientStatus.ACTIVE)){
             return Response.status(401).entity(new ErrorResponse("Nie udało się autoryzować", null)).build();
         }
         client.setAccessToken(null);
@@ -185,8 +183,8 @@ public class Authorization {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeEmployee(RemoveEmployeeForm form){
-        Employee employee = employeesRepository.findByToken(form.getAccessToken());
-        if(employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
             return Response.status(401).entity(new ErrorResponse("Nie udało się autoryzować", null)).build();
         }
         String accessToken = employeesRepository.generateToken(employee);

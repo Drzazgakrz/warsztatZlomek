@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @lombok.AllArgsConstructor
@@ -36,11 +37,15 @@ public class Employee extends Account implements Serializable {
     @OneToMany (mappedBy = "employee")
     private Set<Visit> visits;
 
+    @OneToMany(mappedBy = "employee")
+    private Set<EmployeeToken> accessToken;
+
     public Employee(String firstName, String lastName, LocalDate hireDate, LocalDate quitDate, String password, String email,
                     EmployeeStatus status){
         super(email, firstName, lastName, password, LocalDateTime.now(), LocalDateTime.now());
         this.hireDate = hireDate;
         this.quitDate = quitDate;
         this.status = status;
+        accessToken = new HashSet<>();
     }
 }

@@ -29,12 +29,8 @@ public class Company extends CompanyModel implements Serializable {
     private String email;
 
 
-    @ManyToMany
-    @JoinTable(name = "company_has_employees",
-            joinColumns = @JoinColumn(name = "company_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
-    )
-    private Set<Client> employees;
+    @OneToMany(mappedBy = "company")
+    private Set<CompaniesHasEmployees> employees;
 
     @OneToMany(mappedBy = "company")
     private Set<CompaniesHasCars> cars;
@@ -52,5 +48,12 @@ public class Company extends CompanyModel implements Serializable {
         this.cars.add(companiesHasCars);
         car.getCompaniesCars().add(companiesHasCars);
         return companiesHasCars;
+    }
+
+    public CompaniesHasEmployees addClientToCompany(Client client){
+        CompaniesHasEmployees companiesHasEmployees = new CompaniesHasEmployees(client, this);
+        client.getCompanies().add(companiesHasEmployees);
+        this.getEmployees().add(companiesHasEmployees);
+        return companiesHasEmployees;
     }
 }

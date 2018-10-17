@@ -52,8 +52,8 @@ public class VisitsActions {
     @Produces(MediaType.APPLICATION_JSON)
     public Response submitVisit(SubmitVisitForm form){
         try {
-            Employee employee = employeesRepository.findByToken(form.getAccessToken());
-            if (employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1) {
+            Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+            if (employee == null) {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
             }
             String accessToken = employeesRepository.generateToken(employee);
@@ -106,8 +106,8 @@ public class VisitsActions {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addEmployee(AddEmployeeForm form){
 
-        Employee employee = employeesRepository.findByToken(form.getAccessToken());
-        if(employee == null || LocalDateTime.now().compareTo(employee.getTokenExpiration())==1){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
@@ -129,8 +129,8 @@ public class VisitsActions {
     @Path("/add")
     @Produces(MediaType.APPLICATION_JSON)
     public Response addVisit(CreateVisitForm form){
-        Client client = clientsRepository.findByToken(form.getAccessToken());
-        if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE) || LocalDateTime.now().compareTo(client.getTokenExpiration())==1)
+        Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
+        if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE))
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         Car car = carsRepository.getCarById(form.getCarId());
         String accessToken = clientsRepository.generateToken(client);
@@ -158,8 +158,8 @@ public class VisitsActions {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeVisit(ReomoveVisitForm form){
-        Client client = clientsRepository.findByToken(form.getAccessToken());
-        if(client == null || LocalDateTime.now().compareTo(client.getTokenExpiration())==1){
+        Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
+        if(client == null){
             return Response.status(401).build();
         }
         String accessToken = clientsRepository.generateToken(client);
@@ -179,8 +179,8 @@ public class VisitsActions {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllClientsVisits(GetAllClientsVisitsForm form){
         try {
-            Client client = clientsRepository.findByToken(form.getAccessToken());
-            if (client == null || LocalDateTime.now().compareTo(client.getTokenExpiration())==1) {
+            Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
+            if (client == null) {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
             }
             String accessToken = clientsRepository.generateToken(client);

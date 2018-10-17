@@ -8,11 +8,14 @@ import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.bouncycastle.util.encoders.Hex;
 
 import javax.persistence.Column;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @NoArgsConstructor
 @MappedSuperclass
@@ -34,23 +37,11 @@ public abstract class Account {
     @Size(max=64, min = 64)
     protected String password;
 
-    @Column(name = "access_token")
-    protected String accessToken;
-
     protected String email;
 
     protected LocalDateTime createdAt;
 
     protected  LocalDateTime lastLoggedIn;
-
-    protected LocalDateTime tokenExpiration;
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
 
     public String getEmail() {
         return email;

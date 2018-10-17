@@ -29,7 +29,7 @@ public class CompanyActions {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response addCompany(AddCompanyForm form){
-        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null){
             return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
         }
@@ -55,7 +55,7 @@ public class CompanyActions {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response addCompanyData(AddCompanyDataForm form){
-        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null){
             return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
         }
@@ -80,7 +80,7 @@ public class CompanyActions {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response addCarServiceData(AddCarServiceDataForm form){
-        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null){
             return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
         }
@@ -102,7 +102,7 @@ public class CompanyActions {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response editCompany(EditCompanyForm form){
-        Employee employee = employeesRepository.findByToken(form.getAccessToken());
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if(employee == null){
             return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
         }
