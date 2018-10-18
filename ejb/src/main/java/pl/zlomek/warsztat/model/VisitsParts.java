@@ -15,7 +15,7 @@ import java.util.Objects;
 @Setter
 @Entity
 @Table(name = "visits_has_parts")
-public class VisitsParts implements Serializable {
+public class VisitsParts extends VisitPosition implements Serializable {
     @Id
     @EmbeddedId
     private VisitsPartsId id;
@@ -25,10 +25,6 @@ public class VisitsParts implements Serializable {
 
     @ManyToOne(cascade = CascadeType.ALL)
     private CarPart part;
-
-    private BigDecimal singlePartPrice;
-
-    private int count;
 
     @Embeddable
     @Getter
@@ -58,11 +54,9 @@ public class VisitsParts implements Serializable {
     }
 
     public VisitsParts(Visit visit, CarPart carPart, int count, BigDecimal singlePartPrice){
+        super(singlePartPrice, count);
         this.id = new VisitsPartsId(visit, carPart);
-        this.count = count;
         this.visit = visit;
         this.part = carPart;
-        this.singlePartPrice = singlePartPrice;
-
     }
 }

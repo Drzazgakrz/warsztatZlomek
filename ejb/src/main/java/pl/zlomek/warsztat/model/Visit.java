@@ -24,14 +24,6 @@ import java.util.Set;
 @Table(name = "visits")
 public class Visit implements Serializable {
 
-    @Inject
-    @Transient
-    VisitsRepository repository;
-
-    @Inject
-    @Transient
-    ServicesRepository servicesRepository;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -79,17 +71,17 @@ public class Visit implements Serializable {
         this.client = client;
     }
 
-    public void addPartToVisit(CarPart part, int count, BigDecimal singlePrice){
+    public VisitsParts addPartToVisit(CarPart part, int count, BigDecimal singlePrice){
         VisitsParts relation = new VisitsParts(this, part,count, singlePrice);
         this.parts.add(relation);
         part.addVisit(relation);
-        repository.createVisitPart(relation);
+        return relation;
     }
 
-    public void addServiceToVisit(Service service, int count, BigDecimal singlePrice){
+    public VisitsHasServices addServiceToVisit(Service service, int count, BigDecimal singlePrice){
         VisitsHasServices relation = new VisitsHasServices( service, this,count, singlePrice);
         this.services.add(relation);
         service.getVisits().add(relation);
-        servicesRepository.insertVisitsServices(relation);
+        return relation;
     }
 }

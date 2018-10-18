@@ -14,7 +14,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 @Setter
-public class VisitsHasServices {
+public class VisitsHasServices extends VisitPosition implements Serializable{
     @EmbeddedId
     private VisitsHasServicesId id;
 
@@ -23,11 +23,6 @@ public class VisitsHasServices {
 
     @ManyToOne
     private Visit visit;
-
-    private int count;
-
-
-    private BigDecimal price;
 
     @Embeddable
     @Getter
@@ -60,10 +55,9 @@ public class VisitsHasServices {
     }
 
     public VisitsHasServices(Service service, Visit visit, int count, BigDecimal price) {
+        super(price, count);
         this.id = new VisitsHasServicesId(service.getId(), visit.getId());
         this.service = service;
         this.visit = visit;
-        this.count = count;
-        this.price = price;
     }
 }

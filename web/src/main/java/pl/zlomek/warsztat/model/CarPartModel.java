@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class CarPartModel {
-    String name;
-    BigDecimal price;
-    int count;
+    private String name;
+    private BigDecimal price;
+    private int count;
 }

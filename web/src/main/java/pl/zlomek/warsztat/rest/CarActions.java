@@ -52,7 +52,7 @@ public class CarActions {
         if(!newPart.getName().isEmpty())
         {
             String name = newPart.getName();
-            CarPart part = new CarPart(name);
+            CarPart part = new CarPart(name, newPart.getTax(), newPart.getProducer());
 
             if(carPartsRepository.getCarPartByName(name) == null)
             {
@@ -149,5 +149,38 @@ public class CarActions {
         }catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Błąd serwera. Przepraszamy", null)).build();
         }
+    }
+
+    @POST
+    @Path("/addCoowner")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response addCoowner(AddCoownerForm form){
+        Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        String accessToken = clientsRepository.generateToken(client);
+        Client coowner = clientsRepository.findClientByUsername(form.getCoownerUsername());
+        if(coowner == null){
+            return Response.status(400).entity(new ErrorResponse("Brak klienta o podanym mailu", null)).build();
+        }
+        Car car = carsRepository.getCarById(form.getCarId());
+        if(car == null){
+            return Response.status(400).entity(new ErrorResponse("brak podanego samochodu", null)).build();
+        }
+        Object[] carArray = client.getCars().stream().filter(carsHasOwners -> carsHasOwners.getCar().equals(car)).toArray();
+        if(carArray.length < 1){
+            return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu wśród samochodów klienta"
+                    , null)).build();
+        }
+        CarsHasOwners currentOwner = (CarsHasOwners) carArray[0];
+        currentOwner.setStatus(OwnershipStatus.COOWNER);
+        CarsHasOwners cho = car.addCarOwner(coowner, OwnershipStatus.COOWNER, currentOwner.getRegistrationNumber());
+        carsRepository.insertOwnership(cho);
+        carsRepository.updateOwnership(currentOwner);
+        carsRepository.updateCar(car);
+        clientsRepository.update(coowner);
+        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
     }
 }

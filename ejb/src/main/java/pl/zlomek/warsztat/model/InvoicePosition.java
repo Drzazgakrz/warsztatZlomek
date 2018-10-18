@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Set;
 
-@lombok.AllArgsConstructor
+@lombok.NoArgsConstructor
 @lombok.Getter
 @lombok.Setter
 @Entity
@@ -28,26 +28,26 @@ public class InvoicePosition implements Serializable {
     private String unitOfMeasure;
 
     @NotNull
-    @Column(name="gross_price", precision=2 , scale =2 )
+    @Column(name="gross_price", precision=20 , scale =2 )
     private BigDecimal grossPrice;
 
     @NotNull
-    @Column(name="net_price", precision=2 , scale =2 )
+    @Column(name="net_price", precision=20 , scale =2 )
     private BigDecimal netPrice;
 
     @NotNull
-    @Column(name = "VAT_tax", precision=2 , scale =2 )
-    private BigDecimal vat;
+    @Column(name = "VAT_tax")
+    private int vat;
 
     @NotNull
-    @Column(name = "value_of_VAT", precision=2 , scale =2 )
+    @Column(name = "value_of_VAT", precision=20 , scale =2 )
     private BigDecimal valueOfVat;
 
     @NotNull
     @ManyToOne
     private Invoice invoice;
 
-    public InvoicePosition(String itemName, String unitOfMeasure, BigDecimal grossPrice, BigDecimal netPrice, BigDecimal vat, BigDecimal valueOfVat, Invoice invoice) {
+    public InvoicePosition(String itemName, String unitOfMeasure, BigDecimal grossPrice, BigDecimal netPrice, int vat, BigDecimal valueOfVat, Invoice invoice) {
         this.itemName = itemName;
         this.unitOfMeasure = unitOfMeasure;
         this.grossPrice = grossPrice;
@@ -55,5 +55,16 @@ public class InvoicePosition implements Serializable {
         this.vat = vat;
         this.valueOfVat = valueOfVat;
         this.invoice = invoice;
+    }
+
+    public InvoicePosition(VisitPosition position, String name, int tax, Invoice invoice, String unitOfMeasure){
+        this.itemName = name;
+        this.unitOfMeasure = unitOfMeasure;
+        this.grossPrice = position.singlePrice;
+        this.invoice = invoice;
+        this.vat = tax;
+        double taxModifier = 100.0/(100.0+(tax*1.0));
+        this.netPrice = grossPrice.multiply(new BigDecimal(taxModifier));
+        this.valueOfVat = this.grossPrice.subtract(this.netPrice);
     }
 }

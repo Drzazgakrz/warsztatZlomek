@@ -112,7 +112,7 @@ public class Authorization {
         }
         employee.setLastLoggedIn(LocalDateTime.now());
         String accessToken = employeesRepository.generateToken(employee);
-        return Response.status(200).entity(accessToken).build();
+        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
     }
 
     @POST
