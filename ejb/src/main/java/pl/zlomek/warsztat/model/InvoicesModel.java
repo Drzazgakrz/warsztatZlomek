@@ -29,9 +29,6 @@ public abstract class InvoicesModel {
     protected int discount;
 
     @NotNull
-    protected int tax;
-
-    @NotNull
     @Column(name = "method_of_payment")
     protected MethodOfPayment methodOfPayment;
 
@@ -59,9 +56,8 @@ public abstract class InvoicesModel {
         return invoiceNumberBuilder.append("/").append(GregorianCalendar.YEAR).toString();
     }*/
 
-    public InvoicesModel(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue, BigDecimal valueOfVat) {
+    public InvoicesModel(int discount, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue, BigDecimal valueOfVat) {
         this.discount = discount;
-        this.tax = tax;
         this.methodOfPayment = methodOfPayment;
         this.netValue = netValue;
         this.grossValue = grossValue;

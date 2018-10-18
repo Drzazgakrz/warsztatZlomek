@@ -5,6 +5,7 @@ import pl.zlomek.warsztat.model.*;
 import pl.zlomek.warsztat.data.EmployeesRepository;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -27,6 +28,7 @@ public class CarPartsActions {
     @Path("/addCarPart")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response addCarPart(AddCarPartsForm newPart){
         Employee employee = (Employee) employeesRepository.findByToken(newPart.getAccessToken());
         if(employee == null)
@@ -35,7 +37,7 @@ public class CarPartsActions {
         if(!newPart.getName().isEmpty())
         {
             String name = newPart.getName();
-            CarPart part = new CarPart(name);
+            CarPart part = new CarPart(name, newPart.getTax(), newPart.getProducer());
 
             if(carPartsRepository.getCarPartByName(name) == null)
             {

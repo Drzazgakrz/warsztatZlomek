@@ -3,6 +3,7 @@ package pl.zlomek.warsztat.data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.zlomek.warsztat.model.Invoice;
+import pl.zlomek.warsztat.model.InvoicePosition;
 
 import javax.ejb.NoSuchEntityException;
 import javax.enterprise.context.ApplicationScoped;
@@ -21,6 +22,10 @@ public class InvoicesRepository {
     @Transactional
     public void insertInvoice(Invoice invoice){
         em.persist(invoice);
+    }
+
+    public void insertInvoicePosition(InvoicePosition position){
+        em.persist(position);
     }
 
     private Logger log = LoggerFactory.getLogger(InvoicesRepository.class);

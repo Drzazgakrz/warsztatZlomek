@@ -14,8 +14,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 @Path("/invoice")
 public class InvoiceActions {
@@ -35,6 +38,9 @@ public class InvoiceActions {
     @Inject
     CarServiceDataRespository carServiceDataRespository;
 
+    @Inject
+    private VisitsRepository visitsRepository;
+
     private Logger log = LoggerFactory.getLogger(InvoiceActions.class);
 
     @POST
@@ -47,18 +53,35 @@ public class InvoiceActions {
         if (employee == null)
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         String accessToken = employeesRepository.generateToken(employee);
+
         Company company = companiesRepository.getCompanyByName(newInvoice.getCompanyName());
         CompanyData companyData = new CompanyData(company);
         companyDataRespository.insert(companyData);
         Invoice invoice = createInvoice(newInvoice, companyData);
-        if (invoice != null) {
+        Visit visit = visitsRepository.getVisitById(newInvoice.getVisitId());
+        if (invoice != null && visit != null) {
             invoicesRepository.insertInvoice(invoice);
+            visit.getParts().forEach((position)->{
+                CarPart part = position.getPart();
+                log.info(Integer.toString(part.getTax()));
+                InvoicePosition invoicePosition = new InvoicePosition(position, part.getName(), part.getTax(), invoice, "szt.");
+                invoice.getInvoicePositions().add(invoicePosition);
+                invoicesRepository.insertInvoicePosition(invoicePosition);
+            });
+            visit.getServices().forEach((position)->{
+                Service service = position.getService();
+                log.info(Integer.toString(service.getTax()));
+                InvoicePosition invoicePosition = new InvoicePosition(position, service.getName(),service.getTax() , invoice, "h");
+                invoice.getInvoicePositions().add(invoicePosition);
+                invoicesRepository.insertInvoicePosition(invoicePosition);
+            });
+            invoicesRepository.updateInvoice(invoice);
             return Response.status(200).entity(new PositiveResponse(accessToken)).build();
         } else
-            return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury",accessToken)).build();
+            return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", accessToken)).build();
     }
 
-    public MethodOfPayment createMethodOfPayment(String method){
+    public MethodOfPayment createMethodOfPayment(String method) {
         switch (method) {
             case ("CASH"):
                 return MethodOfPayment.CASH;
@@ -73,7 +96,6 @@ public class InvoiceActions {
     public Invoice createInvoice(AddInvoiceForm newInvoice, CompanyData companyData) {
         try {
             int discount = newInvoice.getDiscount();
-            int tax = newInvoice.getTax();
 
             MethodOfPayment methodOfPayment = createMethodOfPayment(newInvoice.getMethodOfPayment());
 
@@ -83,18 +105,16 @@ public class InvoiceActions {
             CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
 
             if (carServiceData != null && companyData != null && methodOfPayment != null) {
-
-                Invoice invoice = new Invoice(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat, companyData, carServiceData);
+                Invoice invoice = new Invoice(discount, methodOfPayment, netValue, grossValue, valueOfVat, companyData, carServiceData);
                 StringBuilder invoiceNumberBuilder = new StringBuilder().append(invoicesRepository.countInvoicesInMonth());
-                String invoiceNumber = invoiceNumberBuilder.append("/").append(GregorianCalendar.MONTH).append("/").append(GregorianCalendar.YEAR).toString();
+                String invoiceNumber = invoiceNumberBuilder.append("/").append(LocalDate.now().getMonthValue()).append("/").append(LocalDate.now().getYear()).toString();
                 invoice.setInvoiceNumber(invoiceNumber);
                 return invoice;
             }
-            return null;
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     @POST

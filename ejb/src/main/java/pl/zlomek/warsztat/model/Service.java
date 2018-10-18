@@ -28,4 +28,12 @@ public class Service implements Serializable {
     @OneToMany(mappedBy = "service")
     @NotNull
     private Set<VisitsHasServices> visits;
+
+    private int tax;
+
+    public Service(String name, int tax) {
+        this.name = name;
+        visits = new HashSet<>();
+        this.tax = tax;
+    }
 }

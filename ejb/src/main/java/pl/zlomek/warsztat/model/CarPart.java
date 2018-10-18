@@ -27,8 +27,14 @@ public class CarPart implements Serializable {
     @OneToMany(mappedBy = "part")
     private Set<VisitsParts> visits;
 
-    public CarPart(String name){
+    protected int tax;
+
+    private String producer;
+
+    public CarPart(String name, int tax, String producer){
         this.name = name;
+        this.tax = tax;
+        this.producer = producer;
     }
 
     public void addVisit(VisitsParts visit){

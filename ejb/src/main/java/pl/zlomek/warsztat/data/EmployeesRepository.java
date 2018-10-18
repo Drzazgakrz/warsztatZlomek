@@ -54,7 +54,7 @@ public class EmployeesRepository extends AccountsRepository {
             query.setParameter("accessToken", accessToken);
             AccessToken token =  query.getSingleResult();
             if(token != null || token.getExpiration().compareTo(LocalDateTime.now())== -1){
-                return ((ClientToken) token).getClient();
+                return ((EmployeeToken) token).getEmployee();
             }
         }catch (Exception e){
         }

@@ -6,4 +6,6 @@ package pl.zlomek.warsztat.model;
 public class AddCarPartsForm {
     private String name;
     private String accessToken;
+    private int tax;
+    private String producer;
 }

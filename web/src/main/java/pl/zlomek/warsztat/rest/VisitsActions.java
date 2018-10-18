@@ -78,7 +78,8 @@ public class VisitsActions {
                     if (carPart == null) {
                         return;
                     }
-                    visit.addPartToVisit(carPart, carPartModel.getCount(), carPartModel.getPrice());
+                    VisitsParts relation = visit.addPartToVisit(carPart, carPartModel.getCount(), carPartModel.getPrice());
+                    visitsRepository.createVisitPart(relation);
                     carPartsRepository.updateCarPart(carPart);
                 });
             }
@@ -89,7 +90,8 @@ public class VisitsActions {
                     if (service == null) {
                         return;
                     }
-                    visit.addServiceToVisit(service, serviceModel.getCount(), new BigDecimal(serviceModel.getPrice()));
+                    VisitsHasServices relation = visit.addServiceToVisit(service, serviceModel.getCount(), new BigDecimal(serviceModel.getPrice()));
+                    servicesRepository.insertVisitsServices(relation);
                     servicesRepository.updateService(service);
                 });
             }
@@ -217,5 +219,19 @@ public class VisitsActions {
         }
         VisitResponseModel[] visits = visitsListToArray(car.getVisits());
         return Response.status(200).entity(new GetAllVisitsResponse(null, visits)).build();
+    }
+
+    @POST
+    @Path("/addService")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addService(AddServiceForm form){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
+        }
+        String token = employeesRepository.generateToken(employee);
+        visitsRepository.insertService(new Service(form.getServiceName(), form.getTax()));
+        return Response.status(200).entity(new PositiveResponse(token)).build();
     }
 }

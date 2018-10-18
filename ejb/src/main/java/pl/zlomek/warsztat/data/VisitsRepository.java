@@ -91,7 +91,9 @@ public class VisitsRepository {
             }
         }));
         return visits;
+    }
 
-
+    public void insertService(Service service){
+        em.persist(service);
     }
 }

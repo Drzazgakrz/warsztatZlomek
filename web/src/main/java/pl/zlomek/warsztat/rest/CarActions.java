@@ -52,7 +52,7 @@ public class CarActions {
         if(!newPart.getName().isEmpty())
         {
             String name = newPart.getName();
-            CarPart part = new CarPart(name);
+            CarPart part = new CarPart(name, newPart.getTax(), newPart.getProducer());
 
             if(carPartsRepository.getCarPartByName(name) == null)
             {

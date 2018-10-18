@@ -37,7 +37,7 @@ public class InvoiceBuffer extends InvoicesModel implements Serializable {
     public InvoiceBuffer(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue,
                          BigDecimal grossValue, BigDecimal valueOfVat, String invoiceNumber,
                          CompanyDataBuffer companyData, CarServiceData carServiceData) throws Exception{
-        super(discount, tax, methodOfPayment, netValue, grossValue, valueOfVat);
+        super(discount, methodOfPayment, netValue, grossValue, valueOfVat);
         this.companyDataBuffer = companyData;
         this.carServiceData = carServiceData;
     }
