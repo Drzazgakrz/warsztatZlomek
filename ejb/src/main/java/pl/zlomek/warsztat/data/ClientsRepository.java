@@ -66,6 +66,7 @@ public class ClientsRepository extends AccountsRepository {
             query.setParameter("accessToken", accessToken);
             AccessToken token =  query.getSingleResult();
             if(token != null || token.getExpiration().compareTo(LocalDateTime.now())== -1){
+                token.setExpiration(LocalDateTime.now().plusMinutes(20));
                 return ((ClientToken) token).getClient();
             }
         }catch (Exception e){

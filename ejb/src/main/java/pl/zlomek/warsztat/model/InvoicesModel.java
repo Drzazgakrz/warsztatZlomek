@@ -21,46 +21,19 @@ import java.util.GregorianCalendar;
 @NoArgsConstructor
 public abstract class InvoicesModel {
 
-
-    /*@Transient
-    @Inject
-    private InvoicesRepository repository = new InvoicesRepository();*/
-
     protected int discount;
 
-    @NotNull
     @Column(name = "method_of_payment")
     protected MethodOfPayment methodOfPayment;
 
-    @NotNull
-    @Column(name = "net_value", precision = 8, scale = 3)
-    protected BigDecimal netValue;
-
-    @NotNull
-    @Column(name = "gross_value", precision = 8, scale = 3)
-    protected BigDecimal grossValue;
-
-    @NotNull
-    @Column(name = "value_of_VAT", precision = 8, scale = 3)
-    protected BigDecimal valueOfVat;
 
     //@NotNull
     @Column(name = "invoice_number")
     protected String invoiceNumber;
 
-    /*public String createInvoiceNumber() throws Exception {
-        //int number = repository.countInvoicesInMonth();
-        if (number == -1)
-            throw new Exception();
-        StringBuilder invoiceNumberBuilder = new StringBuilder().append(number).append("/").append(GregorianCalendar.MONTH);
-        return invoiceNumberBuilder.append("/").append(GregorianCalendar.YEAR).toString();
-    }*/
 
-    public InvoicesModel(int discount, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue, BigDecimal valueOfVat) {
+    public InvoicesModel(int discount, MethodOfPayment methodOfPayment) {
         this.discount = discount;
         this.methodOfPayment = methodOfPayment;
-        this.netValue = netValue;
-        this.grossValue = grossValue;
-        this.valueOfVat = valueOfVat;
     }
 }

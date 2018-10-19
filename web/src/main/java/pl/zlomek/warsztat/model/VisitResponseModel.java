@@ -10,10 +10,12 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class VisitResponseModel {
+    private long id;
     private Date visitDate;
     private String car;
     private String registrationNumber;
     public VisitResponseModel(Visit visit){
+        this.id = visit.getId();
         this.visitDate =Date.from(visit.getVisitDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
         Car car = visit.getCar();
         this.car = new StringBuilder(car.getBrand().getBrandName()).append(" ").append(car.getModel()).toString();
