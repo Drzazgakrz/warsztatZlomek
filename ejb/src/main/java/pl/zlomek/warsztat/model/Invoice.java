@@ -32,21 +32,18 @@ public class Invoice extends InvoicesModel implements Serializable {
     @ManyToOne
     private CarServiceData carServiceData;
 
-    public Invoice(int discount, MethodOfPayment methodOfPayment, BigDecimal netValue, BigDecimal grossValue,
-                   BigDecimal valueOfVat, CompanyData companyData, CarServiceData carServiceData) throws Exception {
-        super(discount, methodOfPayment, netValue, grossValue, valueOfVat);
+    public Invoice(int discount, MethodOfPayment methodOfPayment,CompanyData companyData, CarServiceData carServiceData){
+        super(discount, methodOfPayment);
         this.companyData = companyData;
         this.corectionInvoice = null;
         this.carServiceData = carServiceData;
         this.invoicePositions = new HashSet<>();
-        //super.invoiceNumber = super.createInvoiceNumber();
     }
 
-    public Invoice(InvoiceBuffer buffer, CompanyModel company, CarServiceData data) throws Exception{
-        super(buffer.getDiscount(), buffer.getMethodOfPayment(), buffer.getNetValue(), buffer.getGrossValue(), buffer.getValueOfVat());
+    public Invoice(InvoiceBuffer buffer, CompanyModel company, CarServiceData data){
+        super(buffer.getDiscount(), buffer.getMethodOfPayment());
         companyData = (CompanyData) company;
         carServiceData = data;
         this.invoicePositions = new HashSet<>();
-        //super.invoiceNumber = super.createInvoiceNumber();
     }
 }

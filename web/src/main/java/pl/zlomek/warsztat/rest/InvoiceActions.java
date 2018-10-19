@@ -43,6 +43,11 @@ public class InvoiceActions {
 
     private Logger log = LoggerFactory.getLogger(InvoiceActions.class);
 
+    BigDecimal sumA = new BigDecimal(0);
+    BigDecimal sumB = new BigDecimal(0);
+    BigDecimal sumC = new BigDecimal(0);
+    BigDecimal sumD = new BigDecimal(0);
+
     @POST
     @Path("/addInvoice")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -59,18 +64,17 @@ public class InvoiceActions {
         companyDataRespository.insert(companyData);
         Invoice invoice = createInvoice(newInvoice, companyData);
         Visit visit = visitsRepository.getVisitById(newInvoice.getVisitId());
+
         if (invoice != null && visit != null) {
             invoicesRepository.insertInvoice(invoice);
             visit.getParts().forEach((position)->{
                 CarPart part = position.getPart();
-                log.info(Integer.toString(part.getTax()));
                 InvoicePosition invoicePosition = new InvoicePosition(position, part.getName(), part.getTax(), invoice, "szt.");
                 invoice.getInvoicePositions().add(invoicePosition);
                 invoicesRepository.insertInvoicePosition(invoicePosition);
             });
             visit.getServices().forEach((position)->{
                 Service service = position.getService();
-                log.info(Integer.toString(service.getTax()));
                 InvoicePosition invoicePosition = new InvoicePosition(position, service.getName(),service.getTax() , invoice, "h");
                 invoice.getInvoicePositions().add(invoicePosition);
                 invoicesRepository.insertInvoicePosition(invoicePosition);
@@ -79,6 +83,20 @@ public class InvoiceActions {
             return Response.status(200).entity(new PositiveResponse(accessToken)).build();
         } else
             return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", accessToken)).build();
+    }
+
+    public void addValue(BigDecimal value, int tax){
+        switch (tax){
+            case 23:
+                sumA = sumA.add(value);
+                break;
+            case 18:
+                sumB = sumB.add(value);
+                break;
+            case 5:
+                sumC = sumC.add(value);
+                break;
+        }
     }
 
     public MethodOfPayment createMethodOfPayment(String method) {
@@ -99,13 +117,10 @@ public class InvoiceActions {
 
             MethodOfPayment methodOfPayment = createMethodOfPayment(newInvoice.getMethodOfPayment());
 
-            BigDecimal netValue = new BigDecimal(newInvoice.getNetValue());
-            BigDecimal grossValue = new BigDecimal(newInvoice.getGrossValue());
-            BigDecimal valueOfVat = new BigDecimal(newInvoice.getValueOfVat());
             CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
 
             if (carServiceData != null && companyData != null && methodOfPayment != null) {
-                Invoice invoice = new Invoice(discount, methodOfPayment, netValue, grossValue, valueOfVat, companyData, carServiceData);
+                Invoice invoice = new Invoice(discount, methodOfPayment, companyData, carServiceData);
                 StringBuilder invoiceNumberBuilder = new StringBuilder().append(invoicesRepository.countInvoicesInMonth());
                 String invoiceNumber = invoiceNumberBuilder.append("/").append(LocalDate.now().getMonthValue()).append("/").append(LocalDate.now().getYear()).toString();
                 invoice.setInvoiceNumber(invoiceNumber);

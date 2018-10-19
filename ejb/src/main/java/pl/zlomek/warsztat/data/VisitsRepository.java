@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +36,7 @@ public class VisitsRepository {
     }
 
     public void updateVisit(Visit visit) {
+        visit.setUpdatedAt(LocalDateTime.now());
         em.merge(visit);
     }
 
