@@ -8,6 +8,7 @@ import pl.zlomek.warsztat.model.*;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -226,7 +227,7 @@ public class VisitsActions {
         return visits;
     }
 
-    @POST
+    @GET
     @Path("/getAllCarVisits")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
@@ -285,5 +286,28 @@ public class VisitsActions {
         }
         VisitDetailsResponse visit = new VisitDetailsResponse((Visit) visitsArray[0]);
         return Response.status(200).entity(new GetSingleVisitDetails(form.getAccessToken(), visit)).build();
+    }
+
+    @GET
+    @Path("/getDataForVisit")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDataForVisit(){
+        List<CarPart> parts = carPartsRepository.getAllCarParts();
+        CarPartModel[] carParts = new CarPartModel[parts.size()];
+        int i = 0;
+        for(CarPart currentPart : parts){
+            carParts[i] = new CarPartModel(currentPart.getName());
+            i++;
+        }
+        List<Service> services = servicesRepository.getAllServices();
+        ServiceModel[] servicesArray = new ServiceModel[services.size()];
+        i = 0;
+        for(Service currentService : services){
+            servicesArray[i] = new ServiceModel(currentService.getName()
+            );
+            i++;
+        }
+        return Response.status(200).entity(new GetStuffForVisitsResponse(carParts, servicesArray)).build();
     }
 }

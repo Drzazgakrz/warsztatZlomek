@@ -7,6 +7,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 public class ServicesRepository {
@@ -20,6 +22,15 @@ public class ServicesRepository {
             return query.getSingleResult();
         }catch (Exception e){
             return null;
+        }
+    }
+
+    public List<Service> getAllServices(){
+        try{
+            TypedQuery<Service> query = em.createQuery("SELECT service FROM Service service", Service.class);
+            return query.getResultList();
+        }catch (Exception e){
+            return new ArrayList<>();
         }
     }
     public void updateService(Service service){
