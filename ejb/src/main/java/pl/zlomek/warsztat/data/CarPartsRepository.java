@@ -44,4 +44,15 @@ public class CarPartsRepository {
             return null;
         }
     }
+
+    public CarPart getCarPartById(long id){
+        try {
+            TypedQuery<CarPart> query = em.createQuery("SELECT carParts FROM CarPart carParts WHERE carParts.id = "+
+                    ":id",CarPart.class );
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        }catch (Exception e){
+            return null;
+        }
+    }
 }
