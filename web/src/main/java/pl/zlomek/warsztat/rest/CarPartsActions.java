@@ -12,7 +12,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDateTime;
 
 
 @Path("/CarParts")
@@ -49,6 +48,35 @@ public class CarPartsActions {
                 return Response.status(409).entity(new ErrorResponse("Część istnieje w bazie", accessToken)).build();
         }
         return Response.status(400).entity(new ErrorResponse("Nie zdefiniowano nazwy części", accessToken)).build();
+    }
+
+    @POST
+    @Path("/editCarPart")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response editCarPart(EditCarPartsForm form){
+        try {
+            Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+            if(employee == null)
+                return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+            CarPart part = carPartsRepository.getCarPartById(form.getCarPartId());
+            if(part== null)
+                return Response.status(404).entity(new ErrorResponse("Brak podanej części", form.getAccessToken())).build();
+            if(!part.getName().equals(form.getName())){
+                part.setName(form.getName());
+            }
+            if(!part.getProducer().equals( form.getProducer())){
+                part.setProducer(form.getProducer());
+            }
+            if(part.getTax()!= form.getTax()){
+                part.setTax(form.getTax());
+            }
+            carPartsRepository.updateCarPart(part);
+            return Response.status(200).entity(new PositiveResponse(form.getAccessToken())).build();
+        }catch (Exception e){
+            return Response.status(500).entity(new ErrorResponse("Wystąpił błąd", form.getAccessToken())).build();
+        }
+
     }
 
 }
