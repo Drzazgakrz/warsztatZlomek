@@ -4,8 +4,8 @@ package pl.zlomek.warsztat.model;
 @lombok.Setter
 
 public class AddCarPartsForm {
-    private String name;
-    private String accessToken;
-    private int tax;
-    private String producer;
+    protected String name;
+    protected String accessToken;
+    protected int tax;
+    protected String producer;
 }

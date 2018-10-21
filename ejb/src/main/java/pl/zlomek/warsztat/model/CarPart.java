@@ -27,8 +27,10 @@ public class CarPart implements Serializable {
     @OneToMany(mappedBy = "part")
     private Set<VisitsParts> visits;
 
+    @NotNull
     protected int tax;
 
+    @NotNull
     private String producer;
 
     public CarPart(String name, int tax, String producer){
