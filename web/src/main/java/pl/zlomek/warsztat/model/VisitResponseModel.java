@@ -12,18 +12,16 @@ import java.util.Date;
 public class VisitResponseModel {
     private long id;
     private Date visitDate;
-    private String car;
-    private String registrationNumber;
+    private CarResponseModel car;
     public VisitResponseModel(Visit visit){
         this.id = visit.getId();
         this.visitDate =Date.from(visit.getVisitDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
         Car car = visit.getCar();
-        this.car = new StringBuilder(car.getBrand().getBrandName()).append(" ").append(car.getModel()).toString();
         Object[] cars=  car.getOwners().stream().filter((carsHasOwners ->
-             (carsHasOwners.getEndOwnershipDate() == null ||
-                    (visit.getVisitDate().isBefore(carsHasOwners.getEndOwnershipDate())&&
-                            visit.getVisitDate().isAfter(carsHasOwners.getBeginOwnershipDate())))
+                (carsHasOwners.getEndOwnershipDate() == null ||
+                        (visit.getVisitDate().isBefore(carsHasOwners.getEndOwnershipDate())&&
+                                visit.getVisitDate().isAfter(carsHasOwners.getBeginOwnershipDate())))
         )).limit(1).toArray();
-        this.registrationNumber = ((CarsHasOwners)cars[0]).getRegistrationNumber();
+        this.car = new CarResponseModel(car, ((CarsHasOwners)cars[0]).getRegistrationNumber());
     }
 }

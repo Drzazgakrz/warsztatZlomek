@@ -8,6 +8,7 @@ import pl.zlomek.warsztat.model.*;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -67,7 +68,7 @@ public class VisitsActions {
     @Path("/edit")
     @Produces(MediaType.APPLICATION_JSON)
     public Response editVisit(SubmitVisitForm form) {
-        try {
+       // try {
             Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
             if (employee == null) {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
@@ -79,6 +80,9 @@ public class VisitsActions {
             }
             Overview overview = visit.getOverview();
             if (overview != null && form.getCountYears() != null) {
+                Car car = visit.getCar();
+                car.getOverviews().add(overview);
+                carsRepository.updateCar(car);
                 overview.addTerminateOverview(form.getCountYears());
             } else if (overview != null && form.getCountYears() == null) {
                 return Response.status(400).entity(new ErrorResponse("Przegląd powinien mieć termin ważności", accessToken)).build();
@@ -116,9 +120,9 @@ public class VisitsActions {
             }
             visitsRepository.updateVisit(visit);
             return Response.status(200).entity(new PositiveResponse(accessToken)).build();
-        } catch (Exception e) {
+        /*} catch (Exception e) {
             return Response.status(500).entity("Wystąpił nieznany błąd. Przepraszamy.").build();
-        }
+        }*/
     }
 
     @POST
@@ -226,7 +230,7 @@ public class VisitsActions {
         return visits;
     }
 
-    @POST
+    @GET
     @Path("/getAllCarVisits")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
@@ -285,5 +289,27 @@ public class VisitsActions {
         }
         VisitDetailsResponse visit = new VisitDetailsResponse((Visit) visitsArray[0]);
         return Response.status(200).entity(new GetSingleVisitDetails(form.getAccessToken(), visit)).build();
+    }
+
+    @GET
+    @Path("/getDataForVisit")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDataForVisit(){
+        List<CarPart> parts = carPartsRepository.getAllCarParts();
+        CarPartModel[] carParts = new CarPartModel[parts.size()];
+        int i = 0;
+        for(CarPart currentPart : parts){
+            carParts[i] = new CarPartModel(currentPart.getName());
+            i++;
+        }
+        List<Service> services = servicesRepository.getAllServices();
+        ServiceModel[] servicesArray = new ServiceModel[services.size()];
+        i = 0;
+        for(Service currentService : services){
+            servicesArray[i] = new ServiceModel(currentService.getName()
+            );
+            i++;
+        }
+        return Response.status(200).entity(new GetStuffForVisitsResponse(carParts, servicesArray)).build();
     }
 }

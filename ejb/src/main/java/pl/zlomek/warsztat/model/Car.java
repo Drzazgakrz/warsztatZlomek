@@ -45,6 +45,9 @@ public class Car implements Serializable {
     @OneToMany(mappedBy = "car")
     private Set<Visit> visits;
 
+    @OneToMany
+    private Set<Overview> overviews;
+
     public Car(String vin, String model, int prodYear, CarBrand brand){
         this.brand = brand;
         this.model = model;
@@ -52,6 +55,7 @@ public class Car implements Serializable {
         this.owners = new HashSet<>();
         this.vin = vin;
         this.companiesCars = new HashSet<>();
+        this.overviews = new HashSet<>();
     }
 
     public CarsHasOwners addCarOwner(Client client, OwnershipStatus status, String registrationNumber){

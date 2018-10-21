@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -29,7 +30,7 @@ public class CarPartsRepository {
             TypedQuery<CarPart> query = em.createQuery("SELECT carParts FROM CarPart carParts",CarPart.class);
             return query.getResultList();
         }catch (Exception e){
-            return null;
+            return new ArrayList<>();
         }
     }
 
