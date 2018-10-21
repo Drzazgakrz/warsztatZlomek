@@ -77,4 +77,17 @@ public class CarsRepository {
             return null;
         }
     }
+
+    public CarsHasOwners getOwnership(long carId, long clientId){
+
+        try {
+            TypedQuery<CarsHasOwners> choQuery = em.createQuery("select cho from CarsHasOwners cho" +
+                    "  where cho.id.carId = :carId AND cho.id.ownerId = :clientId", CarsHasOwners.class);
+            choQuery.setParameter("carId", carId);
+            choQuery.setParameter("clientId", clientId);
+            return choQuery.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

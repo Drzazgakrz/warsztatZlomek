@@ -13,7 +13,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Path("/car")
@@ -155,7 +157,7 @@ public class CarActions {
     @Path("/addCoowner")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response addCoowner(AddCoownerForm form){
+    public Response addCoowner(CoownerForm form){
         Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
         if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
@@ -163,18 +165,16 @@ public class CarActions {
         String accessToken = clientsRepository.generateToken(client);
         Client coowner = clientsRepository.findClientByUsername(form.getCoownerUsername());
         if(coowner == null){
-            return Response.status(400).entity(new ErrorResponse("Brak klienta o podanym mailu", null)).build();
+            return Response.status(400).entity(new ErrorResponse("Brak klienta o podanym mailu", accessToken)).build();
         }
         Car car = carsRepository.getCarById(form.getCarId());
         if(car == null){
-            return Response.status(400).entity(new ErrorResponse("brak podanego samochodu", null)).build();
+            return Response.status(400).entity(new ErrorResponse("brak podanego samochodu", accessToken)).build();
         }
-        Object[] carArray = client.getCars().stream().filter(carsHasOwners -> carsHasOwners.getCar().equals(car)).toArray();
-        if(carArray.length < 1){
-            return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu wśród samochodów klienta"
-                    , null)).build();
+        CarsHasOwners currentOwner = carsRepository.getOwnership(car.getId(), client.getClientId());
+        if(currentOwner == null){
+            return Response.status(403).entity(new ErrorResponse("Klient nie posiada tego samochodu", accessToken)).build();
         }
-        CarsHasOwners currentOwner = (CarsHasOwners) carArray[0];
         currentOwner.setStatus(OwnershipStatus.COOWNER);
         CarsHasOwners cho = car.addCarOwner(coowner, OwnershipStatus.COOWNER, currentOwner.getRegistrationNumber());
         carsRepository.insertOwnership(cho);
@@ -182,5 +182,43 @@ public class CarActions {
         carsRepository.updateCar(car);
         clientsRepository.update(coowner);
         return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+    }
+
+    @POST
+    @Path("/removeCoowner")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removeCoowner(CoownerForm form){
+        Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        String accessToken = clientsRepository.generateToken(client);
+        Client coowner = clientsRepository.findClientByUsername(form.getCoownerUsername());
+        if(coowner == null){
+            return Response.status(400).entity(new ErrorResponse("Brak klienta o podanym mailu", accessToken)).build();
+        }
+        Car car = carsRepository.getCarById(form.getCarId());
+        if(car == null){
+            return Response.status(400).entity(new ErrorResponse("brak podanego samochodu", accessToken)).build();
+        }
+        List<CarsHasOwners> ownershipList = car.getOwners().stream().
+                filter(cho-> cho.getOwner().equals(coowner)).collect(Collectors.toList());
+        if(ownershipList.size()==0){
+            return Response.status(404).
+                    entity(new ErrorResponse("Ten klient nie jest współwłaścicielem tego samochodu", accessToken)).build();
+        }
+        ownershipList.forEach((cho)->{
+            if(cho.getOwner().equals(coowner)) {
+                cho.setEndOwnershipDate(LocalDate.now());
+                cho.setStatus(OwnershipStatus.FORMER_OWNER);
+                carsRepository.updateOwnership(cho);
+            }
+            else if(ownershipList.size() == 2 && cho.getOwner().equals(client)){
+                cho.setStatus(OwnershipStatus.CURRENT_OWNER);
+                carsRepository.updateOwnership(cho);
+            }
+        });
+        return Response.status(200).entity(new PositiveResponse(form.getAccessToken())).build();
     }
 }
