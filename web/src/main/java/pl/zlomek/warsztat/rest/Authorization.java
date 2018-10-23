@@ -24,6 +24,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Path("/authorization")
@@ -257,6 +258,20 @@ public class Authorization {
         employee.setQuitDate(date);
         employeesRepository.update(employee);
         return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+    }
+
+    @POST
+    @Path("/checkEmail")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response checkIfEmailExists(CheckEmail checkEmail){
+        String username = checkEmail.getEmail();
+        Client client =repository.findClientByUsername(username);
+        if(Objects.isNull(client)){
+            return Response.status(400).entity(new ErrorResponse("Nie istnieje konto o podanej nazwie", null)).build();
+        }else{
+            return  Response.status(200).build();
+        }
     }
 
 }
