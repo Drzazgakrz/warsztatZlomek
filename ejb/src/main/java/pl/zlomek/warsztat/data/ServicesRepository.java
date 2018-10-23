@@ -40,4 +40,14 @@ public class ServicesRepository {
     public void insertVisitsServices(VisitsHasServices vhs){
         em.persist(vhs);
     }
+
+    public Service getServiceById(long id){
+        try {
+            TypedQuery<Service> query = em.createQuery("SELECT service FROM Service service WHERE service.id = :id", Service.class);
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        }catch (Exception e){
+            return null;
+        }
+    }
 }

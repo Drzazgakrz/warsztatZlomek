@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class AddServiceForm {
-    String accessToken;
-    String serviceName;
-    int tax;
+    protected String accessToken;
+    protected String serviceName;
+    protected int tax;
 }

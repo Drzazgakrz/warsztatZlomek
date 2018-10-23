@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,7 +66,7 @@ public class ClientsRepository extends AccountsRepository {
             TypedQuery<ClientToken> query = em.createQuery("SELECT clientToken FROM ClientToken clientToken where clientToken.accessToken = :accessToken", ClientToken.class);
             query.setParameter("accessToken", accessToken);
             AccessToken token =  query.getSingleResult();
-            if(token != null || token.getExpiration().compareTo(LocalDateTime.now())== -1){
+            if(token != null && token.getExpiration().isAfter(LocalDateTime.now())){
                 token.setExpiration(LocalDateTime.now().plusMinutes(20));
                 return ((ClientToken) token).getClient();
             }
