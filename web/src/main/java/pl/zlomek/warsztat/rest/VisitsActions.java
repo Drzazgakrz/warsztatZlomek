@@ -256,6 +256,8 @@ public class VisitsActions {
         visitsRepository.insertService(new Service(form.getServiceName(), form.getTax()));
         return Response.status(200).entity(new PositiveResponse(token)).build();
     }
+
+
     @POST
     @Path("/getAllEmployeeVisits")
     @Transactional
@@ -310,5 +312,30 @@ public class VisitsActions {
             i++;
         }
         return Response.status(200).entity(new GetStuffForVisitsResponse(carParts, servicesArray)).build();
+    }
+
+    @POST
+    @Path("/editService")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response editService(EditServiceForm form){
+        try {
+            Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+            if(employee == null)
+                return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+            Service service = servicesRepository.getServiceById(form.getId());
+            if(service== null)
+                return Response.status(404).entity(new ErrorResponse("Brak podanej części", form.getAccessToken())).build();
+            if(form.getServiceName()!= null && !service.getName().equals(form.getServiceName())){
+                service.setName(form.getServiceName());
+            }
+            if(form.getTax()!=0 && service.getTax()!= form.getTax()){
+                service.setTax(form.getTax());
+            }
+            servicesRepository.updateService(service);
+            return Response.status(200).entity(new PositiveResponse(form.getAccessToken())).build();
+        }catch (Exception e){
+            return Response.status(500).entity(new ErrorResponse("Wystąpił błąd", form.getAccessToken())).build();
+        }
     }
 }

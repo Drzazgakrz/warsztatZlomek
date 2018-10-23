@@ -62,13 +62,13 @@ public class CarPartsActions {
             CarPart part = carPartsRepository.getCarPartById(form.getCarPartId());
             if(part== null)
                 return Response.status(404).entity(new ErrorResponse("Brak podanej części", form.getAccessToken())).build();
-            if(!part.getName().equals(form.getName())){
+            if(form.getName()!= null && !part.getName().equals(form.getName())){
                 part.setName(form.getName());
             }
-            if(!part.getProducer().equals( form.getProducer())){
+            if(form.getProducer() != null &&!part.getProducer().equals( form.getProducer())){
                 part.setProducer(form.getProducer());
             }
-            if(part.getTax()!= form.getTax()){
+            if(form.getTax()!=0 && part.getTax()!= form.getTax()){
                 part.setTax(form.getTax());
             }
             carPartsRepository.updateCarPart(part);
