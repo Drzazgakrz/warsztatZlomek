@@ -40,32 +40,6 @@ public class CarActions {
 
     Logger log = LoggerFactory.getLogger(CarActions.class);
 
-    //ścieżka localhost:8080/warsztatZlomek/rest/CarParts/addCarPart
-    @POST
-    @Path("/addCarPart")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Transactional
-    public Response addCarPart(AddCarPartsForm newPart){
-        Employee employee = (Employee) employeesRepository.findByToken(newPart.getAccessToken());
-        if(employee == null )
-            return Response.status(403).build();
-        String accessToken = employeesRepository.generateToken(employee);
-
-        if(!newPart.getName().isEmpty())
-        {
-            String name = newPart.getName();
-            CarPart part = new CarPart(name, newPart.getTax(), newPart.getProducer());
-
-            if(carPartsRepository.getCarPartByName(name) == null)
-            {
-                carPartsRepository.saveCarPart(part);
-                return Response.status(200).entity(accessToken).build();
-            }
-            else
-                return Response.status(409).entity(accessToken).build();
-        }
-        return Response.status(400).entity(accessToken).build();
-    }
 
     @POST
     @Path("/addCarBrand")
@@ -220,5 +194,22 @@ public class CarActions {
             }
         });
         return Response.status(200).entity(new PositiveResponse(form.getAccessToken())).build();
+    }
+
+    @POST
+    @Path("/getAllClientsCars")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllClientsCars(GetAllUserDataForm form){
+        Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
+        if(client == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        CarResponseModel[] cars = new CarResponseModel[client.getCars().size()];
+        int i = 0;
+        for (CarsHasOwners cho: client.getCars()) {
+            cars[i] =new CarResponseModel(cho.getCar(), cho.getRegistrationNumber());
+            i++;
+        }
+        return Response.status(200).entity(new GetAllCarsResponse(form.getAccessToken(), cars)).build();
     }
 }
