@@ -32,6 +32,8 @@ public class Invoice extends InvoicesModel implements Serializable {
     @ManyToOne
     private CarServiceData carServiceData;
 
+    //dopisz date
+    
     public Invoice(int discount, MethodOfPayment methodOfPayment,CompanyData companyData, CarServiceData carServiceData){
         super(discount, methodOfPayment);
         this.companyData = companyData;
