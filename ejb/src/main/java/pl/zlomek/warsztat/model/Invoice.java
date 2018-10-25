@@ -34,6 +34,8 @@ public class Invoice extends InvoicesModel implements Serializable {
 
     //dopisz date
     
+    //dopisac netto
+    
     public Invoice(int discount, MethodOfPayment methodOfPayment,CompanyData companyData, CarServiceData carServiceData){
         super(discount, methodOfPayment);
         this.companyData = companyData;
