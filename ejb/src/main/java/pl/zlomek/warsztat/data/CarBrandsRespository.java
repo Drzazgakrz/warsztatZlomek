@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.util.List;
 
 @ApplicationScoped
 public class CarBrandsRespository {
@@ -27,6 +28,16 @@ public class CarBrandsRespository {
         }catch (Exception e){
             return null;
         }
+    }
+
+    public List<CarBrand> getAllCarBrands(){
+        try {
+            TypedQuery<CarBrand> query = em.createQuery("SELECT carBrand FROM CarBrand carBrand", CarBrand.class);
+            return query.getResultList();
+        }catch (Exception e){
+            return null;
+        }
+
     }
 
 }

@@ -7,10 +7,7 @@ import pl.zlomek.warsztat.model.*;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
@@ -247,5 +244,19 @@ public class CarActions {
         }
         carsRepository.updateCar(car);
         return Response.status(200).entity(new PositiveResponse(form.getAccessToken())).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/getAllCarBrands")
+    public Response getAllCarBrands(){
+        List<CarBrand> brands =  carBrandsRespository.getAllCarBrands();
+        String[] brandsArray = new String[brands.size()];
+        int i = 0;
+        for(CarBrand brand : brands){
+            brandsArray[i] = brand.getBrandName();
+            i++;
+        }
+        return Response.status(200).entity(new GetAllCarBrandsResponse(brandsArray)).build();
     }
 }
