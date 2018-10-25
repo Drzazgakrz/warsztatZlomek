@@ -212,4 +212,40 @@ public class CarActions {
         }
         return Response.status(200).entity(new GetAllCarsResponse(form.getAccessToken(), cars)).build();
     }
+
+    @POST
+    @Path("/editCar")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response editCar(EditCarForm form){
+        Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
+        if(client == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        Car car = carsRepository.getCarById(form.getCarId());
+        if(car == null){
+            return Response.status(400).entity(new ErrorResponse("Brak samochodu o podanym id", form.getAccessToken())).build();
+        }
+
+        List<CarsHasOwners> cars = client.getCars().stream().filter((cho)->cho.getOwner().equals(client)&&
+                !cho.getStatus().equals(OwnershipStatus.FORMER_OWNER) && !cho.getStatus().equals(OwnershipStatus.NOT_VERIFIED_OWNER)
+        ).collect(Collectors.toList());
+        if(cars.size()==0){
+            return Response.status(403).entity(new ErrorResponse("Podany samochód nie należy do klienta", form.getAccessToken())).build();
+        }
+        if(form.getModel()!= null && !form.getModel().equals(car.getModel())){
+            car.setModel(form.getModel());
+        }
+        if(form.getProductionYear()!= 0 && form.getProductionYear()!= car.getProdYear()){
+            car.setProdYear(form.getProductionYear());
+        }
+        for (CarsHasOwners cho : cars){
+            if(form.getRegistrationNumber() != null && !form.getRegistrationNumber().equals(cho.getRegistrationNumber())){
+                cho.setRegistrationNumber(form.getRegistrationNumber());
+                carsRepository.updateOwnership(cho);
+            }
+        }
+        carsRepository.updateCar(car);
+        return Response.status(200).entity(new PositiveResponse(form.getAccessToken())).build();
+    }
 }

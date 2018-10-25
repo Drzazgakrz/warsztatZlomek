@@ -5,6 +5,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,13 +33,19 @@ public class Invoice extends InvoicesModel implements Serializable {
     @ManyToOne
     private CarServiceData carServiceData;
 
-    //dopisz date
-    
-    //Data płatności
-    
-    //dopisac netto
-    
-    //dopisać brutto
+    @NotNull
+    private LocalDate dayOfIssue;
+
+    @NotNull
+    private LocalDate paymentDate;
+
+    @NotNull
+    @Column(precision = 20, scale = 2)
+    private BigDecimal netValue;
+
+    @NotNull
+    @Column(precision = 20, scale = 2)
+    private BigDecimal grossValue;
     
     public Invoice(int discount, MethodOfPayment methodOfPayment,CompanyData companyData, CarServiceData carServiceData){
         super(discount, methodOfPayment);
@@ -46,6 +53,7 @@ public class Invoice extends InvoicesModel implements Serializable {
         this.corectionInvoice = null;
         this.carServiceData = carServiceData;
         this.invoicePositions = new HashSet<>();
+        this.dayOfIssue = LocalDate.now();
     }
 
     public Invoice(InvoiceBuffer buffer, CompanyModel company, CarServiceData data){
@@ -53,5 +61,6 @@ public class Invoice extends InvoicesModel implements Serializable {
         companyData = (CompanyData) company;
         carServiceData = data;
         this.invoicePositions = new HashSet<>();
+
     }
 }

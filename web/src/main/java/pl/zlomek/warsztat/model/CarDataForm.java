@@ -6,11 +6,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CarDataForm {
-    private String vin;
-    private String accessToken;
-    private String registrationNumber;
-    private String model;
-    private int productionYear;
-    private String brandName;
-    private Boolean isCoowner;
+    protected String vin;
+    protected String accessToken;
+    protected String registrationNumber;
+    protected String model;
+    protected int productionYear;
+    protected String brandName;
+    protected Boolean isCoowner;
 }
