@@ -34,7 +34,11 @@ public class Invoice extends InvoicesModel implements Serializable {
 
     //dopisz date
     
+    //Data płatności
+    
     //dopisac netto
+    
+    //dopisać brutto
     
     public Invoice(int discount, MethodOfPayment methodOfPayment,CompanyData companyData, CarServiceData carServiceData){
         super(discount, methodOfPayment);
