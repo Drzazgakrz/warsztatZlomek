@@ -6,6 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetAllUserVisitsForm {
+public class GetAllUserDataForm {
     String accessToken;
 }

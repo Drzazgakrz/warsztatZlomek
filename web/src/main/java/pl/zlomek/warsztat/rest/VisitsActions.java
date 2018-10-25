@@ -202,7 +202,7 @@ public class VisitsActions {
     @Path("/getAllClientsVisits")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllClientsVisits(GetAllUserVisitsForm form) {
+    public Response getAllClientsVisits(GetAllUserDataForm form) {
         try {
             Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
             if (client == null) {
@@ -262,7 +262,7 @@ public class VisitsActions {
     @Path("/getAllEmployeeVisits")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllEmployeeVisits(GetAllUserVisitsForm form){
+    public Response getAllEmployeeVisits(GetAllUserDataForm form){
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
