@@ -64,4 +64,8 @@ public class CompaniesRepository implements Serializable {
     public void insertCompanyEmployee (CompaniesHasEmployees che){
         em.persist(che);
     }
+
+    public void updateCompaniesEmployees(CompaniesHasEmployees che){
+        em.merge(che);
+    }
 }

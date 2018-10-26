@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import pl.zlomek.warsztat.data.CarsRepository;
 import pl.zlomek.warsztat.data.ClientsRepository;
 import pl.zlomek.warsztat.data.CompaniesRepository;
+import pl.zlomek.warsztat.data.EmployeesRepository;
 import pl.zlomek.warsztat.model.*;
 
 import javax.inject.Inject;
@@ -15,8 +16,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +30,9 @@ public class UpdateClient {
 
     @Inject
     private CompaniesRepository companiesRepository;
+
+    @Inject
+    private EmployeesRepository employeesRepository;
 
     private Logger log = LoggerFactory.getLogger(UpdateClient.class);
 
@@ -70,16 +72,24 @@ public class UpdateClient {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addClientToCompany(AddClientForm form){
-        Client client = clientsRepository.findClientByUsername(form.getUsername());
-        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
+    public Response addClientToCompany(ClientCompanyForm form){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getEmployeeToken());
+        if(employee == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
+        Client client = clientsRepository.findClientByUsername(form.getUsername());
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
+            return Response.status(400).entity(new ErrorResponse("Klient o podanej nazwie użytkownika nie istnieje", null)).build();
+        }
         Company clientsCompany = companiesRepository.getCompanyByName(form.getCompanyName());
-
         if(clientsCompany == null){
             String accessToken = clientsRepository.generateToken(client);
             return Response.status(400).entity(new ErrorResponse("Firma o podanej nazwie nie istnieje", accessToken)).build();
+        }
+        Object[] checkIfNotExists = client.getCompanies().stream().filter((currentCompany)->currentCompany.getClient().equals(client)&&
+                currentCompany.getStatus().equals(EmploymentStatus.CURRENT_EMPLOYER)).toArray();
+        if(checkIfNotExists.length!=0){
+            return Response.status(400).entity(new ErrorResponse("Klient jest już zapisany do tej firmy", form.getEmployeeToken())).build();
         }
         CompaniesHasEmployees che = clientsCompany.addClientToCompany(client);
         companiesRepository.insertCompanyEmployee(che);
@@ -114,5 +124,33 @@ public class UpdateClient {
         }catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Błąd serwera. Przepraszamy", null)).build();
         }
+    }
+
+    @POST
+    @Path("/removeClientFromCompany")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response removeClientFromCompany(ClientCompanyForm form){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getEmployeeToken());
+        if(employee == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        Client client = clientsRepository.findClientByUsername(form.getUsername());
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
+            return Response.status(400).entity(new ErrorResponse("Klient o podanej nazwie użytkownika nie istnieje", form.getEmployeeToken())).build();
+        }
+        Company clientsCompany = companiesRepository.getCompanyByName(form.getCompanyName());
+        if(clientsCompany == null){
+            return Response.status(400).entity(new ErrorResponse("Firma o podanej nazwie nie istnieje", form.getEmployeeToken())).build();
+        }
+        Object[] che = client.getCompanies().stream().filter((currentCompany)->currentCompany.getClient().equals(client)&&
+                currentCompany.getStatus().equals(EmploymentStatus.CURRENT_EMPLOYER)).toArray();
+        if(che.length == 0){
+            return Response.status(403).entity(new ErrorResponse("Klient nie jest pracownikiem tej firmy", form.getEmployeeToken())).build();
+        }
+        CompaniesHasEmployees current = (CompaniesHasEmployees)che[0];
+        current.setStatus(EmploymentStatus.FORMER_EMPLOYER);
+        companiesRepository.updateCompaniesEmployees(current);
+        return Response.status(200).entity(new PositiveResponse(form.getEmployeeToken())).build();
     }
 }
