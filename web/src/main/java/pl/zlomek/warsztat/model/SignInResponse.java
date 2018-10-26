@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 @Getter
-public class SignInResponse extends PositiveResponse {
+public class SignInResponse extends AccessTokenForm {
     private OverviewResponse[] overviewResponse;
     private VisitResponseModel[] visits;
 

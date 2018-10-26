@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddCompanyForm {
+public class AddCompanyForm extends AccessTokenForm {
     private String name;
     private String nip;
     private String email;
@@ -14,5 +14,4 @@ public class AddCompanyForm {
     private String buildingNum;
     private String aptNum;
     private String zipCode;
-    private String accessToken;
 }

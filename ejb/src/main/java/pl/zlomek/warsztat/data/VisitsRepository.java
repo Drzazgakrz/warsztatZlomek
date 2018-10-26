@@ -79,23 +79,17 @@ public class VisitsRepository {
             return new ArrayList<>();
         }
     }
-
-    public List<Visit> getClientVisits(Client client) {
-
-        List<Visit> visits = new ArrayList<>();
-        //List<CarsHasOwners> ownershipList = repository.getClientsCar(client);
-        //log.info(Integer.toString(ownershipList.size()));
-        client.getCars().forEach((carsHasOwners -> {
-            List<Visit> carVisits = getCarVisit(carsHasOwners);
-            if (carVisits != null) {
-                log.info("List size: "+Integer.toString(carVisits.size()));
-                visits.addAll(carVisits);
-            }
-        }));
-        return visits;
-    }
-
     public void insertService(Service service){
         em.persist(service);
+    }
+
+    public List<Visit> getAllNewVisits(){
+        try {
+            TypedQuery<Visit> query = em.createQuery("SELECT visits FROM Visit visits WHERE visits.status = :status", Visit.class);
+            query.setParameter("status",VisitStatus.NEW);
+            return query.getResultList();
+        }catch (Exception e){
+            return new ArrayList<>();
+        }
     }
 }

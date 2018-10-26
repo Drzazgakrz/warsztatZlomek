@@ -60,7 +60,7 @@ public class Authorization {
             Client client = new Client(firstName, lastName, email, phoneNum, cityName, streetName, buildNum, aptNum, zipCode, password, null);
             repository.insert(client);
             String token = repository.generateToken(client);
-            return Response.status(200).entity(new PositiveResponse(token)).build();
+            return Response.status(200).entity(new AccessTokenForm(token)).build();
         }
         return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych logowania", null)).build();
     }
@@ -153,7 +153,7 @@ public class Authorization {
             Employee employee = new Employee(firstName, lastName, hireDate, null, password, email, EmployeeStatus.employed);
             employeesRepository.insert(employee);
             String token = employeesRepository.generateToken(employee);
-            return Response.status(200).entity(new PositiveResponse(token)).build();
+            return Response.status(200).entity(new AccessTokenForm(token)).build();
         }
         return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych rejestracji", null)).build();
     }
@@ -173,20 +173,15 @@ public class Authorization {
         }
         employee.setLastLoggedIn(LocalDateTime.now());
         String accessToken = employeesRepository.generateToken(employee);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
 
     @POST
     @Path("/signOut")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response signOut(SignOutForm form) {
-        Client client = (Client) repository.findByToken(form.getAccessToken());
-        if (client == null) {
-            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
-        }
-        client.setAccessToken(null);
-        repository.update(client);
+    public Response signOut(AccessTokenForm form) {
+        repository.signOut(form.getAccessToken());
         return Response.status(200).build();
     }
 
@@ -194,7 +189,7 @@ public class Authorization {
     @Path("/signOutEmployee")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response signOutEmployee(SignOutForm form) {
+    public Response signOutEmployee(AccessTokenForm form) {
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
@@ -221,14 +216,14 @@ public class Authorization {
         client.setAccessToken(null);
         client.setStatus(ClientStatus.BANNED);
         repository.update(client);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
 
     @POST
     @Path("/deleteAccount")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteAccount(RemoveUserForm form) {
+    public Response deleteAccount(AccessTokenForm form) {
         Client client = (Client) repository.findByToken(form.getAccessToken());
         if (client == null || client.getStatus().equals(ClientStatus.ACTIVE)) {
             return Response.status(401).entity(new ErrorResponse("Nie udało się autoryzować", null)).build();
@@ -257,7 +252,7 @@ public class Authorization {
         LocalDate date = form.getQuitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         employee.setQuitDate(date);
         employeesRepository.update(employee);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
 
     @POST

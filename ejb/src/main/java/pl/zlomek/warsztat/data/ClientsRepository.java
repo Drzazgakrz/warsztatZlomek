@@ -68,6 +68,7 @@ public class ClientsRepository extends AccountsRepository {
             AccessToken token =  query.getSingleResult();
             if(token != null && token.getExpiration().isAfter(LocalDateTime.now())){
                 token.setExpiration(LocalDateTime.now().plusMinutes(20));
+                em.merge(token);
                 return ((ClientToken) token).getClient();
             }
         }catch (Exception e){
@@ -84,5 +85,15 @@ public class ClientsRepository extends AccountsRepository {
         client.getAccessToken().add(clientToken);
         update(account);
         return token;
+    }
+
+    public void signOut(String accessToken){
+        try {
+            TypedQuery<ClientToken> query = em.createQuery("SELECT clientToken FROM ClientToken clientToken WHERE clientToken.accessToken = :accessToken", ClientToken.class);
+            query.setParameter("accessToken", accessToken);
+            ClientToken token = query.getSingleResult();
+            token.setExpiration(LocalDateTime.now());
+            em.merge(token);
+        }catch (Exception e){}
     }
 }

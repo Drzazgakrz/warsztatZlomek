@@ -86,7 +86,7 @@ public class CarActions {
         companiesRepository.insertCarInJoinTable(companiesHasCars);
         companiesRepository.updateCompany(company);
         carsRepository.updateCar(car);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
     @POST
     @Path("/removeCarFromCompany")
@@ -118,7 +118,7 @@ public class CarActions {
             CompaniesHasCars chc = (CompaniesHasCars)companiesArray[0];
             chc.setStatus(CompanyOwnershipStatus.FORMER_OWNER_COMPANY);
             companiesRepository.updateJoinTable(chc);
-            return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+            return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
         }catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Błąd serwera. Przepraszamy", null)).build();
         }
@@ -152,7 +152,7 @@ public class CarActions {
         carsRepository.updateOwnership(currentOwner);
         carsRepository.updateCar(car);
         clientsRepository.update(coowner);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
 
     @POST
@@ -190,13 +190,13 @@ public class CarActions {
                 carsRepository.updateOwnership(cho);
             }
         });
-        return Response.status(200).entity(new PositiveResponse(form.getAccessToken())).build();
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
     @POST
     @Path("/getAllClientsCars")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllClientsCars(GetAllUserDataForm form){
+    public Response getAllClientsCars(AccessToken form){
         Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
         if(client == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
@@ -243,7 +243,7 @@ public class CarActions {
             }
         }
         carsRepository.updateCar(car);
-        return Response.status(200).entity(new PositiveResponse(form.getAccessToken())).build();
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
     @GET

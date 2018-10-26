@@ -7,9 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ErrorResponse {
+public class ErrorResponse extends AccessTokenForm{
     private String error;
-    private String accessToken;
     public ErrorResponse(String error, String accessToken) {
         this.error = error;
         this.accessToken = accessToken;

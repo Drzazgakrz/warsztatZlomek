@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-public class GetSingleVisitDetails extends PositiveResponse implements Serializable {
+public class GetSingleVisitDetails extends AccessTokenForm implements Serializable {
     private VisitDetailsResponse details;
 
     public GetSingleVisitDetails(String accessToken, VisitDetailsResponse details) {

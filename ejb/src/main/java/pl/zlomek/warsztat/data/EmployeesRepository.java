@@ -65,14 +65,13 @@ public class EmployeesRepository extends AccountsRepository {
         }
         return null;
     }
-
-    public List<Visit> getAllEmployeeVisits(Employee employee){
-        try{
-            TypedQuery<Visit> query = em.createQuery("SELECT visit FROM Visit visit WHERE visit.employee = :employee", Visit.class);
-            query.setParameter("employee", employee);
-            return query.getResultList();
-        }catch (Exception e){
-            return null;
-        }
+    public void signOut(String accessToken){
+        try {
+            TypedQuery<EmployeeToken> query = em.createQuery("SELECT employeeToken FROM EmployeeToken employeeToken WHERE employeeToken.accessToken = :accessToken", EmployeeToken.class);
+            query.setParameter("accessToken", accessToken);
+            EmployeeToken token = query.getSingleResult();
+            token.setExpiration(LocalDateTime.now());
+            em.merge(token);
+        }catch (Exception e){}
     }
 }

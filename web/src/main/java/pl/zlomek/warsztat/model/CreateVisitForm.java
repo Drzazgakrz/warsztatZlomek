@@ -10,8 +10,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class CreateVisitForm {
-    private String accessToken;
+public class CreateVisitForm extends AccessTokenForm{
     private long carId;
     @JsonFormat
             (shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")

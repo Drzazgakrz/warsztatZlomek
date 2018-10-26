@@ -62,7 +62,7 @@ public class Visit implements Serializable {
 
         this.visitDate = date;
         this.services = new HashSet<>();
-        this.status = VisitStatus.ACCEPTED;
+        this.status = VisitStatus.NEW;
         this.car = car;
         this.parts = new HashSet<>();
         this.createdAt = LocalDateTime.now();

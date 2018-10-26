@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddCompanyDataForm {
-    private String accessToken;
+public class AddCompanyDataForm extends AccessTokenForm{
     private String name;
     private String nip;
     private String cityName;

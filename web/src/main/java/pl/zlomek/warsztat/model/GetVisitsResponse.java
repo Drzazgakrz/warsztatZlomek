@@ -7,10 +7,10 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-public class GetAllVisitsResponse extends PositiveResponse implements Serializable {
+public class GetVisitsResponse extends AccessTokenForm implements Serializable {
     private VisitResponseModel[] visits;
 
-    public GetAllVisitsResponse(String accessToken, VisitResponseModel
+    public GetVisitsResponse(String accessToken, VisitResponseModel
             [] visits) {
         super(accessToken);
         this.visits = visits;

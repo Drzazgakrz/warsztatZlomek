@@ -6,8 +6,7 @@ import lombok.Getter;
 import java.util.Date;
 
 @Getter
-public class RemoveEmployeeForm {
-    private String accessToken;
+public class RemoveEmployeeForm extends AccessTokenForm{
     private String employeeMail;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date quitDate;

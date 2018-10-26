@@ -5,7 +5,7 @@ import java.util.Date;
 
 @lombok.Getter
 @lombok.Setter
-public class EmployeeRegisterForm {
+public class EmployeeRegisterForm extends AccessTokenForm{
     private String firstName;
     private String lastName;
     private String email;

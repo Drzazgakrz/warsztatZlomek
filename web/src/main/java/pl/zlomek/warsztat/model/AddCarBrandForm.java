@@ -5,7 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddCarBrandForm {
+public class AddCarBrandForm extends AccessTokenForm{
     private String brandName;
-    private String accessToken;
 }

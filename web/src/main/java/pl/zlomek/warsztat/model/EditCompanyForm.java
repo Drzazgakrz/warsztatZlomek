@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EditCompanyForm {
+public class EditCompanyForm extends AccessTokenForm{
     private String name;
     private String email;
     private String cityName;
@@ -13,6 +13,5 @@ public class EditCompanyForm {
     private String buildingNum;
     private String aptNum;
     private String zipCode;
-    private String accessToken;
     private String currentName;
 }

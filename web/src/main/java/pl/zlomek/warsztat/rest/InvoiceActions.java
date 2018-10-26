@@ -80,7 +80,7 @@ public class InvoiceActions {
                 invoicesRepository.insertInvoicePosition(invoicePosition);
             });
             invoicesRepository.updateInvoice(invoice);
-            return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+            return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
         } else
             return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", accessToken)).build();
     }
@@ -155,6 +155,6 @@ public class InvoiceActions {
         invoicesRepository.insertInvoice(newInvoice);
         invoice.setCorectionInvoice(newInvoice);
         invoicesRepository.updateInvoice(invoice);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
 }
