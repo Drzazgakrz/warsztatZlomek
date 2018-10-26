@@ -48,7 +48,7 @@ public class CompanyActions {
         String buildNum = form.getBuildingNum();
         company = new Company(nip,email,companyName,cityName,streetName, buildNum, aptName, zipCode);
         companiesRepository.insert(company);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
     @POST
     @Path("/addCompanyData")
@@ -73,7 +73,7 @@ public class CompanyActions {
         String buildNum = form.getBuildingNum();
         companyData = new CompanyData(nip, companyName, cityName, streetName, buildNum, aptNum, zipCode);
         companyDataRespository.insert(companyData);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
     @POST
     @Path("/addCarServiceData")
@@ -95,7 +95,7 @@ public class CompanyActions {
         String buildNum = form.getBuildingNum();
         CarServiceData carServiceData = new CarServiceData(nip, email, serviceName, cityName, streetName, buildNum, aptNum, zipCode);
         carServiceDataRespository.insert(carServiceData);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
     @POST
     @Path("/editCompany")
@@ -113,7 +113,7 @@ public class CompanyActions {
         }
         setCompanyFields(company,form);
         companiesRepository.updateCompany(company);
-        return Response.status(200).entity(new PositiveResponse((accessToken))).build();
+        return Response.status(200).entity(new AccessTokenForm((accessToken))).build();
     }
     public void setCompanyFields(Company company, EditCompanyForm form){
         if(form.getAptNum()!= null)

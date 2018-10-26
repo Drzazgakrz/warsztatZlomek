@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddCarServiceDataForm {
-    private String accessToken;
+public class AddCarServiceDataForm extends AccessTokenForm{
     private String serviceName;
     private String nip;
     private String email;

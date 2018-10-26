@@ -7,10 +7,9 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-public class AddInvoiceForm {
+public class AddInvoiceForm extends AccessTokenForm{
     protected int discount;
     protected String methodOfPayment;
     protected String companyName;
-    protected String accessToken;
     protected long visitId;
 }

@@ -5,7 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RemoveCarForm {
-    String accessToken;
+public class RemoveCarForm extends AccessTokenForm{
     long carId;
 }

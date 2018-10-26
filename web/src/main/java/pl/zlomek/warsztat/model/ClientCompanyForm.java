@@ -7,8 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ClientCompanyForm {
+public class ClientCompanyForm extends AccessTokenForm{
     private String username;
     private String companyName;
-    private String employeeToken;
 }

@@ -5,8 +5,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class CoownerForm {
-    private String accessToken;
+public class CoownerForm extends AccessTokenForm{
     private String coownerUsername;
     private long carId;
 }

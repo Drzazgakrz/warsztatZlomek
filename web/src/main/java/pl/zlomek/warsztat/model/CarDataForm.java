@@ -5,9 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CarDataForm {
+public class CarDataForm extends AccessTokenForm{
     protected String vin;
-    protected String accessToken;
     protected String registrationNumber;
     protected String model;
     protected int productionYear;

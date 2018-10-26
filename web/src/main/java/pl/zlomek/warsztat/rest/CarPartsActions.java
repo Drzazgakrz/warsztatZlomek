@@ -42,7 +42,7 @@ public class CarPartsActions {
             {
                 carPartsRepository.saveCarPart(part);
 
-                return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+                return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
             }
             else
                 return Response.status(409).entity(new ErrorResponse("Część istnieje w bazie", accessToken)).build();
@@ -72,7 +72,7 @@ public class CarPartsActions {
                 part.setTax(form.getTax());
             }
             carPartsRepository.updateCarPart(part);
-            return Response.status(200).entity(new PositiveResponse(form.getAccessToken())).build();
+            return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
         }catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Wystąpił błąd", form.getAccessToken())).build();
         }

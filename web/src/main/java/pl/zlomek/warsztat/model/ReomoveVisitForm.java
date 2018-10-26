@@ -5,7 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ReomoveVisitForm {
-    private String accessToken;
+public class ReomoveVisitForm extends AccessTokenForm{
     private long visitId;
 }

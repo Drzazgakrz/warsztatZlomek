@@ -3,9 +3,8 @@ package pl.zlomek.warsztat.model;
 @lombok.Getter
 @lombok.Setter
 
-public class AddCarPartsForm {
+public class AddCarPartsForm extends AccessTokenForm{
     protected String name;
-    protected String accessToken;
     protected int tax;
     protected String producer;
 }

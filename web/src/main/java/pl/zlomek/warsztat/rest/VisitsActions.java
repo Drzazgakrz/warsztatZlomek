@@ -6,6 +6,7 @@ import pl.zlomek.warsztat.model.VisitResponseModel;
 import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.GET;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 
 
 @Path("/visits")
+@ApplicationScoped
 public class VisitsActions {
 
     @Inject
@@ -119,7 +121,7 @@ public class VisitsActions {
                 });
             }
             visitsRepository.updateVisit(visit);
-            return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+            return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
         } catch (Exception e) {
             return Response.status(500).entity("Wystąpił nieznany błąd. Przepraszamy.").build();
         }
@@ -146,7 +148,7 @@ public class VisitsActions {
         employee.getVisits().add(visit);
         employeesRepository.update(employee);
         String accessToken = employeesRepository.generateToken(employee);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
 
     @POST
@@ -158,12 +160,11 @@ public class VisitsActions {
         if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE))
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         Car car = carsRepository.getCarById(form.getCarId());
-        String accessToken = clientsRepository.generateToken(client);
         if (car == null) {
-            return Response.status(400).entity(new ErrorResponse("Podany samochód nie istnieje", accessToken)).build();
+            return Response.status(400).entity(new ErrorResponse("Podany samochód nie istnieje", form.getAccessToken())).build();
         }
         if (client.checkCar(car).length < 1) {
-            return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", accessToken)).build();
+            return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", form.getAccessToken())).build();
         }
         Overview overview = null;
         LocalDate visitDate = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -175,7 +176,7 @@ public class VisitsActions {
         car.getVisits().add(visit);
         carsRepository.updateCar(car);
         visitsRepository.createVisit(visit);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
     @POST
@@ -195,14 +196,13 @@ public class VisitsActions {
             return Response.status(400).entity(new ErrorResponse("Wizyta została zaakceptowana. Nie można jej usunąć", accessToken)).build();
         }
         visitsRepository.removeVisit(visit);
-        return Response.status(200).entity(new PositiveResponse(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
     }
 
     @POST
     @Path("/getAllClientsVisits")
-    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllClientsVisits(GetAllUserDataForm form) {
+    public Response getAllClientsVisits(AccessTokenForm form) {
         try {
             Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
             if (client == null) {
@@ -214,7 +214,7 @@ public class VisitsActions {
                 visits.addAll(cho.getCar().getVisits());
             }
             VisitResponseModel[] visitsArray = visitsListToArray(visits);
-            return Response.status(200).entity(new GetAllVisitsResponse(accessToken, visitsArray)).build();
+            return Response.status(200).entity(new GetVisitsResponse(accessToken, visitsArray)).build();
         } catch (Exception e) {
             return Response.status(500).entity(new ErrorResponse("Wystąpił nieoczekiwany błąd przepraszamy", null)).build();
         }
@@ -232,7 +232,6 @@ public class VisitsActions {
 
     @GET
     @Path("/getAllCarVisits")
-    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllCarVisits(GetAllCarVisitsForm form) {
         Car car = carsRepository.getCarByVin(form.getVin());
@@ -240,7 +239,7 @@ public class VisitsActions {
             return Response.status(400).entity(new ErrorResponse("Brak samochodów o podanym numerze VIN", null)).build();
         }
         VisitResponseModel[] visits = visitsListToArray(car.getVisits());
-        return Response.status(200).entity(new GetAllVisitsResponse(null, visits)).build();
+        return Response.status(200).entity(new GetVisitsResponse(null, visits)).build();
     }
 
     @POST
@@ -254,31 +253,24 @@ public class VisitsActions {
         }
         String token = employeesRepository.generateToken(employee);
         visitsRepository.insertService(new Service(form.getServiceName(), form.getTax()));
-        return Response.status(200).entity(new PositiveResponse(token)).build();
+        return Response.status(200).entity(new AccessTokenForm(token)).build();
     }
 
 
     @POST
     @Path("/getAllEmployeeVisits")
-    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllEmployeeVisits(GetAllUserDataForm form){
+    public Response getAllEmployeeVisits(AccessTokenForm form){
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
         }
-        VisitResponseModel[] visits = new VisitResponseModel[employee.getVisits().size()];
-        int i = 0;
-        for(Visit visit: employee.getVisits()){
-            visits[i] = new VisitResponseModel(visit);
-            i++;
-        }
-        return Response.status(200).entity(new GetAllVisitsResponse(form.getAccessToken(), visits)).build();
+        VisitResponseModel[] visits = visitsListToArray(employee.getVisits());
+        return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(), visits)).build();
     }
 
     @POST
     @Path("/getSingleVisitDetails")
-    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSingleVisitDetails(GetSingleEmployeeVisitForm form){
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
@@ -333,9 +325,21 @@ public class VisitsActions {
                 service.setTax(form.getTax());
             }
             servicesRepository.updateService(service);
-            return Response.status(200).entity(new PositiveResponse(form.getAccessToken())).build();
+            return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
         }catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Wystąpił błąd", form.getAccessToken())).build();
         }
+    }
+
+    @POST
+    @Path("/getNewVisits")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getNewVisits(AccessTokenForm form){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        VisitResponseModel[] visits = visitsListToArray(visitsRepository.getAllNewVisits());
+        return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(),visits)).build();
     }
 }

@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddEmployeeForm {
-    private String accessToken;
+public class AddEmployeeForm extends AccessToken{
     private long visitId;
 }
