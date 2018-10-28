@@ -1,10 +1,7 @@
 package pl.zlomek.warsztat.rest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.zlomek.warsztat.data.CarServiceDataRespository;
-import pl.zlomek.warsztat.data.CompaniesRepository;
-import pl.zlomek.warsztat.data.CompanyDataRespository;
-import pl.zlomek.warsztat.data.EmployeesRepository;
+import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -23,12 +20,17 @@ public class CompanyActions {
     CarServiceDataRespository carServiceDataRespository;
     @Inject
     EmployeesRepository employeesRepository;
+
     Logger log = LoggerFactory.getLogger(CompanyActions.class);
+
+    @Inject
+    ClientsRepository clientsRepository;
+
     @POST
     @Path("/addCompany")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addCompany(AddCompanyForm form){
+    public Response addCompany(CompanyForm form){
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null){
             return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
@@ -130,5 +132,22 @@ public class CompanyActions {
             company.setZipCode(form.getZipCode());
         if(form.getStreetName()!= null)
             company.setStreetName(form.getStreetName());
+    }
+
+    @POST
+    @Path("/getCompanyData")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCompanyData(GetCompanyForm form){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        Company company = companiesRepository.getCompanyByName(form.getCompanyName());
+        if(company == null){
+            return Response.status(400).entity(new ErrorResponse("Brak podanej firmy", form.getAccessToken())).build();
+        }
+        return Response.status(200).entity(new CompanyInfoResponse(form.getAccessToken(), company)).build();
+
     }
 }
