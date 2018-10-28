@@ -1,7 +1,5 @@
 package pl.zlomek.warsztat.rest;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import pl.zlomek.warsztat.data.ClientsRepository;
 import pl.zlomek.warsztat.data.EmployeesRepository;
 import pl.zlomek.warsztat.model.*;
@@ -22,7 +20,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -44,8 +41,12 @@ public class Authorization {
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerUser(RegisterForm newUserData) {
+    public Response registerUser(ClientForm newUserData) {
 
+        Client client = repository.findClientByUsername(newUserData.getEmail());
+        if(client != null){
+            return Response.status(400).entity(new ErrorResponse("Klient o podanym adresie email już istnieje", null)).build();
+        }
         if (newUserData.getPassword().equals(newUserData.getConfirmPassword())) {
             String firstName = newUserData.getFirstName();
             String lastName = newUserData.getLastName();
@@ -57,7 +58,7 @@ public class Authorization {
             String aptNum = newUserData.getAptNum();
             String zipCode = newUserData.getZipCode();
             String password = newUserData.getPassword();
-            Client client = new Client(firstName, lastName, email, phoneNum, cityName, streetName, buildNum, aptNum, zipCode, password, null);
+            client = new Client(firstName, lastName, email, phoneNum, cityName, streetName, buildNum, aptNum, zipCode, password, null);
             repository.insert(client);
             String token = repository.generateToken(client);
             return Response.status(200).entity(new AccessTokenForm(token)).build();
@@ -269,4 +270,16 @@ public class Authorization {
         }
     }
 
+
+    @POST
+    @Path("/getFullClientData")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response getFullClientData(AccessTokenForm form){
+        Client client = (Client) repository.findByToken(form.getAccessToken());
+        if(client == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
+        }
+        return Response.status(200).entity(new ClientResponse(client, form.getAccessToken())).build();
+    }
 }
