@@ -81,7 +81,8 @@ public class Authorization {
             OverviewResponse[] overviewsArray = new OverviewResponse[overviews.size()];
             int i = 0;
             for(Overview overview : overviews){
-                overviewsArray[i] = new OverviewResponse(overview);
+                Object[] car = client.getCars().stream().filter((carsHasOwners -> carsHasOwners.getCar().equals(overview.getCar()))).toArray();
+                overviewsArray[i] = new OverviewResponse(overview, overview.getCar(), ((CarsHasOwners)car[0]).getRegistrationNumber());
                 i++;
             }
 
