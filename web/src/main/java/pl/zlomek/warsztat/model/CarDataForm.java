@@ -11,5 +11,4 @@ public class CarDataForm extends AccessTokenForm{
     protected String model;
     protected int productionYear;
     protected String brandName;
-    protected Boolean isCoowner;
 }
