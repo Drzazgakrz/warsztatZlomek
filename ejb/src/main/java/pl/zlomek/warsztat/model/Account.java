@@ -37,6 +37,7 @@ public abstract class Account {
     @Size(max=64, min = 64)
     protected String password;
 
+    @Column(unique = true)
     protected String email;
 
     protected LocalDateTime createdAt;

@@ -156,4 +156,53 @@ public class UpdateClient {
         companiesRepository.updateCompaniesEmployees(current);
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
+
+    @POST
+    @Path("/editClientData")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response editClientData(EditClientDataForm form){
+        Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
+        if(client == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        Client checkClient = clientsRepository.findClientByUsername(form.getEmail());
+        if(checkClient != null){
+            return Response.status(400).entity(new ErrorResponse("Klient o podanym adresie e-mail istnieje już w bazie",
+                    form.getAccessToken())).build();
+        }
+
+        if(form.getAptNum() != null && !form.getAptNum().equals(client.getAptNum())){
+            client.setAptNum(form.getAptNum());
+        }
+        if(form.getBuildNum() != null && !client.getBuildNum().equals(form.getBuildNum())){
+            client.setBuildNum(form.getBuildNum());
+        }
+        if(form.getCityName() != null && !client.getCityName().equals(form.getCityName())){
+            client.setCityName(form.getCityName());
+        }
+        if(form.getEmail() != null && !client.getEmail().equals(form.getEmail())){
+            client.setEmail(form.getEmail());
+        }
+        if(form.getFirstName() != null && !client.getFirstName().equals(form.getFirstName())){
+            client.setFirstName(form.getFirstName());
+        }
+        if(form.getLastName() != null && !client.getLastName().equals(form.getLastName())){
+            client.setLastName(form.getLastName());
+        }
+        if(form.getPhoneNumber() != null && !client.getPhoneNumber().equals(form.getPhoneNumber())){
+            client.setPhoneNumber(form.getPhoneNumber());
+        }
+        if(form.getStreetName() != null && !client.getStreetName().equals(form.getStreetName())){
+            client.setStreetName(form.getStreetName());
+        }
+        if(form.getZipCode() != null && !client.getZipCode().equals(form.getZipCode())){
+            client.setZipCode(form.getZipCode());
+        }
+        if(form.getPassword()!= null && form.getPassword().equals(form.getConfirmPassword()) && !form.getPassword().equals(client.getPassword())){
+            client.setPassword(Account.hashPassword(form.getPassword()));
+        }
+        clientsRepository.update(client);
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
+    }
 }

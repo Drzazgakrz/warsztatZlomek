@@ -202,6 +202,7 @@ public class VisitsActions {
     @POST
     @Path("/getAllClientsVisits")
     @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response getAllClientsVisits(AccessTokenForm form) {
         try {
             Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
@@ -260,6 +261,7 @@ public class VisitsActions {
     @POST
     @Path("/getAllEmployeeVisits")
     @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response getAllEmployeeVisits(AccessTokenForm form){
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
@@ -272,6 +274,7 @@ public class VisitsActions {
     @POST
     @Path("/getSingleVisitDetails")
     @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response getSingleVisitDetails(GetSingleEmployeeVisitForm form){
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
@@ -334,6 +337,7 @@ public class VisitsActions {
     @POST
     @Path("/getNewVisits")
     @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response getNewVisits(AccessTokenForm form){
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if(employee == null){
