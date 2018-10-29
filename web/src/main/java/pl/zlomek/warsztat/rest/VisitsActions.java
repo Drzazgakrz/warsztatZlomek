@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 
@@ -344,6 +345,24 @@ public class VisitsActions {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         VisitResponseModel[] visits = visitsListToArray(visitsRepository.getAllNewVisits());
+        return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(),visits)).build();
+    }
+
+    @POST
+    @Path("/getNotFinishedVisits")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getNotFinishedVisits(AccessTokenForm form){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        List<Visit> notFinishedVisits = employee.getVisits().stream().filter(visit -> visit.getStatus().equals(VisitStatus.IN_PROGRESS)).collect(Collectors.toList());
+        VisitResponseModel[] visits = new VisitResponseModel[notFinishedVisits.size()];
+        int i = 0;
+        for (Visit visit : notFinishedVisits){
+            visits[i] = new VisitResponseModel(visit);
+        }
         return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(),visits)).build();
     }
 }
