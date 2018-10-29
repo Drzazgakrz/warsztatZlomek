@@ -264,17 +264,18 @@ public class CarActions {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/getCarData")
     @Transactional
-    public Response getCarData(GetCarData form){
+    public Response getCarData(AccessTokenForm form){
         Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
         if(client == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        Car car = carsRepository.getCarById(form.getCarId());
-        Object[] cars = client.getCars().stream().filter((current)->current.equals(car)).toArray();
-        if(car == null || cars.length == 0){
-            return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", form.getAccessToken())).build();
+        int i = 0;
+        CarResponseModel[] cars = new CarResponseModel[(int)client.getCars().stream().filter((cho)->cho.getStatus().equals(OwnershipStatus.CURRENT_OWNER)
+                || cho.getStatus().equals(OwnershipStatus.COOWNER)).count()];
+        for (CarsHasOwners cho: client.getCars()) {
+            cars[i] = new CarResponseModel(cho.getCar(), cho.getRegistrationNumber());
+            i++;
         }
-        GetCarDataResponse response = new GetCarDataResponse(form.getAccessToken(), car, ((CarsHasOwners) cars[0]).getRegistrationNumber());
-        return Response.status(200).entity(response).build();
+        return Response.status(200).entity(new GetCarDataResponse(form.getAccessToken(), cars)).build();
     }
 }

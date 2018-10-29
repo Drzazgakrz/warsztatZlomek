@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public class GetCarDataResponse extends AccessTokenForm {
-    CarResponseModel car;
+    CarResponseModel[] cars;
 
-    public GetCarDataResponse(String accessToken, Car car, String registration) {
+    public GetCarDataResponse(String accessToken, CarResponseModel[] cars) {
         super(accessToken);
-        this.car = new CarResponseModel(car, registration);
+        this.cars = cars;
     }
 }
