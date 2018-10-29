@@ -179,13 +179,16 @@ public class CarActions {
             return Response.status(404).
                     entity(new ErrorResponse("Ten klient nie jest współwłaścicielem tego samochodu", accessToken)).build();
         }
-        ownershipList.forEach((cho)->{
+        List<CarsHasOwners> choList = car.getOwners().stream().filter(cho-> cho.getStatus().equals(OwnershipStatus.COOWNER)).collect(Collectors.toList());
+        choList.forEach((cho)->{
+            log.info("ownershipList.size() == 2 "+Boolean.toString(choList.size() == 2));
+            log.info("cho.getOwner().equals(client) "+Boolean.toString(cho.getOwner().equals(client)));
             if(cho.getOwner().equals(coowner)) {
                 cho.setEndOwnershipDate(LocalDate.now());
                 cho.setStatus(OwnershipStatus.FORMER_OWNER);
                 carsRepository.updateOwnership(cho);
             }
-            else if(ownershipList.size() == 2 && cho.getOwner().equals(client)){
+            else if(choList.size() == 2 && cho.getOwner().equals(client)){
                 cho.setStatus(OwnershipStatus.CURRENT_OWNER);
                 carsRepository.updateOwnership(cho);
             }
