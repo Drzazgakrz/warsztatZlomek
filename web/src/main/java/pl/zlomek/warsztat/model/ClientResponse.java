@@ -1,5 +1,10 @@
 package pl.zlomek.warsztat.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
 public class ClientResponse extends ClientForm{
     String accessToken;
     public ClientResponse(Client client, String accessToken){

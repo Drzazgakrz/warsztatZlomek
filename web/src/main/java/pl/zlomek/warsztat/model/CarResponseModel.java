@@ -1,10 +1,12 @@
 package pl.zlomek.warsztat.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Getter
+@NoArgsConstructor
 public class CarResponseModel extends CarDataForm implements Serializable {
     private long id;
 

@@ -90,4 +90,8 @@ public class CarsRepository {
             return null;
         }
     }
+
+    public void deleteOwnership(CarsHasOwners cho){
+        em.remove(cho);
+    }
 }

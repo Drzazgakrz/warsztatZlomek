@@ -16,6 +16,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -203,6 +205,44 @@ public class UpdateClient {
             client.setPassword(Account.hashPassword(form.getPassword()));
         }
         clientsRepository.update(client);
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
+    }
+
+    @POST
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/verifyCarOwnership")
+    public Response verifyCarOwnership(VerificationForm form){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        List<ClientResponse> owners = Arrays.asList(form.getOwners());
+        OwnershipStatus ownershipStatus = (owners.size()>1)?OwnershipStatus.COOWNER: OwnershipStatus.CURRENT_OWNER;
+        Car car = carRepository.getCarById(form.getCar().getId());
+        owners.forEach(owner ->{
+            Client client = clientsRepository.findClientByUsername(owner.getEmail());
+            Object[] carList = client.getCars().stream().filter(cho-> cho.getCar().equals(car)).toArray();
+            CarsHasOwners cho = ((CarsHasOwners)carList[0]);
+            cho.setStatus(ownershipStatus);
+            carRepository.updateOwnership(cho);
+        });
+        List<ClientResponse> notOwners = Arrays.asList(form.getNotOwners());
+        notOwners.forEach(owner ->{
+            Client client = clientsRepository.findClientByUsername(owner.getEmail());
+            Object[] carList = client.getCars().stream().filter(cho-> cho.getCar().equals(car)).toArray();
+            CarsHasOwners cho = ((CarsHasOwners)carList[0]);
+            OwnershipStatus status = (cho.getStatus().equals(OwnershipStatus.CURRENT_OWNER) || cho.getStatus().equals(OwnershipStatus.COOWNER))?
+                    OwnershipStatus.FORMER_OWNER: null;
+            if(status == null){
+                carRepository.deleteOwnership(cho);
+            }
+            else{
+                cho.setEndOwnershipDate(LocalDate.now());
+                cho.setStatus(OwnershipStatus.FORMER_OWNER);
+                carRepository.updateOwnership(cho);
+            }
+        });
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 }
