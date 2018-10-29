@@ -72,8 +72,9 @@ public class Authorization {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response signIn(SignInForm signInForm) {
-        if (signInForm.getPassword() != null || signInForm.getUsername() != null) {
-            Client client = repository.signIn(signInForm.getUsername(), signInForm.getPassword());
+        if (signInForm.getPassword() != null || signInForm.getEmail() != null) {
+            Client client = repository.signIn(signInForm.getEmail()
+                    , signInForm.getPassword());
             if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE)) {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
             }
