@@ -365,4 +365,29 @@ public class VisitsActions {
         }
         return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(),visits)).build();
     }
+
+    @POST
+    @Path("/addEmptyVisit")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addEmptyVisit(CreateVisitForm form){
+        Employee employee = (Employee)employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        Client client = clientsRepository.getClientById(0L);
+        Car car = carsRepository.getCarById(0L);
+        if(client == null || car == null){
+            return Response.status(404).entity("Brak domyślnych danych").build();
+        }
+        LocalDate date = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        Overview overview = null;
+        if(form.isOverview()){
+            overview = new Overview(date, car);
+            visitsRepository.createOverview(overview);
+        }
+        Visit visit = new Visit(date, car, overview, client);
+        visitsRepository.createVisit(visit);
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
+    }
 }
