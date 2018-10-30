@@ -15,10 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 @Path("/invoice")
@@ -221,5 +218,41 @@ public class InvoiceActions {
 
         }
         return Response.status(400).entity(new ErrorResponse("Brak potrzebnych danych", form.getAccessToken())).build();
+    }
+
+    @POST
+    @Path("/getInvoicesList")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getInvoicesList(AccessTokenForm form){
+        Employee employee = (Employee)employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null)
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        List<Invoice> invoices = invoicesRepository.getAllInvoices();
+        InvoiceResponse[] invoicesArray = new InvoiceResponse[invoices.size()];
+        int i = 0;
+        for(Invoice invoice : invoices){
+            invoicesArray[i] = new InvoiceResponse(invoice);
+            i++;
+        }
+        return Response.status(200).entity(new AllInvoicesResponse(form.getAccessToken(), invoicesArray)).build();
+    }
+
+    @POST
+    @Path("/getProFormaInvoicesList")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProFormaInvoicesList(AccessTokenForm form){
+        Employee employee = (Employee)employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null)
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        List<InvoiceBuffer> invoices = invoicesRepository.getAllProFormaInvoices();
+        InvoiceResponse[] invoicesArray = new InvoiceResponse[invoices.size()];
+        int i = 0;
+        for(InvoiceBuffer invoice : invoices){
+            invoicesArray[i] = new InvoiceResponse(invoice);
+            i++;
+        }
+        return Response.status(200).entity(new AllInvoicesResponse(form.getAccessToken(), invoicesArray)).build();
     }
 }

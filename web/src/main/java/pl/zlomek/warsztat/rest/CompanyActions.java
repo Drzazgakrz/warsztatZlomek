@@ -56,7 +56,7 @@ public class CompanyActions {
     @Path("/addCompanyData")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addCompanyData(AddCompanyDataForm form){
+    public Response addCompanyData(CompanyDataForm form){
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null){
             return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
@@ -81,7 +81,7 @@ public class CompanyActions {
     @Path("/addCarServiceData")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addCarServiceData(AddCarServiceDataForm form){
+    public Response addCarServiceData(CarServiceDataForm form){
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null){
             return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();

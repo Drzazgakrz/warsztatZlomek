@@ -1,16 +1,18 @@
 package pl.zlomek.warsztat.model;
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@lombok.AllArgsConstructor
 @lombok.Getter
 @lombok.Setter
 @Entity
 @Table(name = "invoice_buffer_position")
+@NoArgsConstructor
 public class InvoiceBufferPosition implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
