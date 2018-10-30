@@ -31,4 +31,9 @@ public class CompanyDataBuffer extends CompanyModel implements Serializable {
         super(nip, companyName, cityName, streetName, buildingNum, aptNum, zipCode);
         this.invoicesBuffer = new HashSet<>();
     }
+    public CompanyDataBuffer(Company company){
+        super(company.getNip(), company.getCompanyName(), company.getCityName(), company.getStreetName(),
+                company.getBuildingNum(), company.getAptNum(), company.getZipCode());
+        this.invoicesBuffer = new HashSet<>();
+    }
 }
