@@ -8,11 +8,13 @@ import pl.zlomek.warsztat.data.InvoicesRepository;
 
 import javax.inject.Inject;
 import javax.persistence.Column;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.GregorianCalendar;
 
 @MappedSuperclass
@@ -31,9 +33,28 @@ public abstract class InvoicesModel {
     @Column(name = "invoice_number")
     protected String invoiceNumber;
 
+    @NotNull
+    @ManyToOne
+    protected CarServiceData carServiceData;
 
-    public InvoicesModel(int discount, MethodOfPayment methodOfPayment) {
+    @NotNull
+    protected LocalDate dayOfIssue;
+
+    @NotNull
+    protected LocalDate paymentDate;
+
+    @Column(precision = 20, scale = 2)
+    protected BigDecimal netValue;
+
+    @Column(precision = 20, scale = 2)
+    protected BigDecimal grossValue;
+
+    public InvoicesModel(int discount, MethodOfPayment methodOfPayment, CarServiceData carServiceData,
+                         LocalDate dayOfIssue, LocalDate paymentDate) {
         this.discount = discount;
         this.methodOfPayment = methodOfPayment;
+        this.carServiceData = carServiceData;
+        this.dayOfIssue = dayOfIssue;
+        this.paymentDate = paymentDate;
     }
 }

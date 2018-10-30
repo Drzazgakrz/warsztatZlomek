@@ -3,6 +3,8 @@ package pl.zlomek.warsztat.data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.zlomek.warsztat.model.Invoice;
+import pl.zlomek.warsztat.model.InvoiceBuffer;
+import pl.zlomek.warsztat.model.InvoiceBufferPosition;
 import pl.zlomek.warsztat.model.InvoicePosition;
 
 import javax.ejb.NoSuchEntityException;
@@ -57,4 +59,16 @@ public class InvoicesRepository {
         }
     }
     public void updateInvoice(Invoice invoice){em.merge(invoice);}
+
+    public void insertInvoiceBufferPosition(InvoiceBufferPosition position){
+        em.persist(position);
+    }
+
+    public void insertInvoiceBuffer(InvoiceBuffer position){
+        em.persist(position);
+    }
+
+    public void updateInvoiceBuffer(InvoiceBuffer invoice){
+        em.merge(invoice);
+    }
 }

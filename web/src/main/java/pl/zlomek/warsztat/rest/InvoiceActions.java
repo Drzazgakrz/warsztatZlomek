@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -43,10 +44,10 @@ public class InvoiceActions {
 
     private Logger log = LoggerFactory.getLogger(InvoiceActions.class);
 
-    BigDecimal sumA = new BigDecimal(0);
-    BigDecimal sumB = new BigDecimal(0);
-    BigDecimal sumC = new BigDecimal(0);
-    BigDecimal sumD = new BigDecimal(0);
+    private BigDecimal sumA = new BigDecimal(0);
+    private BigDecimal sumB = new BigDecimal(0);
+    private BigDecimal sumC = new BigDecimal(0);
+    private BigDecimal sumD = new BigDecimal(0);
 
     @POST
     @Path("/addInvoice")
@@ -63,30 +64,15 @@ public class InvoiceActions {
         CompanyData companyData = new CompanyData(company);
         companyDataRespository.insert(companyData);
         Invoice invoice = createInvoice(newInvoice, companyData);
-        Visit visit = visitsRepository.getVisitById(newInvoice.getVisitId());
-
-        if (invoice != null && visit != null) {
-            invoicesRepository.insertInvoice(invoice);
-            visit.getParts().forEach((position)->{
-                CarPart part = position.getPart();
-                InvoicePosition invoicePosition = new InvoicePosition(position, part.getName(), part.getTax(), invoice, "szt.");
-                invoice.getInvoicePositions().add(invoicePosition);
-                invoicesRepository.insertInvoicePosition(invoicePosition);
-            });
-            visit.getServices().forEach((position)->{
-                Service service = position.getService();
-                InvoicePosition invoicePosition = new InvoicePosition(position, service.getName(),service.getTax() , invoice, "h");
-                invoice.getInvoicePositions().add(invoicePosition);
-                invoicesRepository.insertInvoicePosition(invoicePosition);
-            });
+        if (invoice != null) {
             invoicesRepository.updateInvoice(invoice);
             return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
         } else
             return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", accessToken)).build();
     }
 
-    public void addValue(BigDecimal value, int tax){
-        switch (tax){
+    public void addValue(BigDecimal value, int tax) {
+        switch (tax) {
             case 23:
                 sumA = sumA.add(value);
                 break;
@@ -118,12 +104,34 @@ public class InvoiceActions {
             MethodOfPayment methodOfPayment = createMethodOfPayment(newInvoice.getMethodOfPayment());
 
             CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
-
+            Visit visit = visitsRepository.getVisitById(newInvoice.getVisitId());
             if (carServiceData != null && companyData != null && methodOfPayment != null) {
-                Invoice invoice = new Invoice(discount, methodOfPayment, companyData, carServiceData);
+                LocalDate paymentDate = newInvoice.getPaymentDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                Invoice invoice = new Invoice(discount, methodOfPayment, companyData, carServiceData, paymentDate);
                 StringBuilder invoiceNumberBuilder = new StringBuilder().append(invoicesRepository.countInvoicesInMonth());
                 String invoiceNumber = invoiceNumberBuilder.append("/").append(LocalDate.now().getMonthValue()).append("/").append(LocalDate.now().getYear()).toString();
                 invoice.setInvoiceNumber(invoiceNumber);
+                invoicesRepository.insertInvoice(invoice);
+                BigDecimal grossValue = new BigDecimal(0);
+                BigDecimal netValue = new BigDecimal(0);
+                for(VisitsParts position: visit.getParts()){
+                    CarPart part = position.getPart();
+                    InvoicePosition invoicePosition = new InvoicePosition(position, part.getName(), part.getTax(), invoice, "szt.");
+                    invoice.getInvoicePositions().add(invoicePosition);
+                    grossValue = grossValue.add(invoicePosition.getGrossPrice());
+                    netValue = netValue.add(invoicePosition.getNetPrice());
+                    invoicesRepository.insertInvoicePosition(invoicePosition);
+                }
+                for(VisitsHasServices position: visit.getServices()){
+                    Service service = position.getService();
+                    InvoicePosition invoicePosition = new InvoicePosition(position, service.getName(), service.getTax(), invoice, "h");
+                    invoice.getInvoicePositions().add(invoicePosition);
+                    grossValue = grossValue.add(invoicePosition.getGrossPrice());
+                    netValue = netValue.add(invoicePosition.getNetPrice());
+                    invoicesRepository.insertInvoicePosition(invoicePosition);
+                }
+                invoice.setNetValue(netValue);
+                invoice.setGrossValue(grossValue);
                 return invoice;
             }
         } catch (Exception e) {
@@ -149,12 +157,69 @@ public class InvoiceActions {
         }
 
         Invoice newInvoice = createInvoice(form, invoice.getCompanyData());
-        if (newInvoice == null) {
+        Visit visit = visitsRepository.getVisitById(form.getVisitId());
+        if (newInvoice == null || visit == null) {
             return Response.status(400).entity(new ErrorResponse("Nie utworzono nowej faktury", accessToken)).build();
         }
         invoicesRepository.insertInvoice(newInvoice);
         invoice.setCorectionInvoice(newInvoice);
         invoicesRepository.updateInvoice(invoice);
         return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+    }
+
+    @POST
+    @Path("/addProFormaInvoice")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addProFormaInvoice(AddInvoiceForm form) {
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null)
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        String accessToken = employeesRepository.generateToken(employee);
+
+        Company company = companiesRepository.getCompanyByName(form.getCompanyName());
+        CompanyDataBuffer companyData = new CompanyDataBuffer(company);
+        companiesRepository.insertComapnyDataBuffer(companyData);
+        int discount = form.getDiscount();
+
+        MethodOfPayment methodOfPayment = createMethodOfPayment(form.getMethodOfPayment());
+        BigDecimal grossValue = new BigDecimal(0);
+        BigDecimal netValue = new BigDecimal(0);
+        CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
+        Visit visit = visitsRepository.getVisitById(form.getVisitId());
+        if (carServiceData != null && companyData != null && methodOfPayment != null) {
+            LocalDate paymentDate = form.getPaymentDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            InvoiceBuffer invoice = new InvoiceBuffer(discount, methodOfPayment, companyData, carServiceData, paymentDate);
+            StringBuilder invoiceNumberBuilder = new StringBuilder().append(invoicesRepository.countInvoicesInMonth());
+            String invoiceNumber = invoiceNumberBuilder.append("/").append(LocalDate.now().getMonthValue()).append("/").append(LocalDate.now().getYear()).toString();
+            invoice.setInvoiceNumber(invoiceNumber);
+            invoice.setInvoiceBufferStatus(InvoiceBufferStatus.proForma);
+            invoicesRepository.insertInvoiceBuffer(invoice);
+            for(VisitsParts position: visit.getParts()){
+                CarPart part = position.getPart();
+                InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position, part.getName(), part.getTax(), invoice, "szt.");
+                invoice.getInvoiceBufferPositions().add(invoicePosition);
+                grossValue = grossValue.add(invoicePosition.getGrossPrice());
+                netValue = netValue.add(invoicePosition.getNetPrice());
+                invoicesRepository.insertInvoiceBufferPosition(invoicePosition);
+            }
+            for(VisitsHasServices position: visit.getServices()){
+                Service service = position.getService();
+                InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position, service.getName(), service.getTax(), invoice, "h");
+                invoice.getInvoiceBufferPositions().add(invoicePosition);
+                grossValue = grossValue.add(invoicePosition.getGrossPrice());
+                netValue = netValue.add(invoicePosition.getNetPrice());
+                invoicesRepository.insertInvoiceBufferPosition(invoicePosition);
+            }
+            if (invoice != null) {
+                invoice.setNetValue(netValue);
+                invoice.setGrossValue(grossValue);
+                invoicesRepository.updateInvoiceBuffer(invoice);
+                return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+            } else
+                return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", accessToken)).build();
+
+        }
+        return Response.status(400).entity(new ErrorResponse("Brak potrzebnych danych", form.getAccessToken())).build();
     }
 }

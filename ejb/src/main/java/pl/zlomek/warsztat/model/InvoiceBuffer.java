@@ -5,6 +5,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @lombok.NoArgsConstructor
@@ -17,7 +19,6 @@ public class InvoiceBuffer extends InvoicesModel implements Serializable {
     @GeneratedValue(strategy =GenerationType.IDENTITY)
     private long id;
 
-    @NotNull
     @Column(name = "ststus")
     private InvoiceBufferStatus invoiceBufferStatus;
 
@@ -26,7 +27,6 @@ public class InvoiceBuffer extends InvoicesModel implements Serializable {
     @ManyToOne
     private CompanyDataBuffer companyDataBuffer;
 
-    @NotNull
     @OneToMany(mappedBy = "invoiceBuffer")
     private Set<InvoiceBufferPosition> invoiceBufferPositions;
 
@@ -34,11 +34,10 @@ public class InvoiceBuffer extends InvoicesModel implements Serializable {
     @ManyToOne
     private CarServiceData carServiceData;
 
-    public InvoiceBuffer(int discount, int tax, MethodOfPayment methodOfPayment, BigDecimal netValue,
-                         BigDecimal grossValue, BigDecimal valueOfVat, String invoiceNumber,
-                         CompanyDataBuffer companyData, CarServiceData carServiceData) throws Exception{
-        super(discount, methodOfPayment
-        );
+    public InvoiceBuffer(int discount, MethodOfPayment methodOfPayment,
+                         CompanyDataBuffer companyData, CarServiceData carServiceData, LocalDate paymentDate){
+        super(discount, methodOfPayment, carServiceData, LocalDate.now(), paymentDate);
+        invoiceBufferPositions = new HashSet<>();
         this.companyDataBuffer = companyData;
         this.carServiceData = carServiceData;
     }

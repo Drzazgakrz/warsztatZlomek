@@ -27,26 +27,26 @@ public class InvoiceBufferPosition implements Serializable {
     private String unitOfMeasure;
 
     @NotNull
-    @Column(name="gross_price", precision=2 , scale =2 )
+    @Column(name="gross_price", precision=20 , scale =2 )
     private BigDecimal grossPrice;
 
     @NotNull
-    @Column(name="net_price", precision=2 , scale =2 )
+    @Column(name="net_price", precision=20 , scale =2 )
     private BigDecimal netPrice;
 
     @NotNull
-    @Column(name = "VAT_tax", precision=2 , scale =2 )
-    private BigDecimal vat;
+    @Column(name = "VAT_tax", precision=20 , scale =2 )
+    private int vat;
 
     @NotNull
-    @Column(name = "value_of_VAT", precision=2 , scale =2 )
+    @Column(name = "value_of_VAT", precision=20 , scale =2 )
     private BigDecimal valueOfVat;
 
     @NotNull
     @ManyToOne
     private InvoiceBuffer invoiceBuffer;
 
-    public InvoiceBufferPosition(String itemName, String unitOfMeasure, BigDecimal grossPrice, BigDecimal netPrice, BigDecimal vat, BigDecimal valueOfVat, InvoiceBuffer invoiceBuffer) {
+    public InvoiceBufferPosition(String itemName, String unitOfMeasure, BigDecimal grossPrice, BigDecimal netPrice, int vat, BigDecimal valueOfVat, InvoiceBuffer invoiceBuffer) {
         this.itemName = itemName;
         this.unitOfMeasure = unitOfMeasure;
         this.grossPrice = grossPrice;
@@ -54,5 +54,16 @@ public class InvoiceBufferPosition implements Serializable {
         this.vat = vat;
         this.valueOfVat = valueOfVat;
         this.invoiceBuffer = invoiceBuffer;
+    }
+
+    public InvoiceBufferPosition(VisitPosition position, String name, int tax, InvoiceBuffer invoice, String unitOfMeasure){
+        this.itemName = name;
+        this.unitOfMeasure = unitOfMeasure;
+        this.grossPrice = position.singlePrice;
+        this.invoiceBuffer = invoice;
+        this.vat = tax;
+        double taxModifier = 100.0/(100.0+(tax*1.0));
+        this.netPrice = grossPrice.multiply(new BigDecimal(taxModifier));
+        this.valueOfVat = this.grossPrice.subtract(this.netPrice);
     }
 }

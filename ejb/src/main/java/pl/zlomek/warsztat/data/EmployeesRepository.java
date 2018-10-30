@@ -59,6 +59,7 @@ public class EmployeesRepository extends AccountsRepository {
             AccessToken token =  query.getSingleResult();
             if(token != null && token.getExpiration().isAfter(LocalDateTime.now())){
                 token.setExpiration(LocalDateTime.now().plusMinutes(20));
+                em.merge(token);
                 return ((EmployeeToken) token).getEmployee();
             }
         }catch (Exception e){
