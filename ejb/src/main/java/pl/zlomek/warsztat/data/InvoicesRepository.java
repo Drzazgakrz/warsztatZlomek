@@ -2,10 +2,7 @@ package pl.zlomek.warsztat.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.zlomek.warsztat.model.Invoice;
-import pl.zlomek.warsztat.model.InvoiceBuffer;
-import pl.zlomek.warsztat.model.InvoiceBufferPosition;
-import pl.zlomek.warsztat.model.InvoicePosition;
+import pl.zlomek.warsztat.model.*;
 
 import javax.ejb.NoSuchEntityException;
 import javax.enterprise.context.ApplicationScoped;
@@ -14,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 @ApplicationScoped
 public class InvoicesRepository {
@@ -22,17 +20,17 @@ public class InvoicesRepository {
     private EntityManager em;
 
     @Transactional
-    public void insertInvoice(Invoice invoice){
+    public void insertInvoice(Invoice invoice) {
         em.persist(invoice);
     }
 
-    public void insertInvoicePosition(InvoicePosition position){
+    public void insertInvoicePosition(InvoicePosition position) {
         em.persist(position);
     }
 
     private Logger log = LoggerFactory.getLogger(InvoicesRepository.class);
 
-    public Long countInvoicesInMonth(){
+    public Long countInvoicesInMonth() {
         try {
             log.info(em.toString());
             TypedQuery<Long> query = em.createQuery("SELECT COUNT(invoice.id) FROM Invoice invoice WHERE " +
@@ -40,35 +38,57 @@ public class InvoicesRepository {
             StringBuilder regexBuilder = new StringBuilder("%/").append(GregorianCalendar.MONTH);
             String regex = regexBuilder.append("/").append(GregorianCalendar.YEAR).toString();
             query.setParameter("invoiceNumber", regex);
-            return query.getSingleResult()+1;
-        }catch (NoSuchEntityException e){
+            return query.getSingleResult() + 1;
+        } catch (NoSuchEntityException e) {
             return 1L;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return -1L;
         }
     }
-    public Invoice getInvoiceById(long id){
+
+    public Invoice getInvoiceById(long id) {
         try {
             TypedQuery<Invoice> query = em.createQuery("SELECT invoice FROM Invoice invoice WHERE id = :id", Invoice.class);
             query.setParameter("id", id);
             return query.getSingleResult();
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
-    public void updateInvoice(Invoice invoice){em.merge(invoice);}
 
-    public void insertInvoiceBufferPosition(InvoiceBufferPosition position){
-        em.persist(position);
-    }
-
-    public void insertInvoiceBuffer(InvoiceBuffer position){
-        em.persist(position);
-    }
-
-    public void updateInvoiceBuffer(InvoiceBuffer invoice){
+    public void updateInvoice(Invoice invoice) {
         em.merge(invoice);
+    }
+
+    public void insertInvoiceBufferPosition(InvoiceBufferPosition position) {
+        em.persist(position);
+    }
+
+    public void insertInvoiceBuffer(InvoiceBuffer position) {
+        em.persist(position);
+    }
+
+    public void updateInvoiceBuffer(InvoiceBuffer invoice) {
+        em.merge(invoice);
+    }
+
+    public List<Invoice> getAllInvoices() {
+        try {
+            TypedQuery<Invoice> query = em.createQuery("SELECT invoice FROM Invoice invoice WHERE invoice.corectionInvoice is null", Invoice.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<InvoiceBuffer> getAllProFormaInvoices() {
+        try {
+            TypedQuery<InvoiceBuffer> query = em.createQuery("SELECT invoice FROM InvoiceBuffer invoice WHERE invoice.invoiceBufferStatus = :status", InvoiceBuffer.class);
+            query.setParameter("status", InvoiceBufferStatus.proForma);
+            return query.getResultList();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
