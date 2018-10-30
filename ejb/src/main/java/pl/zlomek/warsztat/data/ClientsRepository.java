@@ -96,4 +96,14 @@ public class ClientsRepository extends AccountsRepository {
             em.merge(token);
         }catch (Exception e){}
     }
+
+    public Client getClientById(long id){
+        try {
+            TypedQuery<Client> query = em.createQuery("SELECT client FROM Client client WHERE client.clientId = :id", Client.class);
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        }catch (Exception e){
+            return null;
+        }
+    }
 }
