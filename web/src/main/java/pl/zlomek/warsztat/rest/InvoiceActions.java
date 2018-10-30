@@ -112,18 +112,26 @@ public class InvoiceActions {
                 String invoiceNumber = invoiceNumberBuilder.append("/").append(LocalDate.now().getMonthValue()).append("/").append(LocalDate.now().getYear()).toString();
                 invoice.setInvoiceNumber(invoiceNumber);
                 invoicesRepository.insertInvoice(invoice);
-                visit.getParts().forEach((position) -> {
+                BigDecimal grossValue = new BigDecimal(0);
+                BigDecimal netValue = new BigDecimal(0);
+                for(VisitsParts position: visit.getParts()){
                     CarPart part = position.getPart();
                     InvoicePosition invoicePosition = new InvoicePosition(position, part.getName(), part.getTax(), invoice, "szt.");
                     invoice.getInvoicePositions().add(invoicePosition);
+                    grossValue = grossValue.add(invoicePosition.getGrossPrice());
+                    netValue = netValue.add(invoicePosition.getNetPrice());
                     invoicesRepository.insertInvoicePosition(invoicePosition);
-                });
-                visit.getServices().forEach((position) -> {
+                }
+                for(VisitsHasServices position: visit.getServices()){
                     Service service = position.getService();
                     InvoicePosition invoicePosition = new InvoicePosition(position, service.getName(), service.getTax(), invoice, "h");
                     invoice.getInvoicePositions().add(invoicePosition);
+                    grossValue = grossValue.add(invoicePosition.getGrossPrice());
+                    netValue = netValue.add(invoicePosition.getNetPrice());
                     invoicesRepository.insertInvoicePosition(invoicePosition);
-                });
+                }
+                invoice.setNetValue(netValue);
+                invoice.setGrossValue(grossValue);
                 return invoice;
             }
         } catch (Exception e) {
@@ -175,7 +183,8 @@ public class InvoiceActions {
         int discount = form.getDiscount();
 
         MethodOfPayment methodOfPayment = createMethodOfPayment(form.getMethodOfPayment());
-
+        BigDecimal grossValue = new BigDecimal(0);
+        BigDecimal netValue = new BigDecimal(0);
         CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
         if (carServiceData != null && companyData != null && methodOfPayment != null) {
@@ -186,19 +195,25 @@ public class InvoiceActions {
             invoice.setInvoiceNumber(invoiceNumber);
             invoice.setInvoiceBufferStatus(InvoiceBufferStatus.proForma);
             invoicesRepository.insertInvoiceBuffer(invoice);
-            visit.getParts().forEach((position) -> {
+            for(VisitsParts position: visit.getParts()){
                 CarPart part = position.getPart();
                 InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position, part.getName(), part.getTax(), invoice, "szt.");
                 invoice.getInvoiceBufferPositions().add(invoicePosition);
+                grossValue = grossValue.add(invoicePosition.getGrossPrice());
+                netValue = netValue.add(invoicePosition.getNetPrice());
                 invoicesRepository.insertInvoiceBufferPosition(invoicePosition);
-            });
-            visit.getServices().forEach((position) -> {
+            }
+            for(VisitsHasServices position: visit.getServices()){
                 Service service = position.getService();
                 InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position, service.getName(), service.getTax(), invoice, "h");
                 invoice.getInvoiceBufferPositions().add(invoicePosition);
+                grossValue = grossValue.add(invoicePosition.getGrossPrice());
+                netValue = netValue.add(invoicePosition.getNetPrice());
                 invoicesRepository.insertInvoiceBufferPosition(invoicePosition);
-            });
+            }
             if (invoice != null) {
+                invoice.setNetValue(netValue);
+                invoice.setGrossValue(grossValue);
                 invoicesRepository.updateInvoiceBuffer(invoice);
                 return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
             } else
