@@ -213,7 +213,10 @@ public class VisitsActions {
             String accessToken = clientsRepository.generateToken(client);
             Set<Visit> visits = new HashSet<>();
             for (CarsHasOwners cho : client.getCars()) {
-                visits.addAll(cho.getCar().getVisits());
+                visits.addAll(cho.getCar().getVisits().stream().filter(visit -> {
+                    LocalDate end = (cho.getEndOwnershipDate() != null)?cho.getEndOwnershipDate() :LocalDate.now();
+                    return visit.getVisitDate().isAfter(cho.getBeginOwnershipDate()) && visit.getVisitDate().isBefore(end);
+                }).collect(Collectors.toList()));
             }
             VisitResponseModel[] visitsArray = visitsListToArray(visits);
             return Response.status(200).entity(new GetVisitsResponse(accessToken, visitsArray)).build();
