@@ -35,6 +35,9 @@ public class Authorization {
     @Inject
     private EmployeesRepository employeesRepository;
 
+
+    @Inject
+    private VisitsActions visitsActions;
     //ścieżka localhost:8080/warsztatZlomek/rest/authorization/register
     @POST
     @Transactional
@@ -138,6 +141,19 @@ public class Authorization {
             }).collect(Collectors.toList()));
         }
         return overviews;
+    }
+
+    @POST
+    @Path("/getFutureVisits")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response getFutureVisits(AccessTokenForm form){
+        Client client = (Client) repository.findByToken(form.getAccessToken());
+        if(client == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        VisitResponseModel[] visits = visitsActions.visitsListToArray(getVisits(client, null));
+        return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(), visits)).build();
     }
 
     @POST

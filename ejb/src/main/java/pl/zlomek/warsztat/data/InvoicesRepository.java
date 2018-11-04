@@ -49,7 +49,7 @@ public class InvoicesRepository {
 
     public Invoice getInvoiceById(long id) {
         try {
-            TypedQuery<Invoice> query = em.createQuery("SELECT invoice FROM Invoice invoice WHERE id = :id", Invoice.class);
+            TypedQuery<Invoice> query = em.createQuery("SELECT invoice FROM Invoice invoice WHERE invoice.id = :id", Invoice.class);
             query.setParameter("id", id);
             return query.getSingleResult();
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class InvoicesRepository {
 
     public List<Invoice> getAllInvoices() {
         try {
-            TypedQuery<Invoice> query = em.createQuery("SELECT invoice FROM Invoice invoice WHERE invoice.corectionInvoice is null", Invoice.class);
+            TypedQuery<Invoice> query = em.createQuery("SELECT invoice FROM Invoice invoice WHERE invoice.corectionInvoice is null ORDER BY invoice.dayOfIssue DESC ", Invoice.class);
             return query.getResultList();
         } catch (Exception e) {
             return null;
@@ -84,7 +84,7 @@ public class InvoicesRepository {
 
     public List<InvoiceBuffer> getAllProFormaInvoices() {
         try {
-            TypedQuery<InvoiceBuffer> query = em.createQuery("SELECT invoice FROM InvoiceBuffer invoice WHERE invoice.invoiceBufferStatus = :status", InvoiceBuffer.class);
+            TypedQuery<InvoiceBuffer> query = em.createQuery("SELECT invoice FROM InvoiceBuffer invoice WHERE invoice.invoiceBufferStatus = :status ORDER BY invoice.dayOfIssue DESC", InvoiceBuffer.class);
             query.setParameter("status", InvoiceBufferStatus.proForma);
             return query.getResultList();
         } catch (Exception e) {
