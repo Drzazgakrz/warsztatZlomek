@@ -2,9 +2,10 @@ package pl.zlomek.warsztat.model;
 
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @lombok.Getter
@@ -15,15 +16,20 @@ import java.util.*;
 @Entity
 @Table(name = "cars")
 public class Car implements Serializable {
+    @Transient
+    int maxYear = LocalDate.now().getYear();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @NotNull
     @Size(min = 2, max = 30)
+    @Pattern(regexp = "[A-Z]{1}+[a-z]{1,}")
     private String model;
 
     @NotNull
+    @Min(value = 1930)
     @Column(name = "prod_year")
     private int prodYear;
 

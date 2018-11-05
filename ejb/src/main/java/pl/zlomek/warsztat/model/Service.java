@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +24,7 @@ public class Service implements Serializable {
 
     @Column(name = "service_name")
     @NotNull
+    @Pattern(regexp = "[A-ZŹĄĘÓŁŻ]{1}+[a-z,ąęółńćźż]{2,}")
     private String name;
 
     @OneToMany(mappedBy = "service")

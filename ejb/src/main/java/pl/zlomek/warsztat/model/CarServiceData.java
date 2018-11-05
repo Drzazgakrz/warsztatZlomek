@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
@@ -23,10 +24,12 @@ public class CarServiceData implements Serializable {
 
     @NotNull
     @Size(min = 13,max=13)
+    @Pattern(regexp = "[0-9]{3}+-+[0-9]{3}+-+[0-9]{2}+-+[0-9]{2}")
     private String NIP;
 
     @NotNull
     @Size(max = 30, min = 6)
+    @Pattern(regexp = "[A-Za-z0-9.]{1,}+@+[a-z]{1,6}+.+[a-z]{2,3}")
     private String email;
 
     @NotNull
@@ -37,11 +40,13 @@ public class CarServiceData implements Serializable {
     @NotNull
     @Size(max = 20, min = 2)
     @Column(name = "city_name")
+    @Pattern(regexp = "[A-Z]{1}+[a-z]{1,}")
     private String cityName;
 
     @NotNull
     @Size(max = 40, min = 3)
     @Column(name = "street_name")
+    @Pattern(regexp = "[A-Z]{1}+[a-z]{1,}")
     private String streetName;
 
     @NotNull
@@ -56,6 +61,7 @@ public class CarServiceData implements Serializable {
     @NotNull
     @Size(max = 6, min = 6)
     @Column(name = "zip_code")
+    @Pattern(regexp = "[0-9]{2}+-+[0-9]{3}")
     private String zipCode;
 
     @OneToMany(mappedBy = "carServiceData")

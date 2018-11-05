@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class CarBrand implements Serializable {
     private long id;
 
     @Column(name = "brand_name")
+    @Pattern(regexp = "[A-Z]{1}+[a-z]{1,}")
     private String brandName;
 
     public CarBrand(String name){
