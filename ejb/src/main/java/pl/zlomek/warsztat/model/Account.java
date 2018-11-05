@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,11 +26,13 @@ public abstract class Account {
 
     @NotNull
     @Size(max = 30, min = 3)
+    @Pattern(regexp = "[A-ZŹĄĘÓŁŻ]{1}+[a-z,ąęółńćźż]{2,}")
     @Column(name = "first_name")
     protected String firstName;
 
     @NotNull
     @Size(max = 30, min = 2)
+    @Pattern(regexp = "[A-ZŹĄĘÓŁŻ]{1}+[a-z,ąęółńćźż]{2,}")
     @Column(name = "last_name")
     protected String lastName;
 
@@ -38,15 +41,12 @@ public abstract class Account {
     protected String password;
 
     @Column(unique = true)
+    @Pattern(regexp = "[A-Za-z0-9._-]{1,}+@+[a-z]{1,6}+.+[a-z]{2,3}")
     protected String email;
 
     protected LocalDateTime createdAt;
 
     protected  LocalDateTime lastLoggedIn;
-
-    public String getEmail() {
-        return email;
-    }
 
     public void setEmail(String email) {
         this.email = email;

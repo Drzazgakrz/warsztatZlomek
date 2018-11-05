@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @MappedSuperclass
@@ -19,6 +20,7 @@ public abstract class CompanyModel {
     @NotNull
     @Size(min = 13,max=13)
     @Column(name = "NIP")
+    @Pattern(regexp = "[0-9]{3}+-+[0-9]{3}+-+[0-9]{2}+-+[0-9]{2}")
     protected String nip;
 
     @NotNull
@@ -29,11 +31,13 @@ public abstract class CompanyModel {
     @NotNull
     @Size(max = 20, min = 2)
     @Column(name = "city_name")
+    @Pattern(regexp = "[A-Z]{1}+[a-z]{1,}")
     protected String cityName;
 
     @NotNull
     @Size(max = 40, min = 3)
     @Column(name = "street_name")
+    @Pattern(regexp = "[A-Z]{1}+[a-z]{1,}")
     protected String streetName;
 
     @NotNull
@@ -48,6 +52,7 @@ public abstract class CompanyModel {
     @NotNull
     @Size(max = 6, min = 6)
     @Column(name = "zip_code")
+    @Pattern(regexp = "[0-9]{2}+-+[0-9]{3}")
     protected String zipCode;
 
     public CompanyModel(String nip, String companyName, String cityName, String streetName, String buildingNum, String aptNum, String zipCode) {

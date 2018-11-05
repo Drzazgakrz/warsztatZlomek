@@ -8,6 +8,7 @@ import pl.zlomek.warsztat.data.CompaniesRepository;
 import javax.inject.Inject;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ public class Company extends CompanyModel implements Serializable {
 
     @NotNull
     @Size(max = 30, min = 6)
+    @Pattern(regexp = "[A-Za-z0-9.]{1,}+@+[a-z]{1,6}+.+[a-z]{2,3}")
     private String email;
 
 

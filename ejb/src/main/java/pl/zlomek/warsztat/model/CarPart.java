@@ -4,6 +4,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
@@ -31,6 +32,7 @@ public class CarPart implements Serializable {
     protected int tax;
 
     @NotNull
+    @Pattern(regexp = "[A-Z]{1}+[a-z]{1,}")
     private String producer;
 
     public CarPart(String name, int tax, String producer){
