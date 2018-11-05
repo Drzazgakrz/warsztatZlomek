@@ -199,6 +199,7 @@ public class CarActions {
     @POST
     @Path("/getAllClientsCars")
     @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response getAllClientsCars(AccessToken form){
         Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
         if(client == null){
