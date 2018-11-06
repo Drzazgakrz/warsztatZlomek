@@ -7,4 +7,8 @@ import lombok.Setter;
 @Setter
 public class RemoveCarForm extends AccessTokenForm{
     long carId;
+
+    public boolean validate(){
+        return carId>0;
+    }
 }

@@ -8,4 +8,7 @@ import lombok.Setter;
 @Setter
 public class AddEmployeeForm extends AccessToken{
     private long visitId;
+    public boolean validate(){
+        return visitId>0;
+    }
 }

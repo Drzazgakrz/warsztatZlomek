@@ -32,7 +32,9 @@ public class CarPartsActions {
         Employee employee = (Employee) employeesRepository.findByToken(newPart.getAccessToken());
         if(employee == null)
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
-        String accessToken = employeesRepository.generateToken(employee);
+        if(!newPart.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", newPart.getAccessToken())).build();
+        }
         if(!newPart.getName().isEmpty())
         {
             String name = newPart.getName();
@@ -42,12 +44,12 @@ public class CarPartsActions {
             {
                 carPartsRepository.saveCarPart(part);
 
-                return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+                return Response.status(200).entity(new AccessTokenForm(newPart.getAccessToken())).build();
             }
             else
-                return Response.status(409).entity(new ErrorResponse("Część istnieje w bazie", accessToken)).build();
+                return Response.status(409).entity(new ErrorResponse("Część istnieje w bazie", newPart.getAccessToken())).build();
         }
-        return Response.status(400).entity(new ErrorResponse("Nie zdefiniowano nazwy części", accessToken)).build();
+        return Response.status(400).entity(new ErrorResponse("Nie zdefiniowano nazwy części", newPart.getAccessToken())).build();
     }
 
     @POST
@@ -59,6 +61,9 @@ public class CarPartsActions {
             Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
             if(employee == null)
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+            if(!form.validate()){
+                return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
+            }
             CarPart part = carPartsRepository.getCarPartById(form.getCarPartId());
             if(part== null)
                 return Response.status(404).entity(new ErrorResponse("Brak podanej części", form.getAccessToken())).build();

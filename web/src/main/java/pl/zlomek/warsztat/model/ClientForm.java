@@ -1,5 +1,7 @@
 package pl.zlomek.warsztat.model;
 
+import pl.zlomek.warsztat.util.Validator;
+
 @lombok.Getter
 public class ClientForm {
     protected String firstName;
@@ -14,5 +16,12 @@ public class ClientForm {
     protected String password;
     protected String confirmPassword;
 
-
+    public boolean validate(){
+        boolean result = Validator.validateNamesWithUnicode(firstName) && Validator.validateNamesWithUnicode(lastName);
+        result = result && Validator.validateEmail(email);
+        result = result && Validator.validateNamesWithUnicode(cityName);
+        result = result && Validator.validateNamesWithUnicode(streetName);
+        result = result && Validator.validateZipCode(zipCode);
+        return result && Validator.validatePassword(password) && Validator.validatePassword(confirmPassword);
+    }
 }

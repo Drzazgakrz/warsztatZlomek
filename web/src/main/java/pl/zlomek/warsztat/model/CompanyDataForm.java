@@ -3,6 +3,7 @@ package pl.zlomek.warsztat.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.zlomek.warsztat.util.Validator;
 
 @Getter
 @Setter
@@ -34,5 +35,12 @@ public class CompanyDataForm extends AccessTokenForm{
         this.buildingNum = data.getBuildingNum();
         this.aptNum = data.getAptNum();
         this.zipCode = data.getZipCode();
+    }
+
+    public boolean validate(){
+        boolean result = Validator.validateNip(nip);
+        result = result && Validator.validateNamesWithUnicode(cityName);
+        result = result && Validator.validateNamesWithUnicode(streetName);
+        return result && Validator.validateZipCode(zipCode);
     }
 }
