@@ -196,10 +196,10 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response signInEmployee(EmployeeSignInForm form) {
-        if (form.getPassword() == null || form.getUsername() == null || !form.validate()) {
+        if (form.getPassword() == null || form.getEmail() == null || !form.validate()) {
             return Response.status(400).entity(new ErrorResponse("Błędne dane", null)).build();
         }
-        Employee employee = employeesRepository.signIn(form.getPassword(), form.getUsername());
+        Employee employee = employeesRepository.signIn(form.getPassword(), form.getEmail());
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
@@ -259,7 +259,7 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteAccount(AccessTokenForm form) {
         Client client = (Client) repository.findByToken(form.getAccessToken());
-        if (client == null || client.getStatus().equals(ClientStatus.ACTIVE)) {
+        if (client == null) {
             return Response.status(401).entity(new ErrorResponse("Nie udało się autoryzować", null)).build();
         }
         client.setAccessToken(null);
