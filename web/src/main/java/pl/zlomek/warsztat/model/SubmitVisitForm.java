@@ -16,4 +16,8 @@ public class SubmitVisitForm extends AccessTokenForm{
     private ServiceModel[] services;
     private Integer countYears;
     private String status;
+
+    public boolean validate(){
+        return visitId>0;
+    }
 }

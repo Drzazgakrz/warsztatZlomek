@@ -44,21 +44,23 @@ public class CarActions {
     @Transactional
     public Response addCarBrand(AddCarBrandForm newBrand){
         Employee employee = (Employee) employeesRepository.findByToken(newBrand.getAccessToken());
+        if(!newBrand.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", newBrand.getAccessToken())).build();
+        }
         if(employee == null )
             return Response.status(403).build();
-        String accessToken = employeesRepository.generateToken(employee);
 
         if(!newBrand.getBrandName().isEmpty()){
             String name = newBrand.getBrandName();
             if(carBrandsRespository.getCarBrandByName(name) == null){
                 CarBrand carBrand = new CarBrand(name);
                 carBrandsRespository.saveCarBrand(carBrand);
-                return Response.status(200).entity(accessToken).build();
+                return Response.status(200).entity(newBrand.getAccessToken()).build();
             }
             else
-                return Response.status(409).entity(accessToken).build();
+                return Response.status(409).entity(newBrand.getAccessToken()).build();
         }
-        return Response.status(400).entity(accessToken).build();
+        return Response.status(400).entity(newBrand.getAccessToken()).build();
     }
 
     @POST
@@ -98,14 +100,16 @@ public class CarActions {
             if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
             }
-            String accessToken = clientsRepository.generateToken(client);
+            if(!form.validate()){
+                return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
+            }
             Car car = carsRepository.getCarById(form.getCarId());
             if(car == null){
-                return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu", accessToken)).build();
+                return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu", form.getAccessToken())).build();
             }
             Company company = companiesRepository.getCompanyById(form.getCompanyId());
             if(!client.getCompanies().contains(company)){
-                return Response.status(403).entity(new ErrorResponse("Firma nie jest dodana do tego klienta", accessToken)).build();
+                return Response.status(403).entity(new ErrorResponse("Firma nie jest dodana do tego klienta", form.getAccessToken())).build();
             }
             log.info("Samochody"+Integer.toString(company.getCars().size()));
             log.info("Vin:" + car.getVin());
@@ -113,12 +117,12 @@ public class CarActions {
                 log.info("Vin1"+chc.getCar().getVin());
                 return chc.getCar().equals(car);}).toArray();
             if(companiesArray.length<1){
-                return Response.status(400).entity(new ErrorResponse("Firma nie posiada tego samochodu", accessToken)).build();
+                return Response.status(400).entity(new ErrorResponse("Firma nie posiada tego samochodu", form.getAccessToken())).build();
             }
             CompaniesHasCars chc = (CompaniesHasCars)companiesArray[0];
             chc.setStatus(CompanyOwnershipStatus.FORMER_OWNER_COMPANY);
             companiesRepository.updateJoinTable(chc);
-            return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+            return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
         }catch (Exception e){
             return Response.status(500).entity(new ErrorResponse("Błąd serwera. Przepraszamy", null)).build();
         }
@@ -133,18 +137,20 @@ public class CarActions {
         if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        String accessToken = clientsRepository.generateToken(client);
+        if(!form.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
+        }
         Client coowner = clientsRepository.findClientByUsername(form.getCoownerUsername());
         if(coowner == null){
-            return Response.status(400).entity(new ErrorResponse("Brak klienta o podanym mailu", accessToken)).build();
+            return Response.status(400).entity(new ErrorResponse("Brak klienta o podanym mailu", form.getAccessToken())).build();
         }
         Car car = carsRepository.getCarById(form.getCarId());
         if(car == null){
-            return Response.status(400).entity(new ErrorResponse("brak podanego samochodu", accessToken)).build();
+            return Response.status(400).entity(new ErrorResponse("brak podanego samochodu", form.getAccessToken())).build();
         }
         CarsHasOwners currentOwner = carsRepository.getOwnership(car.getId(), client.getClientId());
         if(currentOwner == null){
-            return Response.status(403).entity(new ErrorResponse("Klient nie posiada tego samochodu", accessToken)).build();
+            return Response.status(403).entity(new ErrorResponse("Klient nie posiada tego samochodu", form.getAccessToken())).build();
         }
         currentOwner.setStatus(OwnershipStatus.COOWNER);
         CarsHasOwners cho = car.addCarOwner(coowner, OwnershipStatus.COOWNER, currentOwner.getRegistrationNumber());
@@ -152,7 +158,7 @@ public class CarActions {
         carsRepository.updateOwnership(currentOwner);
         carsRepository.updateCar(car);
         clientsRepository.update(coowner);
-        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
     @POST
@@ -164,25 +170,25 @@ public class CarActions {
         if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        String accessToken = clientsRepository.generateToken(client);
+        if(!form.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
+        }
         Client coowner = clientsRepository.findClientByUsername(form.getCoownerUsername());
         if(coowner == null){
-            return Response.status(400).entity(new ErrorResponse("Brak klienta o podanym mailu", accessToken)).build();
+            return Response.status(400).entity(new ErrorResponse("Brak klienta o podanym mailu", form.getAccessToken())).build();
         }
         Car car = carsRepository.getCarById(form.getCarId());
         if(car == null){
-            return Response.status(400).entity(new ErrorResponse("brak podanego samochodu", accessToken)).build();
+            return Response.status(400).entity(new ErrorResponse("brak podanego samochodu", form.getAccessToken())).build();
         }
         List<CarsHasOwners> ownershipList = car.getOwners().stream().
                 filter(cho-> cho.getOwner().equals(coowner)).collect(Collectors.toList());
         if(ownershipList.size()==0){
             return Response.status(404).
-                    entity(new ErrorResponse("Ten klient nie jest współwłaścicielem tego samochodu", accessToken)).build();
+                    entity(new ErrorResponse("Ten klient nie jest współwłaścicielem tego samochodu", form.getAccessToken())).build();
         }
         List<CarsHasOwners> choList = car.getOwners().stream().filter(cho-> cho.getStatus().equals(OwnershipStatus.COOWNER)).collect(Collectors.toList());
         choList.forEach((cho)->{
-            log.info("ownershipList.size() == 2 "+Boolean.toString(choList.size() == 2));
-            log.info("cho.getOwner().equals(client) "+Boolean.toString(cho.getOwner().equals(client)));
             if(cho.getOwner().equals(coowner)) {
                 cho.setEndOwnershipDate(LocalDate.now());
                 cho.setStatus(OwnershipStatus.FORMER_OWNER);
@@ -222,6 +228,9 @@ public class CarActions {
         Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
         if(client == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        if(!form.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
         }
         Car car = carsRepository.getCarById(form.getCarId());
         if(car == null){

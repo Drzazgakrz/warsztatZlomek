@@ -24,7 +24,6 @@ public class Service implements Serializable {
 
     @Column(name = "service_name")
     @NotNull
-    @Pattern(regexp = "[A-ZŹĄĘÓŁŻ]{1}+[a-z,ąęółńćźż]{2,}")
     private String name;
 
     @OneToMany(mappedBy = "service")

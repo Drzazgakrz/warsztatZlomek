@@ -55,7 +55,9 @@ public class InvoiceActions {
         Employee employee = (Employee) employeesRepository.findByToken(newInvoice.getAccessToken());
         if (employee == null)
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
-        String accessToken = employeesRepository.generateToken(employee);
+        if(!newInvoice.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", newInvoice.getAccessToken())).build();
+        }
 
         Company company = companiesRepository.getCompanyByName(newInvoice.getCompanyName());
         CompanyData companyData = new CompanyData(company);
@@ -63,23 +65,9 @@ public class InvoiceActions {
         Invoice invoice = createInvoice(newInvoice, companyData);
         if (invoice != null) {
             invoicesRepository.updateInvoice(invoice);
-            return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+            return Response.status(200).entity(new AccessTokenForm(newInvoice.getAccessToken())).build();
         } else
-            return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", accessToken)).build();
-    }
-
-    public void addValue(BigDecimal value, int tax) {
-        switch (tax) {
-            case 23:
-                sumA = sumA.add(value);
-                break;
-            case 18:
-                sumB = sumB.add(value);
-                break;
-            case 5:
-                sumC = sumC.add(value);
-                break;
-        }
+            return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", newInvoice.getAccessToken())).build();
     }
 
     public MethodOfPayment createMethodOfPayment(String method) {
@@ -146,22 +134,24 @@ public class InvoiceActions {
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        String accessToken = employeesRepository.generateToken(employee);
+        if(!form.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
+        }
         Invoice invoice = invoicesRepository.getInvoiceById(form.getInvoiceId());
 
         if (invoice == null) {
-            return Response.status(400).entity(new ErrorResponse("Brak faktury", accessToken)).build();
+            return Response.status(400).entity(new ErrorResponse("Brak faktury", form.getAccessToken())).build();
         }
 
         Invoice newInvoice = createInvoice(form, invoice.getCompanyData());
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
         if (newInvoice == null || visit == null) {
-            return Response.status(400).entity(new ErrorResponse("Nie utworzono nowej faktury", accessToken)).build();
+            return Response.status(400).entity(new ErrorResponse("Nie utworzono nowej faktury", form.getAccessToken())).build();
         }
         invoicesRepository.insertInvoice(newInvoice);
         invoice.setCorectionInvoice(newInvoice);
         invoicesRepository.updateInvoice(invoice);
-        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
     @POST
@@ -172,7 +162,9 @@ public class InvoiceActions {
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null)
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
-        String accessToken = employeesRepository.generateToken(employee);
+        if(!form.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
+        }
 
         Company company = companiesRepository.getCompanyByName(form.getCompanyName());
         CompanyDataBuffer companyData = new CompanyDataBuffer(company);
@@ -212,9 +204,9 @@ public class InvoiceActions {
                 invoice.setNetValue(netValue);
                 invoice.setGrossValue(grossValue);
                 invoicesRepository.updateInvoiceBuffer(invoice);
-                return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+                return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
             } else
-                return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", accessToken)).build();
+                return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", form.getAccessToken())).build();
 
         }
         return Response.status(400).entity(new ErrorResponse("Brak potrzebnych danych", form.getAccessToken())).build();

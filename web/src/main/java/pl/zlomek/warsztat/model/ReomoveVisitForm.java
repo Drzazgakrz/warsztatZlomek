@@ -7,4 +7,8 @@ import lombok.Setter;
 @Setter
 public class ReomoveVisitForm extends AccessTokenForm{
     private long visitId;
+
+    public boolean validate(){
+        return visitId>0;
+    }
 }

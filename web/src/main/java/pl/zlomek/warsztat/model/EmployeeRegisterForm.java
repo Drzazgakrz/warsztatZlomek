@@ -1,6 +1,8 @@
 package pl.zlomek.warsztat.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import pl.zlomek.warsztat.util.Validator;
+
 import java.util.Date;
 
 @lombok.Getter
@@ -14,4 +16,10 @@ public class EmployeeRegisterForm extends AccessTokenForm{
     private Date hireDate;
     private String password;
     private String confirmPassword;
+
+    public boolean validate(){
+        boolean result = Validator.validateNamesWithUnicode(firstName) && Validator.validateNamesWithUnicode(lastName);
+        result = result && Validator.validateEmail(email);
+        return result && Validator.validatePassword(password) && Validator.validatePassword(confirmPassword);
+    }
 }

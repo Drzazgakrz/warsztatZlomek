@@ -50,6 +50,10 @@ public class Authorization {
         if(client != null){
             return Response.status(400).entity(new ErrorResponse("Klient o podanym adresie email już istnieje", null)).build();
         }
+
+        if(!newUserData.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", null)).build();
+        }
         if (newUserData.getPassword().equals(newUserData.getConfirmPassword())) {
             String firstName = newUserData.getFirstName();
             String lastName = newUserData.getLastName();
@@ -76,6 +80,9 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     public Response signIn(SignInForm signInForm) {
         if (signInForm.getPassword() != null || signInForm.getEmail() != null) {
+            if(!signInForm.validate()){
+                return Response.status(400).entity(new ErrorResponse("Błędne dane", null)).build();
+            }
             Client client = repository.signIn(signInForm.getEmail()
                     , signInForm.getPassword());
             if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE)) {
@@ -163,18 +170,24 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerEmployee(EmployeeRegisterForm newEmployeeData) {
 
+        Employee employee = (Employee) employeesRepository.findByToken(newEmployeeData.getAccessToken());
+        if (employee == null) {
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
         if (newEmployeeData.getPassword().equals(newEmployeeData.getConfirmPassword())) {
+            if(!newEmployeeData.validate()){
+                return Response.status(400).entity(new ErrorResponse("Błędne dane", newEmployeeData.getAccessToken())).build();
+            }
             String firstName = newEmployeeData.getFirstName();
             String lastName = newEmployeeData.getLastName();
             String email = newEmployeeData.getEmail();
             String password = newEmployeeData.getPassword();
             LocalDate hireDate = newEmployeeData.getHireDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            Employee employee = new Employee(firstName, lastName, hireDate, null, password, email, EmployeeStatus.employed);
-            employeesRepository.insert(employee);
-            String token = employeesRepository.generateToken(employee);
-            return Response.status(200).entity(new AccessTokenForm(token)).build();
+            Employee newEmployee = new Employee(firstName, lastName, hireDate, null, password, email, EmployeeStatus.employed);
+            employeesRepository.insert(newEmployee);
+            return Response.status(200).entity(new AccessTokenForm(newEmployeeData.getAccessToken())).build();
         }
-        return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych rejestracji", null)).build();
+        return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych rejestracji", newEmployeeData.getAccessToken())).build();
     }
 
     @POST
@@ -183,8 +196,8 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response signInEmployee(EmployeeSignInForm form) {
-        if (form.getPassword() == null || form.getUsername() == null) {
-            return Response.status(400).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        if (form.getPassword() == null || form.getUsername() == null || !form.validate()) {
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", null)).build();
         }
         Employee employee = employeesRepository.signIn(form.getPassword(), form.getUsername());
         if (employee == null) {
@@ -227,15 +240,17 @@ public class Authorization {
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        String accessToken = employeesRepository.generateToken(employee);
+        if(!form.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
+        }
         Client client = repository.findClientByUsername(form.getUsername());
         if (client == null) {
-            return Response.status(400).entity(new ErrorResponse("Klient o podanym mailu nie istnieje", accessToken)).build();
+            return Response.status(400).entity(new ErrorResponse("Klient o podanym mailu nie istnieje", form.getAccessToken())).build();
         }
         client.setAccessToken(null);
         client.setStatus(ClientStatus.BANNED);
         repository.update(client);
-        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
     @POST
@@ -262,16 +277,18 @@ public class Authorization {
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Nie udało się autoryzować", null)).build();
         }
-        String accessToken = employeesRepository.generateToken(employee);
+        if(!form.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
+        }
         Employee employeeToRemove = employeesRepository.findByUsername(form.getEmployeeMail());
         if (employeeToRemove == null) {
-            return Response.status(400).entity(new ErrorResponse("Nie istnieje konto o podanej nazwie", accessToken)).build();
+            return Response.status(400).entity(new ErrorResponse("Nie istnieje konto o podanej nazwie", form.getAccessToken())).build();
         }
         employee.setStatus(EmployeeStatus.quit);
         LocalDate date = form.getQuitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         employee.setQuitDate(date);
         employeesRepository.update(employee);
-        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
     @POST
@@ -280,6 +297,12 @@ public class Authorization {
     @Produces(MediaType.APPLICATION_JSON)
     public Response checkIfEmailExists(CheckEmail checkEmail){
         String username = checkEmail.getEmail();
+        if(!checkEmail.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", null)).build();
+        }
+        if(!checkEmail.validate()){
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", null)).build();
+        }
         Client client =repository.findClientByUsername(username);
         if(Objects.isNull(client)){
             return Response.status(400).entity(new ErrorResponse("Nie istnieje konto o podanej nazwie", null)).build();
