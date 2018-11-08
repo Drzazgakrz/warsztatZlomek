@@ -226,8 +226,7 @@ public class Authorization {
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        employee.setAccessToken(null);
-        repository.update(employee);
+        employeesRepository.signOut(form.getAccessToken());
         return Response.status(200).build();
     }
 
