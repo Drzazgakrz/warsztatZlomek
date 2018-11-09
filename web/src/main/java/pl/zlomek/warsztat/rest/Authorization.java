@@ -287,9 +287,9 @@ public class Authorization {
         if (employeeToRemove == null) {
             return Response.status(400).entity(new ErrorResponse("Nie istnieje konto o podanej nazwie", form.getAccessToken())).build();
         }
-        employee.setStatus(EmployeeStatus.quit);
+        employeeToRemove.setStatus(EmployeeStatus.quit);
         LocalDate date = form.getQuitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        employee.setQuitDate(date);
+        employeeToRemove.setQuitDate(date);
         employeesRepository.update(employee);
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
