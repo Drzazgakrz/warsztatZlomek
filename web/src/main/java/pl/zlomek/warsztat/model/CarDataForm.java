@@ -22,7 +22,7 @@ public class CarDataForm extends AccessTokenForm{
         Logger log = LoggerFactory.getLogger(CarDataForm.class);
         result = result && Validator.validateVin(vin);
         result = result && Validator.validateRegistrationNumber(registrationNumber);
-        result = result && Validator.validateNames(model);
+        result = result && Validator.validateCarModel(model);
         result = result && (productionYear >1930) && (productionYear < LocalDate.now().getYear());
         return result && Validator.validateNames(brandName);
     }

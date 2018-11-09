@@ -7,6 +7,10 @@ public class Validator {
     public static boolean validateNames(String name){
         return name != null && name.matches("[A-Z]{1}+[a-z]{2,}");
     }
+
+    public static boolean validateCarModel(String name){
+        return name != null && name.matches("[A-Z]{1}+[a-z0-9]{2,}");
+    }
     public static boolean validateNip(String NIP){
         return NIP != null && NIP.matches("[0-9]{2}+-+[0-9]{3}");
     }
