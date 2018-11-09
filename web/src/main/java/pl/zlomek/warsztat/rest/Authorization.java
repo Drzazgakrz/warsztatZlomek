@@ -174,6 +174,10 @@ public class Authorization {
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
+        Employee checkEmployee = employeesRepository.findByUsername(newEmployeeData.getEmail());
+        if (checkEmployee != null) {
+            return Response.status(400).entity(new ErrorResponse("pracownik o podanym mailu istnieje", null)).build();
+        }
         if (newEmployeeData.getPassword().equals(newEmployeeData.getConfirmPassword())) {
             if(!newEmployeeData.validate()){
                 return Response.status(400).entity(new ErrorResponse("Błędne dane", newEmployeeData.getAccessToken())).build();
