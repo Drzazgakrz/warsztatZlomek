@@ -32,7 +32,7 @@ public class CarPart implements Serializable {
     protected int tax;
 
     @NotNull
-    @Pattern(regexp = "[A-Z]{1}+[a-z]{1,}")
+    @Pattern(regexp = "[A-ZŹĄĘÓŁŻ]{1}+[a-z,ąęółńćźż]{2,}")
     private String producer;
 
     public CarPart(String name, int tax, String producer){
