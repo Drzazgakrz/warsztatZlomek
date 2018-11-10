@@ -211,10 +211,11 @@ public class CarActions {
         if(client == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        CarResponseModel[] cars = new CarResponseModel[client.getCars().stream().
-                filter((cho->!cho.getStatus().equals(OwnershipStatus.FORMER_OWNER))).collect(Collectors.toList()).size()];
+        List<CarsHasOwners> ownerships = client.getCars().stream().
+                filter((cho->!cho.getStatus().equals(OwnershipStatus.FORMER_OWNER))).collect(Collectors.toList());
+        CarResponseModel[] cars = new CarResponseModel[ownerships.size()];
         int i = 0;
-        for (CarsHasOwners cho: client.getCars()) {
+        for (CarsHasOwners cho: ownerships) {
             cars[i] =new CarResponseModel(cho.getCar(), cho.getRegistrationNumber());
             i++;
         }
