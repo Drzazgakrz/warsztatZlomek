@@ -46,7 +46,7 @@ public class CarServiceData implements Serializable {
     @NotNull
     @Size(max = 40, min = 3)
     @Column(name = "street_name")
-    @Pattern(regexp = "[A-Z]{1}+[a-z]{1,}")
+    @Pattern(regexp = "[A-ZŹĄĘÓŁŻ]{1}+[a-z,ąęółńćźż]{2,}")
     private String streetName;
 
     @NotNull
