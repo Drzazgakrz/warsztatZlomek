@@ -81,7 +81,8 @@ public class CarActions {
             return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", accessToken)).build();
         }
         Company company = companiesRepository.getCompanyById(form.getCompanyId());
-        if(!client.getCompanies().contains(company)){
+        if(client.getCompanies().stream().filter(companiesHasEmployees -> companiesHasEmployees.getCompany().equals(company)).
+                collect(Collectors.toList()).size()==0){
             return Response.status(403).entity(new ErrorResponse("Firma nie jest dodana do tego klienta", accessToken)).build();
         }
         CompaniesHasCars companiesHasCars = company.addCar(car);
@@ -108,7 +109,8 @@ public class CarActions {
                 return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu", form.getAccessToken())).build();
             }
             Company company = companiesRepository.getCompanyById(form.getCompanyId());
-            if(!client.getCompanies().contains(company)){
+            if(client.getCompanies().stream().filter(companiesHasEmployees -> companiesHasEmployees.getCompany().equals(company)).
+                    collect(Collectors.toList()).size()==0){
                 return Response.status(403).entity(new ErrorResponse("Firma nie jest dodana do tego klienta", form.getAccessToken())).build();
             }
             log.info("Samochody"+Integer.toString(company.getCars().size()));
