@@ -10,6 +10,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Path("/companies")
 public class CompanyActions {
     @Inject
@@ -157,5 +160,26 @@ public class CompanyActions {
         }
         return Response.status(200).entity(new CompanyInfoResponse(form.getAccessToken(), company)).build();
 
+    }
+
+    @POST
+    @Path("/getClientsCompanies")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getClientsCompanies(AccessTokenForm form){
+        Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
+        if(client == null || !client.getStatus().equals(ClientStatus.ACTIVE)){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        List<CompaniesHasEmployees> clientsCompanies = client.getCompanies().stream().filter(che->che.getStatus().
+                equals(EmploymentStatus.CURRENT_EMPLOYER)).collect(Collectors.toList());
+        CompanyInfoResponse[] companies = new CompanyInfoResponse[clientsCompanies.size()];
+        int i = 0;
+        for(CompaniesHasEmployees che: clientsCompanies){
+            companies[i] = new CompanyInfoResponse(null, che.getCompany());
+            i++;
+        }
+        log.info(Integer.toString(companies.length)+" "+Integer.toString(i));
+        return Response.status(200).entity(new ClientsCompaniesResponse(form.getAccessToken(), companies)).build();
     }
 }
