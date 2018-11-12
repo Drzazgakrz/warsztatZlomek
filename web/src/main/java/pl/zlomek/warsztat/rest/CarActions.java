@@ -72,24 +72,23 @@ public class CarActions {
         Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
         if(client == null )
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
-        String accessToken = employeesRepository.generateToken(client);
         Car car = carsRepository.getCarById(form.getCarId());
         if(car==null){
-            return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu w bazie", accessToken)).build();
+            return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu w bazie", form.getAccessToken())).build();
         }
         if(client.checkCar(car).length<1){
-            return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", accessToken)).build();
+            return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", form.getAccessToken())).build();
         }
         Company company = companiesRepository.getCompanyById(form.getCompanyId());
         if(client.getCompanies().stream().filter(companiesHasEmployees -> companiesHasEmployees.getCompany().equals(company)).
                 collect(Collectors.toList()).size()==0){
-            return Response.status(403).entity(new ErrorResponse("Firma nie jest dodana do tego klienta", accessToken)).build();
+            return Response.status(403).entity(new ErrorResponse("Firma nie jest dodana do tego klienta", form.getAccessToken())).build();
         }
         CompaniesHasCars companiesHasCars = company.addCar(car);
         companiesRepository.insertCarInJoinTable(companiesHasCars);
         companiesRepository.updateCompany(company);
         carsRepository.updateCar(car);
-        return Response.status(200).entity(new AccessTokenForm(accessToken)).build();
+        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
     @POST
     @Path("/removeCarFromCompany")
