@@ -199,7 +199,7 @@ public class VisitsActions {
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
         if (visit == null) {
             return Response.status(400).entity(new ErrorResponse("Wizyta o podanym id nie istnieje", form.getAccessToken())).build();
-        } else if (!visit.getStatus().equals(VisitStatus.ACCEPTED)) {
+        } else if (visit.getStatus().equals(VisitStatus.NEW)) {
             return Response.status(400).entity(new ErrorResponse("Wizyta została zaakceptowana. Nie można jej usunąć", form.getAccessToken())).build();
         }
         visitsRepository.removeVisit(visit);
