@@ -41,26 +41,27 @@ public class CarActions {
     @POST
     @Path("/addCarBrand")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response addCarBrand(AddCarBrandForm newBrand){
         Employee employee = (Employee) employeesRepository.findByToken(newBrand.getAccessToken());
+        if(employee == null )
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         if(!newBrand.validate()){
             return Response.status(400).entity(new ErrorResponse("Błędne dane", newBrand.getAccessToken())).build();
         }
-        if(employee == null )
-            return Response.status(403).build();
 
         if(!newBrand.getBrandName().isEmpty()){
             String name = newBrand.getBrandName();
             if(carBrandsRespository.getCarBrandByName(name) == null){
                 CarBrand carBrand = new CarBrand(name);
                 carBrandsRespository.saveCarBrand(carBrand);
-                return Response.status(200).entity(newBrand.getAccessToken()).build();
+                return Response.status(200).entity(new AccessTokenForm(newBrand.getAccessToken())).build();
             }
             else
-                return Response.status(409).entity(newBrand.getAccessToken()).build();
+                return Response.status(409).entity(new AccessTokenForm(newBrand.getAccessToken())).build();
         }
-        return Response.status(400).entity(newBrand.getAccessToken()).build();
+        return Response.status(200).entity(new AccessTokenForm(newBrand.getAccessToken())).build();
     }
 
     @POST
