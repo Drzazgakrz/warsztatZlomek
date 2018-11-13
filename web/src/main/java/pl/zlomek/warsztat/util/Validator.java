@@ -12,7 +12,7 @@ public class Validator {
         return name != null && name.matches("[A-Z]{1}[a-z0-9]{1,}");
     }
     public static boolean validateNip(String NIP){
-        return NIP != null && NIP.matches("[0-9]{2}+-+[0-9]{3}");
+        return NIP != null && NIP.matches("[0-9]{3}-[0-9]{3}-[0-9]{2}-[0-9]{2}");
     }
     public static boolean validateEmail(String email){
         return email!=null && email.matches("[A-Za-z0-9._-]{1,}+@+[a-z]{1,6}+.+[a-z]{2,3}");
