@@ -88,7 +88,7 @@ public class CompanyActions {
     @Path("/addCarServiceData")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addCarServiceData(CarServiceDataForm form){
+    public Response addCarServiceData(CompanyForm form){
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null){
             return Response.status(401).entity(new ErrorResponse("Nie udało się zalogować", null)).build();
@@ -96,7 +96,7 @@ public class CompanyActions {
         if(!form.validate()){
             return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
         }
-        String serviceName = form.getServiceName();
+        String serviceName = form.getName();
         String nip = form.getNip();
         String cityName = form.getCityName();
         String streetName= form.getStreetName();
