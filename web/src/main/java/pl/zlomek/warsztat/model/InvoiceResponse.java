@@ -14,7 +14,7 @@ public class InvoiceResponse {
     private String invoiceNumber;
     private String methodOfPayment;
     private Date paymentDate;
-    private CarServiceDataForm carServiceData;
+    private CompanyForm carServiceData;
     private CompanyDataForm companyData;
     private InvoicePositionResponse[] positions;
 
@@ -26,7 +26,7 @@ public class InvoiceResponse {
         this.invoiceNumber = invoice.getInvoiceNumber();
         this.methodOfPayment = invoice.getMethodOfPayment().toString();
         this.paymentDate = Date.from(invoice.getPaymentDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        this.carServiceData = new CarServiceDataForm(invoice.getCarServiceData());
+        this.carServiceData = new CompanyForm(invoice.getCarServiceData());
         this.companyData = new CompanyDataForm(invoice.getCompanyData());
         this.positions = new InvoicePositionResponse[invoice.getInvoicePositions().size()];
         int i = 0;
@@ -45,7 +45,7 @@ public class InvoiceResponse {
         this.invoiceNumber = invoice.getInvoiceNumber();
         this.methodOfPayment = invoice.getMethodOfPayment().toString();
         this.paymentDate = Date.from(invoice.getPaymentDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        this.carServiceData = new CarServiceDataForm(invoice.getCarServiceData());
+        this.carServiceData = new CompanyForm(invoice.getCarServiceData());
         this.companyData = new CompanyDataForm(invoice.getCompanyDataBuffer());
         this.positions = new InvoicePositionResponse[invoice.getInvoiceBufferPositions().size()];
         int i = 0;
