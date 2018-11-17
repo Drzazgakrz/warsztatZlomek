@@ -29,7 +29,7 @@ public class VisitResponseModel {
         Car car = visit.getCar();
         Object[] cars = car.getOwners().stream().filter((carsHasOwners -> {
             LocalDate end = (carsHasOwners.getEndOwnershipDate()== null)?LocalDate.now():carsHasOwners.getEndOwnershipDate();
-            if(carsHasOwners.getEndOwnershipDate()== null && visit.getVisitDate().isAfter(LocalDate.now()))
+            if(carsHasOwners.getEndOwnershipDate()== null && !visit.getVisitDate().isBefore(LocalDate.now()))
                 return true;
             return end.isAfter(visit.getVisitDate()) && carsHasOwners.getBeginOwnershipDate().isBefore(visit.getVisitDate());
         }
