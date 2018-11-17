@@ -144,9 +144,8 @@ public class VisitsActions {
             return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
         }
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
-        if (visit == null || !visit.getStatus().equals(VisitStatus.ACCEPTED)) {
-            String accessToken = employeesRepository.generateToken(employee);
-            return Response.status(400).entity(new ErrorResponse("Wizyta nie istnieje lub zostałą wybrana przez innego pracownika", accessToken)).build();
+        if (visit == null || !visit.getStatus().equals(VisitStatus.NEW)) {
+            return Response.status(400).entity(new ErrorResponse("Wizyta nie istnieje lub zostałą wybrana przez innego pracownika", form.getAccessToken())).build();
         }
         visit.setStatus(VisitStatus.ACCEPTED);
         visit.setEmployee(employee);
