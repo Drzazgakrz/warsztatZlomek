@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -35,8 +36,9 @@ public class InvoicesRepository {
             log.info(em.toString());
             TypedQuery<Long> query = em.createQuery("SELECT COUNT(invoice.id) FROM Invoice invoice WHERE " +
                     "Invoice.invoiceNumber LIKE :invoiceNumber", Long.class);
-            StringBuilder regexBuilder = new StringBuilder("%/").append(GregorianCalendar.MONTH);
-            String regex = regexBuilder.append("/").append(GregorianCalendar.YEAR).toString();
+            StringBuilder regexBuilder = new StringBuilder("%/").append(LocalDate.now().getMonthValue());
+            String regex = regexBuilder.append("/").append(LocalDate.now().getYear()).toString();
+            log.info(regex);
             query.setParameter("invoiceNumber", regex);
             return query.getSingleResult() + 1;
         } catch (NoSuchEntityException e) {

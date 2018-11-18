@@ -60,6 +60,9 @@ public class InvoiceActions {
         }
 
         Company company = companiesRepository.getCompanyByName(newInvoice.getCompanyName());
+        if(company == null){
+            return Response.status(400).entity(new ErrorResponse("Firma o podanej nazwie nie istnieje", newInvoice.getAccessToken())).build();
+        }
         CompanyData companyData = new CompanyData(company);
         companyDataRespository.insert(companyData);
         Invoice invoice = createInvoice(newInvoice, companyData);
