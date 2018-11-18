@@ -22,6 +22,7 @@ public class VisitResponseModel {
     private CarResponseModel car;
     private ClientResponse[] owners;
     private ClientResponse[] notVerifiedOwners;
+    private String status;
 
     public VisitResponseModel(Visit visit) {
         this.id = visit.getId();
@@ -51,5 +52,6 @@ public class VisitResponseModel {
         for (CarsHasOwners nvo : notVerified) {
             this.notVerifiedOwners[i] = new ClientResponse(nvo.getOwner(), null);
         }
+        this.status = visit.getStatus().toString();
     }
 }
