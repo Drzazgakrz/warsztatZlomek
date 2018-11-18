@@ -89,7 +89,8 @@ public class VisitsActions {
                 car.getOverviews().add(overview);
                 carsRepository.updateCar(car);
                 overview.addTerminateOverview(form.getCountYears());
-            } else if (overview != null && form.getCountYears() == null) {
+            } else if (overview != null && form.getCountYears() == null &&
+                    (visit.getStatus().equals(VisitStatus.FOR_PICKUP)||visit.getStatus().equals(VisitStatus.FINISHED))) {
                 return Response.status(400).entity(new ErrorResponse("Przegląd powinien mieć termin ważności", form.getAccessToken())).build();
             }
             VisitStatus status = getVisitStatus(form.getStatus());
