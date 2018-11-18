@@ -12,7 +12,7 @@ public class AddCarPartsForm extends AccessTokenForm{
 
     public boolean validate(){
         boolean result = true;
-        result = result && Validator.validateNamesWithUnicode(name);
+        result = result && Validator.validateMultipleNames(name);
         return result && Validator.validateNamesWithUnicode(producer);
     }
 }

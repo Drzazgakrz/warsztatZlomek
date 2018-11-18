@@ -65,7 +65,7 @@ public class InvoiceActions {
         Invoice invoice = createInvoice(newInvoice, companyData);
         if (invoice != null) {
             invoicesRepository.updateInvoice(invoice);
-            return Response.status(200).entity(new AccessTokenForm(newInvoice.getAccessToken())).build();
+            return Response.status(200).entity(new InvoiceDetailsResponse(newInvoice.getAccessToken(), invoice)).build();
         } else
             return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", newInvoice.getAccessToken())).build();
     }
