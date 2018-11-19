@@ -17,10 +17,12 @@ public class CarPartModel {
     private int count;
     private long id;
     private String producer;
+    private int tax;
 
     public CarPartModel(CarPart carPart) {
         this.name = carPart.getName();
         this.id = carPart.getId();
         this.producer = carPart.getProducer();
+        this.tax = carPart.getTax();
     }
 }

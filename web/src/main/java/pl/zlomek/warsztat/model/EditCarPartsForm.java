@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class EditCarPartsForm extends AddCarPartsForm {
-    private long carPartId;
+    private long id;
 }
