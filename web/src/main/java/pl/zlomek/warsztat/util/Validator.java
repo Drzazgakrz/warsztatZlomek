@@ -32,6 +32,6 @@ public class Validator {
         return password != null && password.matches("[A-Za-z0-9ĄŻŹÓŁĘążźćńłóę!@#%*^]{6,20}");
     }
     public static boolean validateMultipleNames(String name){
-        return name != null && name.matches("[A-ZŹĄĘÓŁŻ]{1}+[-A-Za-z,ąęółńćźż0-9\\s]{2,}");
+        return name != null && name.matches("[A-ZŚŹĄĘÓŁŻ]{1}+[-A-Za-z,ąęółńćźż0-9\\s]{2,}");
     }
 }

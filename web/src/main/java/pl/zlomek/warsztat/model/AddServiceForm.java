@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class AddServiceForm extends AccessTokenForm{
-    protected String serviceName;
+    protected String name;
     protected int tax;
 
     public boolean validate(){
-        return !serviceName.equals("") && tax >= 0;
+        return !name.equals("") && tax >= 0;
     }
 }

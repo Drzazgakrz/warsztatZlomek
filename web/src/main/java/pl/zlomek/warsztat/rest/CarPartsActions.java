@@ -64,7 +64,7 @@ public class CarPartsActions {
             if(!form.validate()){
                 return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
             }
-            CarPart part = carPartsRepository.getCarPartById(form.getCarPartId());
+            CarPart part = carPartsRepository.getCarPartById(form.getId());
             if(part== null)
                 return Response.status(404).entity(new ErrorResponse("Brak podanej części", form.getAccessToken())).build();
             if(form.getName()!= null && !part.getName().equals(form.getName())){

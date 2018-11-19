@@ -267,7 +267,7 @@ public class VisitsActions {
         if(!form.validate()){
             return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
         }
-        visitsRepository.insertService(new Service(form.getServiceName(), form.getTax()));
+        visitsRepository.insertService(new Service(form.getName(), form.getTax()));
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
@@ -317,7 +317,7 @@ public class VisitsActions {
         ServiceModel[] servicesArray = new ServiceModel[services.size()];
         i = 0;
         for(Service currentService : services){
-            servicesArray[i] = new ServiceModel(currentService.getName());
+            servicesArray[i] = new ServiceModel(currentService);
             i++;
         }
         return Response.status(200).entity(new GetStuffForVisitsResponse(carParts, servicesArray)).build();
@@ -338,8 +338,8 @@ public class VisitsActions {
             Service service = servicesRepository.getServiceById(form.getId());
             if(service== null)
                 return Response.status(404).entity(new ErrorResponse("Brak podanej części", form.getAccessToken())).build();
-            if(form.getServiceName()!= null && !service.getName().equals(form.getServiceName())){
-                service.setName(form.getServiceName());
+            if(form.getName()!= null && !service.getName().equals(form.getName())){
+                service.setName(form.getName());
             }
             if(form.getTax()!=0 && service.getTax()!= form.getTax()){
                 service.setTax(form.getTax());
