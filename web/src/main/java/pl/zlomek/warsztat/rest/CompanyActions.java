@@ -120,7 +120,8 @@ public class CompanyActions {
         if(!form.validate()){
             return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
         }
-        Company company = companiesRepository.getCompanyByName(form.getCurrentName());
+        log.info(Long.toString(form.getId()));
+        Company company = companiesRepository.getCompanyById(form.getId());
         if (company == null){
             return Response.status(400).entity(new ErrorResponse("Brak firmy o podanej nazwie", form.getAccessToken())).build();
         }
@@ -130,7 +131,7 @@ public class CompanyActions {
     }
     public void setCompanyFields(Company company, EditCompanyForm form){
         if(form.getAptNum()!= null)
-            company.setAptNum(form.getAptNum());
+            company.setAptNum((form.getAptNum().equals("")?null:form.getAptNum()));
         if(form.getBuildingNum()!= null)
             company.setBuildingNum(form.getBuildingNum());
         if(form.getCityName()!= null)
@@ -154,7 +155,7 @@ public class CompanyActions {
         if(employee == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        Company company = companiesRepository.getCompanyByName(form.getCompanyName());
+        Company company = companiesRepository.getCompanyById(form.getCompanyId());
         if(company == null){
             return Response.status(400).entity(new ErrorResponse("Brak podanej firmy", form.getAccessToken())).build();
         }
@@ -181,5 +182,24 @@ public class CompanyActions {
         }
         log.info(Integer.toString(companies.length)+" "+Integer.toString(i));
         return Response.status(200).entity(new ClientsCompaniesResponse(form.getAccessToken(), companies)).build();
+    }
+
+    @POST
+    @Path("/getAllCompanies")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCompanies(AccessTokenForm form){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        }
+        List<Company> companies = companiesRepository.getAllCompanies();
+        CompanyInfoResponse[] companiesArray = new CompanyInfoResponse[companies.size()];
+        int i = 0;
+        for(Company company: companies){
+            companiesArray[i] = new CompanyInfoResponse(null, company);
+            i++;
+        }
+        return Response.status(200).entity(new ClientsCompaniesResponse(form.getAccessToken(), companiesArray)).build();
     }
 }

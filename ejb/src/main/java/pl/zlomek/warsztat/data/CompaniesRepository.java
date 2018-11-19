@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import java.io.Serializable;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,15 @@ public class CompaniesRepository implements Serializable {
             return getCompany.getSingleResult();
         }catch (Exception e){
             e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<Company> getAllCompanies(){
+        try{
+            TypedQuery<Company> getCompany = em.createQuery("select companies from Company companies", Company.class);
+            return getCompany.getResultList();
+        }catch (Exception e){
             return null;
         }
     }
