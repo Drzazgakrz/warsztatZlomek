@@ -15,6 +15,7 @@ public class EditCompanyForm extends AccessTokenForm{
     private String aptNum;
     private String zipCode;
     private String currentName;
+    private long id;
 
     public boolean validate(){
         boolean result = Validator.validateEmail(email);

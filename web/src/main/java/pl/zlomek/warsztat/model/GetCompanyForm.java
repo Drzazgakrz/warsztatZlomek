@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class GetCompanyForm extends AccessTokenForm{
-    private String companyName;
+    private long companyId;
 }

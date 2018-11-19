@@ -115,7 +115,7 @@ public class VisitsActions {
                 visit.getServices().clear();
                 List<ServiceModel> carPartModelList = Arrays.asList(form.getServices());
                 carPartModelList.forEach(serviceModel -> {
-                    Service service = servicesRepository.getServiceByName(serviceModel.getServiceName());
+                    Service service = servicesRepository.getServiceByName(serviceModel.getName());
                     if (service == null) {
                         return;
                     }
