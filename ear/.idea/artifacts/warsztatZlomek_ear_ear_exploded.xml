@@ -1,0 +1,28 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-ear" name="warsztatZlomek-ear:ear exploded">
+    <output-path>$PROJECT_DIR$/target/warsztatZlomek</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="warsztatZlomek-ear/javaeeApplication/JavaEE" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/target/warsztatZlomek/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="dir-copy" path="$PROJECT_DIR$/src/main/application" />
+      <element id="file-copy" path="$MAVEN_REPOSITORY$/pl/zlomek/warsztat/warsztatZlomek-web/1.0-SNAPSHOT/warsztatZlomek-web-1.0-SNAPSHOT.war" output-file-name="warsztatZlomek-web.war" />
+      <element id="file-copy" path="$MAVEN_REPOSITORY$/pl/zlomek/warsztat/warsztatZlomek-ejb/1.0-SNAPSHOT/warsztatZlomek-ejb-1.0-SNAPSHOT.jar" output-file-name="warsztatZlomek-ejb.jar" />
+      <element id="directory" name="lib">
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/org/bouncycastle/bcprov-jdk15on/1.60/bcprov-jdk15on-1.60.jar" output-file-name="bcprov-jdk15on.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/postgresql/postgresql/9.1-901-1.jdbc4/postgresql-9.1-901-1.jdbc4.jar" output-file-name="postgresql.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/javax/enterprise/cdi-api/1.0.0.SP4-redhat-5/cdi-api-1.0.0.SP4-redhat-5.jar" output-file-name="cdi-api.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/org/jboss/spec/javax/interceptor/jboss-interceptors-api_1.1_spec/1.0.1.Final-redhat-3/jboss-interceptors-api_1.1_spec-1.0.1.Final-redhat-3.jar" output-file-name="jboss-interceptors-api_1.1_spec.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/javax/inject/javax.inject/1.0.0.redhat-5/javax.inject-1.0.0.redhat-5.jar" output-file-name="javax.inject.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar" output-file-name="slf4j-api.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/javax/transaction/javax.transaction-api/1.2/javax.transaction-api-1.2.jar" output-file-name="javax.transaction-api.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/com/auth0/java-jwt/3.4.0/java-jwt-3.4.0.jar" output-file-name="java-jwt.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-databind/2.9.6/jackson-databind-2.9.6.jar" output-file-name="jackson-databind.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar" output-file-name="jackson-annotations.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-core/2.9.6/jackson-core-2.9.6.jar" output-file-name="jackson-core.jar" />
+        <element id="file-copy" path="$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.11/commons-codec-1.11.jar" output-file-name="commons-codec.jar" />
+      </element>
+    </root>
+  </artifact>
+</component>

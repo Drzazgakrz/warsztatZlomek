@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: pl.zlomek.warsztat:warsztatZlomek-web:war:1.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/pl/zlomek/warsztat/warsztatZlomek-web/1.0-SNAPSHOT/warsztatZlomek-web-1.0-SNAPSHOT.war!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/pl/zlomek/warsztat/warsztatZlomek-web/1.0-SNAPSHOT/warsztatZlomek-web-1.0-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/pl/zlomek/warsztat/warsztatZlomek-web/1.0-SNAPSHOT/warsztatZlomek-web-1.0-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
