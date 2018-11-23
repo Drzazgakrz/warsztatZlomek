@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,14 +24,15 @@ public class VisitResponseModel {
     private ClientResponse[] owners;
     private ClientResponse[] notVerifiedOwners;
     private String status;
+    private OverviewResponse overview;
 
     public VisitResponseModel(Visit visit) {
         this.id = visit.getId();
         this.visitDate = Date.from(visit.getVisitDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
         Car car = visit.getCar();
         Object[] cars = car.getOwners().stream().filter((carsHasOwners -> {
-            LocalDate end = (carsHasOwners.getEndOwnershipDate()== null)?LocalDate.now():carsHasOwners.getEndOwnershipDate();
-            if(carsHasOwners.getEndOwnershipDate()== null && !visit.getVisitDate().isBefore(LocalDate.now()))
+            LocalDate end = (carsHasOwners.getEndOwnershipDate() == null) ? LocalDate.now() : carsHasOwners.getEndOwnershipDate();
+            if (carsHasOwners.getEndOwnershipDate() == null && !visit.getVisitDate().isBefore(LocalDate.now()))
                 return true;
             return end.isAfter(visit.getVisitDate()) && carsHasOwners.getBeginOwnershipDate().isBefore(visit.getVisitDate());
         }
@@ -53,5 +55,7 @@ public class VisitResponseModel {
             this.notVerifiedOwners[i] = new ClientResponse(nvo.getOwner(), null);
         }
         this.status = visit.getStatus().toString();
+        if (visit.getOverview() != null)
+            this.overview = new OverviewResponse(visit.getOverview(), car, this.car.registrationNumber);
     }
 }

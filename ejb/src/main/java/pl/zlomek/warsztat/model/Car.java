@@ -25,7 +25,7 @@ public class Car implements Serializable {
 
     @NotNull
     @Size(min = 2, max = 30)
-    @Pattern(regexp = "[A-Z]{1}+[a-z0-9]{1,}")
+    @Pattern(regexp = "[A-Z]{1}+[A-Za-z0-9/]{1,}")
     private String model;
 
     @NotNull
