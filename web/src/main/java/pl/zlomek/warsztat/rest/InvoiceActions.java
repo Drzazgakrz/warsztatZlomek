@@ -154,7 +154,7 @@ public class InvoiceActions {
         invoicesRepository.insertInvoice(newInvoice);
         invoice.setCorectionInvoice(newInvoice);
         invoicesRepository.updateInvoice(invoice);
-        return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
+        return Response.status(200).entity(new InvoiceDetailsResponse(form.getAccessToken(),invoice)).build();
     }
 
     @POST
@@ -249,5 +249,17 @@ public class InvoiceActions {
             i++;
         }
         return Response.status(200).entity(new AllInvoicesResponse(form.getAccessToken(), invoicesArray)).build();
+    }
+
+    @POST
+    @Path("/getInvoiceDetails")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getInvoiceDetails(GetInvoiceDetailsForm form){
+        Employee employee = (Employee)employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null)
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        Invoice invoice = invoicesRepository.getInvoiceById(form.getId());
+        return Response.status(200).entity(new InvoiceDetailsResponse(form.getAccessToken(),invoice)).build();
     }
 }

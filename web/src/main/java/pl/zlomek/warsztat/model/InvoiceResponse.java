@@ -7,6 +7,7 @@ import java.util.Date;
 
 @Getter
 public class InvoiceResponse {
+    private long id;
     private Date dayOfIssue;
     private int discount;
     private String grossValue;
@@ -19,6 +20,7 @@ public class InvoiceResponse {
     private InvoicePositionResponse[] positions;
 
     public InvoiceResponse(Invoice invoice){
+        this.id = invoice.getId();
         this.dayOfIssue = Date.from(invoice.getDayOfIssue().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
         this.discount = invoice.getDiscount();
         this.netValue = invoice.getNetValue().toString();
