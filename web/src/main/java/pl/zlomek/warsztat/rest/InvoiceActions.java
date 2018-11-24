@@ -65,8 +65,9 @@ public class InvoiceActions {
             return Response.status(400).entity(new ErrorResponse("Firma o podanej nazwie nie istnieje", newInvoice.getAccessToken())).build();
         }
         Visit visit = visitsRepository.getVisitById(newInvoice.getVisitId());
-        if(visit == null){
-            return Response.status(400).entity(new ErrorResponse("Brak takiej wizyty", newInvoice.getAccessToken())).build();
+        if(visit == null || visit.getVisitFinished() == null){
+            return Response.status(400).entity(new ErrorResponse("Brak takiej wizyty lub jest ona nie ukończona",
+                    newInvoice.getAccessToken())).build();
         }
         List<CompanyData> companies = companyDataRespository.getAllCompanies(company.getCompanyName()).
                 stream().filter((companyData -> companyData.compareCompanies(company))).limit(1).collect(Collectors.toList());
@@ -130,6 +131,8 @@ public class InvoiceActions {
                     netValue = netValue.add(invoicePosition.getNetPrice());
                     invoicesRepository.insertInvoicePosition(invoicePosition);
                 }
+                LocalDate finishDate = (LocalDate.now().equals(visit.getVisitDate()))? null : visit.getVisitDate();
+                invoice.setVisitFinished(finishDate);
                 invoice.setNetValue(netValue);
                 invoice.setGrossValue(grossValue);
                 return invoice;
@@ -221,7 +224,7 @@ public class InvoiceActions {
                 invoice.setNetValue(netValue);
                 invoice.setGrossValue(grossValue);
                 invoicesRepository.updateInvoiceBuffer(invoice);
-                return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
+                return Response.status(200).entity(new InvoiceDetailsResponse(form.getAccessToken(), invoice)).build();
             } else
                 return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", form.getAccessToken())).build();
 

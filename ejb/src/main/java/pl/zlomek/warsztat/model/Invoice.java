@@ -29,6 +29,8 @@ public class Invoice extends InvoicesModel implements Serializable {
     @OneToOne
     private Invoice corectionInvoice;
 
+    @Column(name = "visit_finished")
+    private LocalDate visitFinished;
 
     
     public Invoice(int discount, MethodOfPayment methodOfPayment,CompanyData companyData, CarServiceData carServiceData, LocalDate paymentDate){

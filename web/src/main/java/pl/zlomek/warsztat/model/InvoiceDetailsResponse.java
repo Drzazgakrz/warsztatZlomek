@@ -10,4 +10,8 @@ public class InvoiceDetailsResponse extends AccessTokenForm {
         this.invoice = new InvoiceResponse(invoice);
         this.accessToken = accessToken;
     }
+    public InvoiceDetailsResponse(String accessToken, InvoiceBuffer invoice){
+        this.invoice = new InvoiceResponse(invoice);
+        this.accessToken = accessToken;
+    }
 }

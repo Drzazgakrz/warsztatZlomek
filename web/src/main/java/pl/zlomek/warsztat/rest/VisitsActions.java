@@ -94,7 +94,10 @@ public class VisitsActions {
                 return Response.status(400).entity(new ErrorResponse("Przegląd powinien mieć termin ważności", form.getAccessToken())).build();
             }
             VisitStatus status = getVisitStatus(form.getStatus());
-            if(status!=null){
+            if(status!=null && !visit.getStatus().equals(status)){
+                if(visit.getStatus().equals(VisitStatus.IN_PROGRESS) && status.equals(VisitStatus.FOR_PICKUP)){
+                    visit.setVisitFinished(LocalDate.now());
+                }
                 visit.setStatus(status);
             }
 
