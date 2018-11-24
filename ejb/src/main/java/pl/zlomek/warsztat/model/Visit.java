@@ -58,6 +58,9 @@ public class Visit implements Serializable {
     @ManyToOne
     private Client client;
 
+    @Column(name = "visit_finished")
+    private LocalDate visitFinished;
+
     public Visit(LocalDate date, Car car, Overview overview, Client client){
 
         this.visitDate = date;
