@@ -173,6 +173,9 @@ public class VisitsActions {
         }
         Overview overview = null;
         LocalDate visitDate = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        if (LocalDate.now().isAfter(visitDate))
+            return Response.status(400).entity(new ErrorResponse("Data wizyty musi być późniejsza niż dzisiejsza data",
+                    form.getAccessToken())).build();
         if (form.isOverview()) {
             overview = new Overview(visitDate, car);
             visitsRepository.createOverview(overview);
