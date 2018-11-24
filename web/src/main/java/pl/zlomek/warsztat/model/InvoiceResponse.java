@@ -40,6 +40,7 @@ public class InvoiceResponse {
     }
 
     public InvoiceResponse(InvoiceBuffer invoice){
+        this.id = invoice.getId();
         this.dayOfIssue = Date.from(invoice.getDayOfIssue().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
         this.discount = invoice.getDiscount();
         this.netValue = invoice.getNetValue().toString();

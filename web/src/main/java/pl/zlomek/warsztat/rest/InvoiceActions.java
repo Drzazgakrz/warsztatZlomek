@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/invoice")
 public class InvoiceActions {
@@ -63,9 +64,21 @@ public class InvoiceActions {
         if(company == null){
             return Response.status(400).entity(new ErrorResponse("Firma o podanej nazwie nie istnieje", newInvoice.getAccessToken())).build();
         }
-        CompanyData companyData = new CompanyData(company);
+        Visit visit = visitsRepository.getVisitById(newInvoice.getVisitId());
+        if(visit == null){
+            return Response.status(400).entity(new ErrorResponse("Brak takiej wizyty", newInvoice.getAccessToken())).build();
+        }
+        List<CompanyData> companies = companyDataRespository.getAllCompanies(company.getCompanyName()).
+                stream().filter((companyData -> companyData.compareCompanies(company))).limit(1).collect(Collectors.toList());
+        CompanyData companyData;
+        if(companies.size() == 0){
+            companyData = new CompanyData(company);
+            companyDataRespository.insert(companyData);
+        }
+        else
+            companyData = companies.get(0);
         companyDataRespository.insert(companyData);
-        Invoice invoice = createInvoice(newInvoice, companyData);
+        Invoice invoice = createInvoice(newInvoice, companyData, visit);
         if (invoice != null) {
             invoicesRepository.updateInvoice(invoice);
             return Response.status(200).entity(new InvoiceDetailsResponse(newInvoice.getAccessToken(), invoice)).build();
@@ -85,14 +98,13 @@ public class InvoiceActions {
         return null;
     }
 
-    public Invoice createInvoice(AddInvoiceForm newInvoice, CompanyData companyData) {
+    public Invoice createInvoice(AddInvoiceForm newInvoice, CompanyData companyData, Visit visit) {
         try {
             int discount = newInvoice.getDiscount();
 
             MethodOfPayment methodOfPayment = createMethodOfPayment(newInvoice.getMethodOfPayment());
 
             CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
-            Visit visit = visitsRepository.getVisitById(newInvoice.getVisitId());
             if (carServiceData != null && companyData != null && methodOfPayment != null) {
                 LocalDate paymentDate = newInvoice.getPaymentDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                 Invoice invoice = new Invoice(discount, methodOfPayment, companyData, carServiceData, paymentDate);
@@ -145,10 +157,12 @@ public class InvoiceActions {
         if (invoice == null) {
             return Response.status(400).entity(new ErrorResponse("Brak faktury", form.getAccessToken())).build();
         }
-
-        Invoice newInvoice = createInvoice(form, invoice.getCompanyData());
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
-        if (newInvoice == null || visit == null) {
+        if(visit == null){
+            return Response.status(400).entity(new ErrorResponse("Brak takiej wizyty", form.getAccessToken())).build();
+        }
+        Invoice newInvoice = createInvoice(form, invoice.getCompanyData(), visit);
+        if (newInvoice == null) {
             return Response.status(400).entity(new ErrorResponse("Nie utworzono nowej faktury", form.getAccessToken())).build();
         }
         invoicesRepository.insertInvoice(newInvoice);
@@ -261,5 +275,41 @@ public class InvoiceActions {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         Invoice invoice = invoicesRepository.getInvoiceById(form.getId());
         return Response.status(200).entity(new InvoiceDetailsResponse(form.getAccessToken(),invoice)).build();
+    }
+
+    @POST
+    @Path("/acceptProFormaInvoice")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response acceptProFormaInvoice(AcceptProFormaInvoice form){
+        Employee employee = (Employee)employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null)
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
+        InvoiceBuffer proForma = invoicesRepository.getInvoiceBufferById(form.getProFormaInvoiceId());
+        if(proForma == null)
+            return Response.status(400).entity(new ErrorResponse("Brak faktury o takim id", form.getAccessToken())).build();
+        List<CompanyData> companies = companyDataRespository.getAllCompanies(proForma.getCompanyDataBuffer().getCompanyName()).
+                stream().filter((companyData -> companyData.compareCompanies(proForma.getCompanyDataBuffer()))).limit(1).collect(Collectors.toList());
+        CompanyData companyData;
+        if(companies.size() == 0){
+            Company company = companiesRepository.getCompanyByName(proForma.getCompanyDataBuffer().getCompanyName());
+            companyData = new CompanyData(company);
+            companyDataRespository.insert(companyData);
+        }
+        else
+            companyData = companies.get(0);
+        Invoice invoice = new Invoice(proForma, companyData, carServiceDataRespository.getTopServiceData());
+        invoicesRepository.insertInvoice(invoice);
+        companyData.getInvoices().add(invoice);
+        companyDataRespository.update(companyData);
+        StringBuilder invoiceNumberBuilder = new StringBuilder().append(invoicesRepository.countInvoicesInMonth());
+        String invoiceNumber = invoiceNumberBuilder.append("/").append(LocalDate.now().getMonthValue()).append("/").append(LocalDate.now().getYear()).toString();
+        invoice.setInvoiceNumber(invoiceNumber);
+        for(InvoiceBufferPosition position: proForma.getInvoiceBufferPositions()){
+            InvoicePosition invoicePosition = new InvoicePosition(position, invoice);
+            invoicesRepository.insertInvoicePosition(invoicePosition);
+        }
+        invoicesRepository.updateInvoice(invoice);
+        return Response.status(200).entity(new InvoiceDetailsResponse(form.getAccessToken(), invoice)).build();
     }
 }

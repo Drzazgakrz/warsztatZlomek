@@ -67,4 +67,14 @@ public class InvoicePosition implements Serializable {
         this.netPrice = grossPrice.multiply(new BigDecimal(taxModifier));
         this.valueOfVat = this.grossPrice.subtract(this.netPrice);
     }
+    public InvoicePosition (InvoiceBufferPosition position, Invoice invoice){
+        this.itemName = position.getItemName();
+        this.unitOfMeasure = position.getUnitOfMeasure();
+        this.grossPrice = position.getGrossPrice();
+        this.netPrice = position.getNetPrice();
+        this.vat = position.getVat();
+        this.valueOfVat = position.getValueOfVat();
+        this.invoice = invoice;
+        invoice.getInvoicePositions().add(this);
+    }
 }

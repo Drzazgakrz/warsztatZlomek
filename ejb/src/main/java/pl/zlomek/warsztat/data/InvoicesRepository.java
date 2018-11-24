@@ -59,6 +59,17 @@ public class InvoicesRepository {
         }
     }
 
+    public InvoiceBuffer getInvoiceBufferById(long id) {
+        try {
+            TypedQuery<InvoiceBuffer> query = em.createQuery("SELECT invoice FROM InvoiceBuffer invoice WHERE invoice.id = :id",
+                    InvoiceBuffer.class);
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public void updateInvoice(Invoice invoice) {
         em.merge(invoice);
     }

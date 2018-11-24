@@ -40,8 +40,10 @@ public class Invoice extends InvoicesModel implements Serializable {
         this.dayOfIssue = LocalDate.now();
     }
 
-    public Invoice(InvoiceBuffer buffer, CompanyModel company, CarServiceData data, LocalDate paymentDate){
-        super(buffer.getDiscount(), buffer.getMethodOfPayment(), data, LocalDate.now(), paymentDate);
+    public Invoice(InvoiceBuffer buffer, CompanyModel company, CarServiceData data){
+        super(buffer.getDiscount(), buffer.getMethodOfPayment(), data, LocalDate.now(), buffer.getPaymentDate());
+        this.netValue = buffer.getNetValue();
+        this.grossValue = buffer.getGrossValue();
         companyData = (CompanyData) company;
         this.invoicePositions = new HashSet<>();
 
