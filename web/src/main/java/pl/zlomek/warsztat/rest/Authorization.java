@@ -238,7 +238,7 @@ public class Authorization {
     @Path("/banUser")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response banUser(BanUserForm form) {
+    public Response banUser(GetClientForm form) {
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
@@ -323,6 +323,24 @@ public class Authorization {
         Client client = (Client) repository.findByToken(form.getAccessToken());
         if(client == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
+        }
+        return Response.status(200).entity(new ClientResponse(client, form.getAccessToken())).build();
+    }
+
+    @POST
+    @Path("/getClientData")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response getClientData(GetClientForm form){
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if(employee == null){
+            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się",
+                    null)).build();
+        }
+        Client client = repository.findClientByUsername(form.getUsername());
+        if(client == null){
+            return Response.status(401).entity(new ErrorResponse("Klient o podanym mailu nie istnieje",
+                    form.getAccessToken())).build();
         }
         return Response.status(200).entity(new ClientResponse(client, form.getAccessToken())).build();
     }

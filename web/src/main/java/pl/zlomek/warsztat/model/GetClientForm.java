@@ -4,7 +4,7 @@ import lombok.Getter;
 import pl.zlomek.warsztat.util.Validator;
 
 @Getter
-public class BanUserForm extends AccessTokenForm{
+public class GetClientForm extends AccessTokenForm{
     String username;
 
     public boolean validate(){

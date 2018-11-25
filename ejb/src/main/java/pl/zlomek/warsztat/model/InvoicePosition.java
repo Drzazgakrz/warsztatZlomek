@@ -44,6 +44,9 @@ public class InvoicePosition implements Serializable {
     private BigDecimal valueOfVat;
 
     @NotNull
+    private int count;
+
+    @NotNull
     @ManyToOne
     private Invoice invoice;
 
@@ -60,7 +63,8 @@ public class InvoicePosition implements Serializable {
     public InvoicePosition(VisitPosition position, String name, int tax, Invoice invoice, String unitOfMeasure){
         this.itemName = name;
         this.unitOfMeasure = unitOfMeasure;
-        this.grossPrice = position.singlePrice;
+        this.count = position.getCount();
+        this.grossPrice = position.singlePrice.multiply(new BigDecimal(position.getCount()));
         this.invoice = invoice;
         this.vat = tax;
         double taxModifier = 100.0/(100.0+(tax*1.0));
@@ -69,6 +73,7 @@ public class InvoicePosition implements Serializable {
     }
     public InvoicePosition (InvoiceBufferPosition position, Invoice invoice){
         this.itemName = position.getItemName();
+        this.count = position.getCount();
         this.unitOfMeasure = position.getUnitOfMeasure();
         this.grossPrice = position.getGrossPrice();
         this.netPrice = position.getNetPrice();
