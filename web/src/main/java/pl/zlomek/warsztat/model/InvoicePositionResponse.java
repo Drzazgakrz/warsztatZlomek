@@ -10,8 +10,10 @@ public class InvoicePositionResponse {
     private String unitOfMeasure;
     private String valueOfVat;
     private String vatTax;
+    private int count;
 
     public InvoicePositionResponse(InvoicePosition position){
+        this.count = position.getCount();
         this.positionName = position.getItemName();
         this.grossPrice = position.getGrossPrice().toString();
         this.netPrice = position.getNetPrice().toString();
@@ -21,6 +23,7 @@ public class InvoicePositionResponse {
     }
 
     public InvoicePositionResponse(InvoiceBufferPosition position){
+        this.count = position.getCount();
         this.positionName = position.getItemName();
         this.grossPrice = position.getGrossPrice().toString();
         this.netPrice = position.getNetPrice().toString();
