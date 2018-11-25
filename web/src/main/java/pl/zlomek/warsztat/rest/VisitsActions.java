@@ -379,7 +379,9 @@ public class VisitsActions {
         if(employee == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        List<Visit> notFinishedVisits = employee.getVisits().stream().filter(visit -> visit.getStatus().equals(VisitStatus.IN_PROGRESS)).collect(Collectors.toList());
+        List<Visit> notFinishedVisits = employee.getVisits().stream().filter(visit ->
+                !visit.getStatus().equals(VisitStatus.NEW) && !visit.getStatus().equals(VisitStatus.FINISHED)).
+                collect(Collectors.toList());
         VisitResponseModel[] visits = new VisitResponseModel[notFinishedVisits.size()];
         int i = 0;
         for (Visit visit : notFinishedVisits){
