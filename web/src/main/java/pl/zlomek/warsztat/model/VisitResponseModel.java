@@ -37,8 +37,6 @@ public class VisitResponseModel {
             return end.isAfter(visit.getVisitDate()) && carsHasOwners.getBeginOwnershipDate().isBefore(visit.getVisitDate());
         }
         )).limit(1).toArray();
-        Logger log = LoggerFactory.getLogger(VisitResponseModel.class);
-        log.info(visitDate.toString());
         this.car = new CarResponseModel(car, ((CarsHasOwners) cars[0]).getRegistrationNumber());
         List<CarsHasOwners> owners = visit.getCar().getOwners().stream().filter(carsHasOwners ->
                 carsHasOwners.getStatus().equals(OwnershipStatus.CURRENT_OWNER) || carsHasOwners.getStatus().equals(OwnershipStatus.COOWNER)).collect(Collectors.toList());
