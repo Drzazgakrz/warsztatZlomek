@@ -386,6 +386,7 @@ public class VisitsActions {
         int i = 0;
         for (Visit visit : notFinishedVisits){
             visits[i] = new VisitResponseModel(visit);
+            i++;
         }
         return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(),visits)).build();
     }
