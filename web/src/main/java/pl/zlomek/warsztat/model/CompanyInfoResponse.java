@@ -1,8 +1,10 @@
 package pl.zlomek.warsztat.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class CompanyInfoResponse extends CompanyForm {
     private long id;
 
