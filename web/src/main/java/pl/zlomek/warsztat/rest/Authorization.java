@@ -98,10 +98,10 @@ public class Authorization {
             }
 
             List<Visit> visits = getVisits(client, LocalDate.now().plusDays(7));
-            VisitResponseModel[] visitsArray = new VisitResponseModel[visits.size()];
+            VisitDetailsResponse[] visitsArray = new VisitDetailsResponse[visits.size()];
             i = 0;
             for(Visit visit : visits){
-                visitsArray[i] = new VisitResponseModel(visit);
+                visitsArray[i] = new VisitDetailsResponse(visit);
                 i++;
             }
 
@@ -159,7 +159,7 @@ public class Authorization {
         if(client == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        VisitResponseModel[] visits = visitsActions.visitsListToArray(getVisits(client, null));
+        VisitDetailsResponse[] visits = visitsActions.visitsListToArray(getVisits(client, null));
         return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(), visits)).build();
     }
 

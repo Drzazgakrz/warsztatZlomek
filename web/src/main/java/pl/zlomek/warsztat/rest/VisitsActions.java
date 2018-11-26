@@ -2,7 +2,6 @@ package pl.zlomek.warsztat.rest;
 
 
 import org.slf4j.LoggerFactory;
-import pl.zlomek.warsztat.model.VisitResponseModel;
 import pl.zlomek.warsztat.data.*;
 import pl.zlomek.warsztat.model.*;
 
@@ -229,24 +228,24 @@ public class VisitsActions {
                     return visit.getVisitDate().isAfter(cho.getBeginOwnershipDate()) && visit.getVisitDate().isBefore(end);
                 }).collect(Collectors.toList()));
             }
-            VisitResponseModel[] visitsArray = visitsListToArray(visits);
+            VisitDetailsResponse[] visitsArray = visitsListToArray(visits);
             return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(), visitsArray)).build();
         } catch (Exception e) {
             return Response.status(500).entity(new ErrorResponse("Wystąpił nieoczekiwany błąd przepraszamy", null)).build();
         }
     }
 
-    public VisitResponseModel[] visitsListToArray(Collection<Visit> visitsList) {
-        VisitResponseModel[] visits = new VisitResponseModel[visitsList.size()];
+    public VisitDetailsResponse[] visitsListToArray(Collection<Visit> visitsList) {
+        VisitDetailsResponse[] visits = new VisitDetailsResponse[visitsList.size()];
         int i = 0;
         for (Visit visit : visitsList) {
-            visits[i] = new VisitResponseModel(visit);
+            visits[i] = new VisitDetailsResponse(visit);
             i++;
         }
         return visits;
     }
 
-    @GET
+    @POST
     @Path("/getAllCarVisits")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllCarVisits(GetAllCarVisitsForm form) {
@@ -257,7 +256,7 @@ public class VisitsActions {
         if (car == null) {
             return Response.status(400).entity(new ErrorResponse("Brak samochodów o podanym numerze VIN", null)).build();
         }
-        VisitResponseModel[] visits = visitsListToArray(car.getVisits());
+        VisitDetailsResponse[] visits = visitsListToArray(car.getVisits());
         return Response.status(200).entity(new GetVisitsResponse(null, visits)).build();
     }
 
@@ -287,7 +286,7 @@ public class VisitsActions {
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
         }
-        VisitResponseModel[] visits = visitsListToArray(employee.getVisits());
+        VisitDetailsResponse[] visits = visitsListToArray(employee.getVisits());
         return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(), visits)).build();
     }
 
@@ -366,7 +365,7 @@ public class VisitsActions {
         if(employee == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        VisitResponseModel[] visits = visitsListToArray(visitsRepository.getAllNewVisits());
+        VisitDetailsResponse[] visits = visitsListToArray(visitsRepository.getAllNewVisits());
         return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(),visits)).build();
     }
 
@@ -382,12 +381,7 @@ public class VisitsActions {
         List<Visit> notFinishedVisits = employee.getVisits().stream().filter(visit ->
                 !visit.getStatus().equals(VisitStatus.NEW) && !visit.getStatus().equals(VisitStatus.FINISHED)).
                 collect(Collectors.toList());
-        VisitResponseModel[] visits = new VisitResponseModel[notFinishedVisits.size()];
-        int i = 0;
-        for (Visit visit : notFinishedVisits){
-            visits[i] = new VisitResponseModel(visit);
-            i++;
-        }
+        VisitDetailsResponse[] visits = visitsListToArray(notFinishedVisits);
         return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(),visits)).build();
     }
 
