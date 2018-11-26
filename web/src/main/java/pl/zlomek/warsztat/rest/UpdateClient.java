@@ -245,9 +245,7 @@ public class UpdateClient {
             Client client = clientsRepository.findClientByUsername(owner.getEmail());
             Object[] carList = client.getCars().stream().filter(cho-> cho.getCar().equals(car)).toArray();
             CarsHasOwners cho = ((CarsHasOwners)carList[0]);
-            OwnershipStatus status = (cho.getStatus().equals(OwnershipStatus.CURRENT_OWNER) || cho.getStatus().equals(OwnershipStatus.COOWNER))?
-                    OwnershipStatus.FORMER_OWNER: null;
-            if(status == null){
+            if(cho.getStatus().equals(OwnershipStatus.NOT_VERIFIED_OWNER)){
                 carRepository.deleteOwnership(cho);
             }
             else{

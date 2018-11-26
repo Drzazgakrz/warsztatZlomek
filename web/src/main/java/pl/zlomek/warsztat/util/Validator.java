@@ -26,7 +26,7 @@ public class Validator {
     }
 
     public static boolean validateVin(String vin){
-        return vin != null && vin.matches("[0-9]{17}");
+        return vin != null && vin.matches("[A-Z0-9]{17}");
     }
     public static boolean validatePassword(String password){
         return password != null && password.matches("[A-Za-z0-9ĄŻŹÓŁĘążźćńłóę!@#%*^]{6,20}");
