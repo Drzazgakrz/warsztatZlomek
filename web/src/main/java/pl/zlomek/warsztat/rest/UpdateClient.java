@@ -178,13 +178,8 @@ public class UpdateClient {
         if(client == null){
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        if(!form.validate()){
+        if(!form.validate()) {
             return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
-        }
-        Client checkClient = clientsRepository.findClientByUsername(form.getEmail());
-        if(checkClient != null && !client.equals(checkClient)){
-            return Response.status(400).entity(new ErrorResponse("Klient o podanym adresie e-mail istnieje już w bazie",
-                    form.getAccessToken())).build();
         }
 
         if(form.getAptNum() != null && !form.getAptNum().equals(client.getAptNum())){
@@ -195,9 +190,6 @@ public class UpdateClient {
         }
         if(form.getCityName() != null && !client.getCityName().equals(form.getCityName())){
             client.setCityName(form.getCityName());
-        }
-        if(form.getEmail() != null && !client.getEmail().equals(form.getEmail())){
-            client.setEmail(form.getEmail());
         }
         if(form.getFirstName() != null && !client.getFirstName().equals(form.getFirstName())){
             client.setFirstName(form.getFirstName());
