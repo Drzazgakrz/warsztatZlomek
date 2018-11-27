@@ -15,6 +15,7 @@ public class InvoiceResponse {
     private String invoiceNumber;
     private String methodOfPayment;
     private Date paymentDate;
+    private Date serviceFinishDate;
     private CompanyForm carServiceData;
     private CompanyDataForm companyData;
     private InvoicePositionResponse[] positions;
@@ -36,7 +37,7 @@ public class InvoiceResponse {
             this.positions[i] = new InvoicePositionResponse(position);
             i++;
         }
-
+        this.serviceFinishDate = Date.from(invoice.getVisitFinished().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
     }
 
     public InvoiceResponse(InvoiceBuffer invoice){
@@ -56,6 +57,5 @@ public class InvoiceResponse {
             this.positions[i] = new InvoicePositionResponse(position);
             i++;
         }
-
     }
 }
