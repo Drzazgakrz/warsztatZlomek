@@ -131,7 +131,8 @@ public class InvoiceActions {
                     netValue = netValue.add(invoicePosition.getNetPrice());
                     invoicesRepository.insertInvoicePosition(invoicePosition);
                 }
-                LocalDate finishDate = (LocalDate.now().equals(visit.getVisitDate()))? null : visit.getVisitDate();
+                LocalDate finishDate = (LocalDate.now().equals(visit.getVisitDate().toLocalDate()))?
+                        null : visit.getVisitDate().toLocalDate();
                 invoice.setVisitFinished(finishDate);
                 invoice.setNetValue(netValue);
                 invoice.setGrossValue(grossValue);

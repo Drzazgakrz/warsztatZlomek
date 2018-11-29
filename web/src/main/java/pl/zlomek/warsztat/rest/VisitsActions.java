@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -174,8 +175,8 @@ public class VisitsActions {
             return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", form.getAccessToken())).build();
         }
         Overview overview = null;
-        LocalDate visitDate = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        if (LocalDate.now().isAfter(visitDate))
+        LocalDateTime visitDate = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().minusHours(1);
+        if (LocalDateTime.now().isAfter(visitDate))
             return Response.status(400).entity(new ErrorResponse("Data wizyty musi być późniejsza niż dzisiejsza data",
                     form.getAccessToken())).build();
         if (form.isOverview()) {
@@ -225,7 +226,7 @@ public class VisitsActions {
             for (CarsHasOwners cho : client.getCars()) {
                 visits.addAll(cho.getCar().getVisits().stream().filter(visit -> {
                     LocalDate end = (cho.getEndOwnershipDate() != null)?cho.getEndOwnershipDate() :LocalDate.now();
-                    return visit.getVisitDate().isAfter(cho.getBeginOwnershipDate()) && visit.getVisitDate().isBefore(end);
+                    return visit.getVisitDate().toLocalDate().isAfter(cho.getBeginOwnershipDate()) && visit.getVisitDate().toLocalDate().isBefore(end);
                 }).collect(Collectors.toList()));
             }
             VisitDetailsResponse[] visitsArray = visitsListToArray(visits);
@@ -399,7 +400,7 @@ public class VisitsActions {
         if(client == null || car == null){
             return Response.status(404).entity("Brak domyślnych danych").build();
         }
-        LocalDate date = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDateTime date = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         Overview overview = null;
         if(form.isOverview()){
             overview = new Overview(date, car);

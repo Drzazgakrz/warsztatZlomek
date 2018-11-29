@@ -29,7 +29,7 @@ public class Visit implements Serializable {
     private long id;
 
     @NotNull
-    private LocalDate visitDate;
+    private LocalDateTime visitDate;
 
     @NotNull
     private VisitStatus status;
@@ -61,7 +61,7 @@ public class Visit implements Serializable {
     @Column(name = "visit_finished")
     private LocalDate visitFinished;
 
-    public Visit(LocalDate date, Car car, Overview overview, Client client){
+    public Visit(LocalDateTime date, Car car, Overview overview, Client client){
 
         this.visitDate = date;
         this.services = new HashSet<>();

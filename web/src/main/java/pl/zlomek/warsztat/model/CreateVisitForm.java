@@ -13,7 +13,7 @@ import java.util.Date;
 public class CreateVisitForm extends AccessTokenForm{
     private long carId;
     @JsonFormat
-            (shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+            (shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm")
     private Date visitDate;
 
     @JsonProperty(value="isOverview")

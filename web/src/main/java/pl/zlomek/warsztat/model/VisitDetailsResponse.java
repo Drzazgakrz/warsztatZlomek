@@ -40,7 +40,7 @@ public class VisitDetailsResponse {
             i++;
         }
         this.visitStatus = visit.getStatus().toString();
-        this.visitDate = Date.from(visit.getVisitDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        this.visitDate = Date.from(visit.getVisitDate().atZone(ZoneId.systemDefault()).toInstant());
         List<CarsHasOwners> owners = visit.getCar().getOwners().stream().filter(carsHasOwners ->
                 carsHasOwners.getStatus().equals(OwnershipStatus.CURRENT_OWNER)|| carsHasOwners.getStatus().
                         equals(OwnershipStatus.COOWNER)).collect(Collectors.toList());
