@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Calendar;
 
@@ -25,7 +26,7 @@ public class Overview implements Serializable {
 
     @NotNull
     @Column(name = "overview_date")
-    private LocalDate overviewDate;
+    private LocalDateTime overviewDate;
 
     @ManyToOne
     @NotNull
@@ -33,11 +34,11 @@ public class Overview implements Serializable {
 
     private LocalDate overviewLastDay;
 
-    public Overview(LocalDate date, Car car){
+    public Overview(LocalDateTime date, Car car){
         this.overviewDate = date;
         this.car = car;
     }
     public void addTerminateOverview(int years){
-        this.overviewLastDay = overviewDate.plusYears(years);
+        this.overviewLastDay = overviewDate.plusYears(years).toLocalDate();
     }
 }

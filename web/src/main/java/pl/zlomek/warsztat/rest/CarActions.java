@@ -276,23 +276,4 @@ public class CarActions {
         }
         return Response.status(200).entity(new GetAllCarBrandsResponse(brandsArray)).build();
     }
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/getCarData")
-    @Transactional
-    public Response getCarData(AccessTokenForm form){
-        Client client = (Client) clientsRepository.findByToken(form.getAccessToken());
-        if(client == null){
-            return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
-        }
-        int i = 0;
-        CarResponseModel[] cars = new CarResponseModel[(int)client.getCars().stream().filter((cho)->cho.getStatus().equals(OwnershipStatus.CURRENT_OWNER)
-                || cho.getStatus().equals(OwnershipStatus.COOWNER)).count()];
-        for (CarsHasOwners cho: client.getCars()) {
-            cars[i] = new CarResponseModel(cho.getCar(), cho.getRegistrationNumber());
-            i++;
-        }
-        return Response.status(200).entity(new GetCarDataResponse(form.getAccessToken(), cars)).build();
-    }
 }

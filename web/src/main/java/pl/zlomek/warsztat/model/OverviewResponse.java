@@ -13,7 +13,7 @@ public class OverviewResponse implements Serializable {
     private CarResponseModel carResponseModel;
 
     public OverviewResponse(Overview overview, Car car, String registration) {
-        this.date = Date.from(overview.getOverviewDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        this.date = Date.from(overview.getOverviewDate().atZone(ZoneId.systemDefault()).toInstant());
         this.carResponseModel = new CarResponseModel(car,registration);
     }
 }

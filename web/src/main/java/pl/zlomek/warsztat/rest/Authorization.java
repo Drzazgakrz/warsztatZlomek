@@ -141,9 +141,9 @@ public class Authorization {
             Car car = ((CarsHasOwners) currentOwnership).getCar();
             overviews.addAll(car.getVisits().stream().filter(overview -> {
                 if(date != null){
-                    return overview.getVisitDate().isBefore(date) && overview.getVisitDate().isAfter(LocalDate.now());
+                    return overview.getVisitDate().toLocalDate().isBefore(date) && overview.getVisitDate().isAfter(LocalDateTime.now());
                 }else{
-                    return overview.getVisitDate().isAfter(LocalDate.now());
+                    return overview.getVisitDate().isAfter(LocalDateTime.now());
                 }
             }).collect(Collectors.toList()));
         }
