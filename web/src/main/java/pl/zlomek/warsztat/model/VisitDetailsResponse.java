@@ -24,6 +24,7 @@ public class VisitDetailsResponse {
     private ClientResponse[] owners;
     private ClientResponse[] notVerifiedOwners;
     private CarResponseModel car;
+    private boolean overview;
     public VisitDetailsResponse(Visit visit){
         this.id = visit.getId();
         this.parts = new VisitElementResponse[visit.getParts().size()];
@@ -64,5 +65,6 @@ public class VisitDetailsResponse {
         log.info(visit.getClient().getEmail());
         log.info(visit.getCar().getVin());
         this.car = new CarResponseModel(visit.getCar(), ((CarsHasOwners)cho[0]).getRegistrationNumber());
+        this.overview = visit.getOverview() != null;
     }
 }
