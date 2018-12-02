@@ -109,6 +109,13 @@ public class VisitsActions {
                     if (carPart == null) {
                         return;
                     }
+                    Object[] parts = visit.getParts().stream().filter((part) -> carPart.equals(part.getPart())).toArray();
+                    if(parts.length != 0){
+                        VisitsParts part = (VisitsParts)parts[0];
+                        part.setCount(carPartModel.getCount()+part.getCount());
+                        carPartsRepository.updateVisitsParts(part);
+                        return;
+                    }
                     VisitsParts relation = visit.addPartToVisit(carPart, carPartModel.getCount(), carPartModel.getPrice());
                     visitsRepository.createVisitPart(relation);
                     carPartsRepository.updateCarPart(carPart);
@@ -122,6 +129,15 @@ public class VisitsActions {
                     if (service == null) {
                         return;
                     }
+                    Object[] parts = visit.getServices().stream().filter((currentService) ->
+                            service.equals(currentService.getService())).toArray();
+                    if(parts.length != 0){
+                        log.info("jestem");
+                        VisitsHasServices currentService = (VisitsHasServices) parts[0];
+                        currentService.setCount(serviceModel.getCount()+currentService.getCount());
+                        servicesRepository.updateVisitsService(currentService);
+                        return;
+                    }
                     VisitsHasServices relation = visit.addServiceToVisit(service, serviceModel.getCount(), new BigDecimal(serviceModel.getPrice()));
                     servicesRepository.insertVisitsServices(relation);
                     servicesRepository.updateService(service);
@@ -130,6 +146,7 @@ public class VisitsActions {
             visitsRepository.updateVisit(visit);
             return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
         } catch (Exception e) {
+            e.printStackTrace();
             return Response.status(500).entity("Wystąpił nieznany błąd. Przepraszamy.").build();
         }
     }
