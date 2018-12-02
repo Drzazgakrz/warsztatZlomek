@@ -9,7 +9,7 @@ public class Validator {
     }
 
     public static boolean validateCarModel(String name){
-        return name != null && name.matches("[A-Z]{1}[A-Za-zżźćąęłó0-9/]{1,}");
+        return name != null && name.matches("[A-ZŻŹĄĘÓŁ]{1}[A-Za-zżźćąęłó0-9/]{1,}");
     }
     public static boolean validateNip(String NIP){
         return NIP != null && NIP.matches("[0-9]{3}-[0-9]{3}-[0-9]{2}-[0-9]{2}");
