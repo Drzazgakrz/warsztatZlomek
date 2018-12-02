@@ -62,8 +62,6 @@ public class VisitDetailsResponse {
             return ownership.getOwner().getEmail().equals(visit.getClient().getEmail());
         }).toArray();
         Logger log = LoggerFactory.getLogger(VisitDetailsResponse.class);
-        log.info(visit.getClient().getEmail());
-        log.info(visit.getCar().getVin());
         this.car = new CarResponseModel(visit.getCar(), ((CarsHasOwners)cho[0]).getRegistrationNumber());
         this.overview = visit.getOverview() != null;
     }
