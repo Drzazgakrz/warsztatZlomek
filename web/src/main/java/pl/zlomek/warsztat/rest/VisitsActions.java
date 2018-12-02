@@ -132,7 +132,6 @@ public class VisitsActions {
                     Object[] parts = visit.getServices().stream().filter((currentService) ->
                             service.equals(currentService.getService())).toArray();
                     if(parts.length != 0){
-                        log.info("jestem");
                         VisitsHasServices currentService = (VisitsHasServices) parts[0];
                         currentService.setCount(serviceModel.getCount()+currentService.getCount());
                         servicesRepository.updateVisitsService(currentService);
