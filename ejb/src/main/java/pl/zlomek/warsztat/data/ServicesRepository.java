@@ -25,6 +25,10 @@ public class ServicesRepository {
         }
     }
 
+    public void updateVisitsService(VisitsHasServices vhs){
+        em.merge(vhs);
+    }
+
     public List<Service> getAllServices(){
         try{
             TypedQuery<Service> query = em.createQuery("SELECT service FROM Service service", Service.class);

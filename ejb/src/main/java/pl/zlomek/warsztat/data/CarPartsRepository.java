@@ -1,6 +1,7 @@
 package pl.zlomek.warsztat.data;
 
 import pl.zlomek.warsztat.model.CarPart;
+import pl.zlomek.warsztat.model.VisitsParts;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -54,5 +55,9 @@ public class CarPartsRepository {
         }catch (Exception e){
             return null;
         }
+    }
+
+    public void updateVisitsParts(VisitsParts vp){
+        em.merge(vp);
     }
 }
