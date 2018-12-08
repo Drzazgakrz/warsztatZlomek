@@ -7,6 +7,11 @@ import pl.zlomek.warsztat.model.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -22,6 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
+import pl.zlomek.warsztat.model.Service;
 
 
 @Path("/visits")
@@ -96,6 +102,7 @@ public class VisitsActions {
             VisitStatus status = getVisitStatus(form.getStatus());
             if(status!=null && !visit.getStatus().equals(status)){
                 if(visit.getStatus().equals(VisitStatus.IN_PROGRESS) && status.equals(VisitStatus.FOR_PICKUP)){
+                    sendMail(visit);
                     visit.setVisitFinished(LocalDate.now());
                 }
                 visit.setStatus(status);
@@ -147,6 +154,40 @@ public class VisitsActions {
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(500).entity("Wystąpił nieznany błąd. Przepraszamy.").build();
+        }
+    }
+
+    public void sendMail(Visit visit){
+        try {
+            Properties props = new Properties();
+            props.put("mail.smtp.host", "poczta.o2.pl");
+            props.put("mail.smtp.socketFactory.port", "465");
+            props.put("mail.smtp.socketFactory.class",
+                    "javax.net.ssl.SSLSocketFactory");
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.port", "465");
+
+            Session session = Session.getInstance(props,
+                    new javax.mail.Authenticator() {
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication("warsztat_zlomek@o2.pl", "abc123*%*");
+                        }
+                    });
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress("warsztat_zlomek@o2.pl"));
+            log.info(visit.getClient().getEmail());
+            message.setRecipients(
+                    Message.RecipientType.TO, InternetAddress.parse(visit.getClient().getEmail()));
+            message.setSubject("Zakończenie usługi", "UTF-8");
+
+            String msg = "Chcieliśmy poinformować o zakończeniu usługi z dnia "+visit.getVisitDate().toLocalDate().toString()+
+                    "Zespół Warsztat Złomek";
+            message.setText(msg,"UTF-8");
+
+            Transport.send(message);
+            log.info("done");
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
