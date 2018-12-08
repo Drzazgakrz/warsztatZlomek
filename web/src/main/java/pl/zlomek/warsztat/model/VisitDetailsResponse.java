@@ -33,7 +33,7 @@ public class VisitDetailsResponse {
             parts[i] = new VisitElementResponse(part.getPart().getName(), part.getSinglePrice().toString(), part.getCount());
             i++;
         }
-        this.services = new VisitElementResponse[visit.getParts().size()];
+        this.services = new VisitElementResponse[visit.getServices().size()];
         i = 0;
         for(VisitsHasServices service : visit.getServices()){
             services[i] = new VisitElementResponse(service.getService().getName(), service.getSinglePrice().toString(), service
