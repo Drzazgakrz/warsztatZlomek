@@ -38,15 +38,17 @@ public abstract class InvoicesModel {
     protected CarServiceData carServiceData;
 
     @NotNull
+    @Column(name = "day_of_issue")
     protected LocalDate dayOfIssue;
 
     @NotNull
+    @Column(name = "payment_date")
     protected LocalDate paymentDate;
 
-    @Column(precision = 20, scale = 2)
+    @Column(precision = 20, scale = 2, name = "net_value")
     protected BigDecimal netValue;
 
-    @Column(precision = 20, scale = 2)
+    @Column(precision = 20, scale = 2, name = "gross_value")
     protected BigDecimal grossValue;
 
     public InvoicesModel(int discount, MethodOfPayment methodOfPayment, CarServiceData carServiceData,

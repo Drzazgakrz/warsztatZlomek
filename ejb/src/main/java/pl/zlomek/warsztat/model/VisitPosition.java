@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import java.math.BigDecimal;
 
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public abstract class VisitPosition {
+    @Column(name = "single_price")
     protected BigDecimal singlePrice;
 
     protected int count;

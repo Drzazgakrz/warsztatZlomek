@@ -51,7 +51,7 @@ public class Car implements Serializable {
     @OneToMany(mappedBy = "car")
     private Set<Visit> visits;
 
-    @OneToMany
+    @OneToMany(mappedBy = "car")
     private Set<Overview> overviews;
 
     public Car(String vin, String model, int prodYear, CarBrand brand){
