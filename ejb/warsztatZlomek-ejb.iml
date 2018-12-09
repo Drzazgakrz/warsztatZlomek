@@ -15,9 +15,8 @@
         <setting name="provider-name" value="" />
         <datasource-mapping>
           <factory-entry name="primary" />
-          <factory-entry name="warsztatZlomek" />
         </datasource-mapping>
-        <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/src/main/resources/META-INF/persistence.xml" />
+        <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/src/test/resources/META-INF/test-persistence.xml" />
       </configuration>
     </facet>
   </component>

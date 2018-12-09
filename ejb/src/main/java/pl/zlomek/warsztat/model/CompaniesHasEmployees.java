@@ -37,7 +37,10 @@ public class CompaniesHasEmployees {
     @Setter
     @NoArgsConstructor
     private static class CompaniesHasEmployeesId implements Serializable {
+        @Column(name = "company_pk")
         private long companyId;
+
+        @Column(name = "client_pk")
         private long clientId;
 
         public CompaniesHasEmployeesId(long companyId, long clientId) {

@@ -44,8 +44,10 @@ public abstract class Account {
     @Pattern(regexp = "[A-Za-z0-9._-]{1,}+@+[a-z]{1,6}+.+[a-z]{2,3}")
     protected String email;
 
+    @Column(name = "created_at")
     protected LocalDateTime createdAt;
 
+    @Column(name = "last_logged_in")
     protected  LocalDateTime lastLoggedIn;
 
     public void setEmail(String email) {

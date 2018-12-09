@@ -32,6 +32,7 @@ public class Overview implements Serializable {
     @NotNull
     private Car car;
 
+    @Column(name = "overview_last_day")
     private LocalDate overviewLastDay;
 
     public Overview(LocalDateTime date, Car car){

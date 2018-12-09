@@ -29,6 +29,7 @@ public class Visit implements Serializable {
     private long id;
 
     @NotNull
+    @Column(name = "visit_date")
     private LocalDateTime visitDate;
 
     @NotNull
@@ -51,8 +52,10 @@ public class Visit implements Serializable {
     @OneToMany(mappedBy = "visit", fetch = FetchType.LAZY)
     private Set<VisitsParts> parts;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @ManyToOne

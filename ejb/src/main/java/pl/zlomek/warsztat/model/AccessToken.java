@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 public class AccessToken {
 
-
+    @Column(name = "access_token")
     protected String accessToken;
 
     protected LocalDateTime expiration;

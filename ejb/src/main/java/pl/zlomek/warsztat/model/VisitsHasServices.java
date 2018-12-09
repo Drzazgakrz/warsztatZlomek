@@ -28,7 +28,10 @@ public class VisitsHasServices extends VisitPosition implements Serializable{
     @Getter
     @Setter
     private static class VisitsHasServicesId implements Serializable {
+        @Column(name = "service_pk")
         private long serviceId;
+
+        @Column(name = "visit_pk")
         private long visitId;
 
         public VisitsHasServicesId(long serviceId, long visitId) {

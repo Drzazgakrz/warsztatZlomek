@@ -32,8 +32,10 @@ public class CarsHasOwners implements Serializable {
     private OwnershipStatus status;
 
     @NotNull
+    @Column(name = "begin_ownership_date")
     private LocalDate beginOwnershipDate;
 
+    @Column(name = "end_ownership_date")
     private LocalDate endOwnershipDate;
 
     @NotNull
@@ -48,9 +50,11 @@ public class CarsHasOwners implements Serializable {
     private static class CarHasOwnerId implements Serializable{
 
         @NotNull
+        @Column(name = "car_pk")
         private long carId;
 
         @NotNull
+        @Column(name = "owner_pk")
         private long ownerId;
 
         @Override
