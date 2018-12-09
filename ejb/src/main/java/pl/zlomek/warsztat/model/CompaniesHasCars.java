@@ -29,7 +29,10 @@ public class CompaniesHasCars implements Serializable{
     @Getter
     @Setter
     private static class CompaniesHasCarsId implements Serializable{
+        @Column(name = "company_pk")
         private long companyId;
+
+        @Column(name = "car_pk")
         private long carId;
 
         public CompaniesHasCarsId() {

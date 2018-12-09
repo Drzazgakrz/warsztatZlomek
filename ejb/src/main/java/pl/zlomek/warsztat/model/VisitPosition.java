@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public abstract class VisitPosition {
+
     @Column(name = "single_price")
     protected BigDecimal singlePrice;
 
