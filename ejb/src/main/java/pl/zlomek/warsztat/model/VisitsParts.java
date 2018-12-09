@@ -30,7 +30,10 @@ public class VisitsParts extends VisitPosition implements Serializable {
     @Getter
     @Setter
     private static class VisitsPartsId implements Serializable{
+        @Column(name = "part_pk")
         private long partId;
+
+        @Column(name = "visit_pk")
         private long visitId;
 
         @Override
