@@ -25,6 +25,7 @@ public class InvoiceBuffer extends InvoicesModel implements Serializable {
 
     @NotNull
     @ManyToOne
+    @JoinColumn(name = "company_data_buffer_id")
     private CompanyDataBuffer companyDataBuffer;
 
     @OneToMany(mappedBy = "invoiceBuffer")
@@ -32,6 +33,7 @@ public class InvoiceBuffer extends InvoicesModel implements Serializable {
 
     @NotNull
     @ManyToOne
+    @JoinColumn(name = "car_service_data_id")
     private CarServiceData carServiceData;
 
     public InvoiceBuffer(int discount, MethodOfPayment methodOfPayment,

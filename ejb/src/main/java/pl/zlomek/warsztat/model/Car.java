@@ -39,6 +39,7 @@ public class Car implements Serializable {
     private String vin;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
     @NotNull
     CarBrand brand;
 

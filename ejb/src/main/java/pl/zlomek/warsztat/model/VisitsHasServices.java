@@ -19,9 +19,11 @@ public class VisitsHasServices extends VisitPosition implements Serializable{
     private VisitsHasServicesId id;
 
     @ManyToOne
+    @JoinColumn(name = "service_id")
     private Service service;
 
     @ManyToOne
+    @JoinColumn(name = "visit_id")
     private Visit visit;
 
     @Embeddable

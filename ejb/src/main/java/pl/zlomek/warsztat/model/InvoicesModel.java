@@ -7,10 +7,7 @@ import lombok.Setter;
 import pl.zlomek.warsztat.data.InvoicesRepository;
 
 import javax.inject.Inject;
-import javax.persistence.Column;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -35,6 +32,7 @@ public abstract class InvoicesModel {
 
     @NotNull
     @ManyToOne
+    @JoinColumn(name = "car_service_data_id")
     protected CarServiceData carServiceData;
 
     @NotNull

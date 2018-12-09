@@ -46,6 +46,7 @@ public class InvoiceBufferPosition implements Serializable {
 
     @NotNull
     @ManyToOne
+    @JoinColumn(name = "invoice_buffer_id")
     private InvoiceBuffer invoiceBuffer;
 
     @NotNull

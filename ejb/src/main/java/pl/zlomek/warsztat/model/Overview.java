@@ -30,6 +30,7 @@ public class Overview implements Serializable {
 
     @ManyToOne
     @NotNull
+    @JoinColumn(name = "car_id")
     private Car car;
 
     @Column(name = "overview_last_day")

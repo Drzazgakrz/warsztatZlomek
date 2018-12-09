@@ -48,6 +48,7 @@ public class InvoicePosition implements Serializable {
 
     @NotNull
     @ManyToOne
+    @JoinColumn(name = "invoice_id")
     private Invoice invoice;
 
     public InvoicePosition(String itemName, String unitOfMeasure, BigDecimal grossPrice, BigDecimal netPrice, int vat, BigDecimal valueOfVat, Invoice invoice) {

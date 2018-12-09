@@ -18,9 +18,11 @@ public class CompaniesHasCars implements Serializable{
     private CompaniesHasCarsId id;
 
     @ManyToOne
+    @JoinColumn(name = "car_id")
     private Car car;
 
     @ManyToOne
+    @JoinColumn(name = "company_id")
     private Company company;
 
     private CompanyOwnershipStatus status;
