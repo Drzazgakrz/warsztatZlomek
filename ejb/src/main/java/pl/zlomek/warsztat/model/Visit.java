@@ -36,13 +36,16 @@ public class Visit implements Serializable {
     private VisitStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id")
     private Employee employee;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "overview_id")
     private Overview overview;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "car_id")
     private Car car;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "visit")
@@ -59,6 +62,7 @@ public class Visit implements Serializable {
     private LocalDateTime updatedAt;
 
     @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client;
 
     @Column(name = "visit_finished")

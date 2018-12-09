@@ -23,9 +23,11 @@ public class CarsHasOwners implements Serializable {
     private CarHasOwnerId id;
 
     @ManyToOne
+    @JoinColumn(name = "car_id")
     private Car car;
 
     @ManyToOne
+    @JoinColumn(name = "owner_id")
     private Client owner;
 
     @NotNull

@@ -20,6 +20,7 @@ public class Invoice extends InvoicesModel implements Serializable {
     private long id;
 
     @ManyToOne
+    @JoinColumn(name = "company_data_id")
     private CompanyData companyData;
 
     //@NotNull

@@ -19,6 +19,7 @@ public class EmployeeToken extends AccessToken {
 
 
     @ManyToOne
+    @JoinColumn(name = "employee_id")
     private Employee employee;
 
     public EmployeeToken(String accessToken, LocalDateTime expiration, Employee employee) {

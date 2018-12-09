@@ -18,9 +18,11 @@ public class CompaniesHasEmployees {
     private CompaniesHasEmployeesId id;
 
     @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client;
 
     @ManyToOne
+    @JoinColumn(name = "company_id")
     private Company company;
 
     private EmploymentStatus status;

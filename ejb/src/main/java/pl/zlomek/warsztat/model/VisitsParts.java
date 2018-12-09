@@ -21,9 +21,11 @@ public class VisitsParts extends VisitPosition implements Serializable {
     private VisitsPartsId id;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "visit_id")
     private Visit visit;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "part_id")
     private CarPart part;
 
     @Embeddable

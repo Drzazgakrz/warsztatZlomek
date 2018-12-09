@@ -20,6 +20,7 @@ public class ClientToken extends AccessToken {
 
 
     @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client;
 
     public ClientToken(String accessToken, LocalDateTime expiration, Client client) {
