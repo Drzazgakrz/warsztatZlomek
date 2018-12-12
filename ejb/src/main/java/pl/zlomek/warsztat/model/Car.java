@@ -35,7 +35,7 @@ public class Car implements Serializable {
 
     @NotNull
     @Size(min = 17, max = 17)
-    @Column(name = "vin_number")
+    @Column(name = "vin_number", unique = true)
     private String vin;
 
     @ManyToOne(fetch = FetchType.LAZY)
