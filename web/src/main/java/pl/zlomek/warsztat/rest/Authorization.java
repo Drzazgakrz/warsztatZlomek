@@ -121,11 +121,12 @@ public class Authorization {
         for (Object currentOwnership : currentClientCars) {
             Car car = ((CarsHasOwners) currentOwnership).getCar();
             overviews.addAll(car.getOverviews().stream().filter(overview -> {
-                if(date != null){
+                if(date != null && overview.getOverviewLastDay()!=null){
                     return overview.getOverviewLastDay().isBefore(date);
-                }else{
+                }else if(overview.getOverviewLastDay()!=null){
                     return overview.getOverviewLastDay().isAfter(LocalDate.now());
                 }
+                return false;
             }).collect(Collectors.toList()));
         }
         return overviews;
