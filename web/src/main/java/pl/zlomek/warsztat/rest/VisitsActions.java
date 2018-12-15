@@ -101,11 +101,28 @@ public class VisitsActions {
             }
             VisitStatus status = getVisitStatus(form.getStatus());
             if(status!=null && !visit.getStatus().equals(status)){
-                if(visit.getStatus().equals(VisitStatus.IN_PROGRESS) && status.equals(VisitStatus.FOR_PICKUP)){
-                    sendMail(visit);
-                    visit.setVisitFinished(LocalDate.now());
+
+                if(status!=null && !visit.getStatus().equals(status)){
+                    String subject;
+                    String registrationNumber;
+                    String message;
+                    if(visit.getStatus().equals(VisitStatus.IN_PROGRESS) && status.equals(VisitStatus.FOR_PICKUP)){
+                        subject ="Zakończenie wizyty";
+                        registrationNumber = carsRepository.getOwnership(visit.getCar().getId(),visit.getClient().getClientId()).getRegistrationNumber();
+                        message = "Samochód o numerze rejestracyjnym  "+registrationNumber  +" jest już do odbioru. Zespół Warsztat Złomek";
+                        sendMail(visit,subject,message);
+                        visit.setVisitFinished(LocalDate.now());
+                    }else if(visit.getStatus().equals(VisitStatus.NEW) && status.equals(VisitStatus.ACCEPTED)){
+                        subject ="Potwierdzenie wizyty";
+                        registrationNumber = carsRepository.getOwnership(visit.getCar().getId(),visit.getClient().getClientId()).getRegistrationNumber();
+                        LocalDate localDate = visit.getVisitDate().toLocalDate();
+                        String date = localDate.getDayOfMonth()+"-"+localDate.getMonthValue()+"-"+localDate.getYear();
+                        message = "Akceptacja wizyty umówionej na "+ date +" dla samochodu o numerze rejestracyjnym "+registrationNumber  +
+                                ". Zespół Warsztat Złomek";
+                        sendMail(visit,subject,message);
+                    }
+                    visit.setStatus(status);
                 }
-                visit.setStatus(status);
             }
 
             if (form.getCarParts() != null) {
@@ -157,7 +174,8 @@ public class VisitsActions {
         }
     }
 
-    public void sendMail(Visit visit){
+    public void sendMail(Visit visit,String subject, String msg){
+        log.debug("--------mailSentStart--------------");
         try {
             Properties props = new Properties();
             props.put("mail.smtp.host", "poczta.o2.pl");
@@ -170,7 +188,7 @@ public class VisitsActions {
             Session session = Session.getInstance(props,
                     new javax.mail.Authenticator() {
                         protected PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication("warsztat_zlomek@o2.pl", "abc123*%*");
+                            return new PasswordAuthentication("warsztat_zlomek@o2.pl", "abc123*%*2");
                         }
                     });
             MimeMessage message = new MimeMessage(session);
@@ -178,10 +196,7 @@ public class VisitsActions {
             log.info(visit.getClient().getEmail());
             message.setRecipients(
                     Message.RecipientType.TO, InternetAddress.parse(visit.getClient().getEmail()));
-            message.setSubject("Zakończenie usługi", "UTF-8");
-
-            String msg = "Chcieliśmy poinformować o zakończeniu usługi z dnia "+visit.getVisitDate().toLocalDate().toString()+
-                    "Zespół Warsztat Złomek";
+            message.setSubject(subject, "UTF-8");
             message.setText(msg,"UTF-8");
 
             Transport.send(message);
@@ -189,6 +204,7 @@ public class VisitsActions {
         }catch (Exception e){
             e.printStackTrace();
         }
+        log.debug("--------mailSentStart--------------");
     }
 
     @POST
@@ -196,7 +212,9 @@ public class VisitsActions {
     @Path("/addEmployee")
     @Produces(MediaType.APPLICATION_JSON)
     public Response addEmployee(AddEmployeeForm form) {
-
+        String subject;
+        String registrationNumber;
+        String message;
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
@@ -208,6 +226,15 @@ public class VisitsActions {
         if (visit == null || !visit.getStatus().equals(VisitStatus.NEW)) {
             return Response.status(400).entity(new ErrorResponse("Wizyta nie istnieje lub zostałą wybrana przez innego pracownika", form.getAccessToken())).build();
         }
+            subject ="Potwierdzenie wizyty";
+            registrationNumber = carsRepository.getOwnership(visit.getCar().getId(),visit.getClient().getClientId()).getRegistrationNumber();
+            LocalDate localDate = visit.getVisitDate().toLocalDate();
+            String date = localDate.getDayOfMonth()+"-"+localDate.getMonthValue()+"-"+localDate.getYear();
+            message = "Akceptacja wizyty umówionej na "+date+" dla samochodu o numerze rejestracyjnym "+registrationNumber  +
+                    ". Zespół Warsztat Złomek";
+            sendMail(visit,subject,message);
+
+
         visit.setStatus(VisitStatus.ACCEPTED);
         visit.setEmployee(employee);
         visitsRepository.updateVisit(visit);
@@ -244,6 +271,13 @@ public class VisitsActions {
         car.getVisits().add(visit);
         carsRepository.updateCar(car);
         visitsRepository.createVisit(visit);
+        String subject ="Rezerwacja wizyty";
+        String registrationNumber = carsRepository.getOwnership(visit.getCar().getId(),visit.getClient().getClientId()).getRegistrationNumber();
+        LocalDate localDate =  visit.getVisitDate().toLocalDate();
+        String date = localDate.getDayOfMonth()+"-"+localDate.getMonthValue()+"-"+localDate.getYear();
+        String message = "Wizyta została zarezerwowana dla samochodu o numerze rejestracyjnym "+registrationNumber+  " na "+date+
+                ". Zespół Warsztat Złomek";
+        sendMail(visit,subject,message);
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
