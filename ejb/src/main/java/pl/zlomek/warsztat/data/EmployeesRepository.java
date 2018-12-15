@@ -1,7 +1,5 @@
 package pl.zlomek.warsztat.data;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import pl.zlomek.warsztat.model.*;
 
 import javax.enterprise.context.ApplicationScoped;

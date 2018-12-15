@@ -95,8 +95,9 @@ public class Client extends Account{
         this.status = ClientStatus.ACTIVE;
     }
 
-    public Object[] checkCar(Car car){
-        return cars.stream().filter(clientCar-> (clientCar.equals(car) && clientCar.getStatus()!= OwnershipStatus.FORMER_OWNER)).toArray();
+    public Object[] checkCar(Car car, Client client){
+        return cars.stream().filter(clientCar-> (clientCar.getOwner().getEmail().equals(client.getEmail()) &&
+                clientCar.getStatus()!= OwnershipStatus.FORMER_OWNER)).toArray();
     }
 
     @Override

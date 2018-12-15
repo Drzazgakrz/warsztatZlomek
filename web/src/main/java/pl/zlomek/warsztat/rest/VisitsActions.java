@@ -96,11 +96,13 @@ public class VisitsActions {
                 carsRepository.updateCar(car);
                 overview.addTerminateOverview(form.getCountYears());
             } else if (overview != null && form.getCountYears() == null &&
-                    (form.getStatus().equals(VisitStatus.FOR_PICKUP.toString())||form.getStatus().equals(VisitStatus.FINISHED.toString()))) {
-                return Response.status(400).entity(new ErrorResponse("Przegląd powinien mieć termin ważności", form.getAccessToken())).build();
+                    (form.getStatus().equals(VisitStatus.FOR_PICKUP.toString())||
+                            form.getStatus().equals(VisitStatus.FINISHED.toString()))) {
+                return Response.status(400).entity(new ErrorResponse(
+                        "Przegląd powinien mieć termin ważności", form.getAccessToken())).build();
             }
             VisitStatus status = getVisitStatus(form.getStatus());
-            if(status!=null && !visit.getStatus().equals(status)){
+            if(status!=null && !status.equals(visit.getStatus())){
                 if(visit.getStatus().equals(VisitStatus.IN_PROGRESS) && status.equals(VisitStatus.FOR_PICKUP)){
                     sendMail(visit);
                     visit.setVisitFinished(LocalDate.now());
@@ -109,7 +111,6 @@ public class VisitsActions {
             }
 
             if (form.getCarParts() != null) {
-                visit.getParts().clear();
                 List<CarPartModel> carPartModelList = Arrays.asList(form.getCarParts());
                 carPartModelList.forEach(carPartModel -> {
                     CarPart carPart = carPartsRepository.getCarPartById(carPartModel.getId());
@@ -119,7 +120,8 @@ public class VisitsActions {
                     Object[] parts = visit.getParts().stream().filter((part) -> carPart.equals(part.getPart())).toArray();
                     if(parts.length != 0){
                         VisitsParts part = (VisitsParts)parts[0];
-                        part.setCount(carPartModel.getCount()+part.getCount());
+                        part.setCount(carPartModel.getCount());
+                        part.setSinglePrice(carPartModel.getPrice());
                         carPartsRepository.updateVisitsParts(part);
                         return;
                     }
@@ -129,7 +131,6 @@ public class VisitsActions {
                 });
             }
             if (form.getServices() != null) {
-                visit.getServices().clear();
                 List<ServiceModel> carPartModelList = Arrays.asList(form.getServices());
                 carPartModelList.forEach(serviceModel -> {
                     Service service = servicesRepository.getServiceByName(serviceModel.getName());
@@ -140,7 +141,8 @@ public class VisitsActions {
                             service.equals(currentService.getService())).toArray();
                     if(parts.length != 0){
                         VisitsHasServices currentService = (VisitsHasServices) parts[0];
-                        currentService.setCount(serviceModel.getCount()+currentService.getCount());
+                        currentService.setCount(serviceModel.getCount());
+                        currentService.setSinglePrice(new BigDecimal(serviceModel.getPrice()));
                         servicesRepository.updateVisitsService(currentService);
                         return;
                     }
@@ -170,7 +172,8 @@ public class VisitsActions {
             Session session = Session.getInstance(props,
                     new javax.mail.Authenticator() {
                         protected PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication("warsztat_zlomek@o2.pl", "abc123*%*");
+                            return new PasswordAuthentication(
+                                    "warsztat_zlomek@o2.pl", "abc123*%*");
                         }
                     });
             MimeMessage message = new MimeMessage(session);
@@ -225,17 +228,16 @@ public class VisitsActions {
         if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE))
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         Car car = carsRepository.getCarById(form.getCarId());
-        if (car == null) {
-            return Response.status(400).entity(new ErrorResponse("Podany samochód nie istnieje", form.getAccessToken())).build();
-        }
-        if (client.checkCar(car).length < 1) {
-            return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", form.getAccessToken())).build();
-        }
-        Overview overview = null;
-        LocalDateTime visitDate = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().minusHours(1);
-        if (LocalDateTime.now().isAfter(visitDate))
-            return Response.status(400).entity(new ErrorResponse("Data wizyty musi być późniejsza niż dzisiejsza data",
+        if (car == null || client.checkCar(car, client).length < 1) {
+            return Response.status(400).entity(new ErrorResponse("Podany samochód nie istnieje lub nie należy do tego klienta",
                     form.getAccessToken())).build();
+        }
+        LocalDateTime visitDate = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().minusHours(1);
+        if (LocalDateTime.now().isAfter(visitDate) || LocalDateTime.now().plusDays(21).isBefore(visitDate))
+            return Response.status(400).entity(new ErrorResponse(
+                    "Data wizyty musi być późniejsza niż dzisiejsza data i nie może być zaplanowana na dalej niż 3 tygodnie",
+                    form.getAccessToken())).build();
+        Overview overview = null;
         if (form.isOverview()) {
             overview = new Overview(visitDate, car);
             visitsRepository.createOverview(overview);

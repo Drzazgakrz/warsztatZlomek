@@ -126,7 +126,7 @@ public class UpdateClient {
                 return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu", form.getAccessToken())).build();
             }
             Object[] cho;
-            if( (cho = client.checkCar(car)).length<1){
+            if( (cho = client.checkCar(car,client)).length<1){
                 return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", form.getAccessToken())).build();
             }
             CarsHasOwners ownership = ((CarsHasOwners) cho[0]);
