@@ -69,8 +69,11 @@ public class InvoiceActions {
             return Response.status(400).entity(new ErrorResponse("Brak takiej wizyty lub jest ona nie ukończona",
                     newInvoice.getAccessToken())).build();
         }
-        List<CompanyData> companies = companyDataRespository.getAllCompanies(company.getCompanyName()).
-                stream().filter((companyData -> companyData.compareCompanies(company))).limit(1).collect(Collectors.toList());
+        List<CompanyData> companies = companyDataRespository.
+                getAllCompanies(company.getCompanyName()).
+                stream().filter((companyData ->
+                companyData.compareCompanies(company))).limit(1).
+                collect(Collectors.toList());
         CompanyData companyData;
         if(companies.size() == 0){
             companyData = new CompanyData(company);
@@ -188,9 +191,21 @@ public class InvoiceActions {
         }
 
         Company company = companiesRepository.getCompanyByName(form.getCompanyName());
-        CompanyDataBuffer companyData = new CompanyDataBuffer(company);
-        companiesRepository.insertComapnyDataBuffer(companyData);
-        int discount = form.getDiscount();
+        if(company == null){
+            return Response.status(400).entity(new ErrorResponse("brak firmy o podanej nazwie", form.getAccessToken())).build();
+        }
+        List<CompanyDataBuffer> companies = companyDataRespository
+                .getAllCompaniesBuffer(company.getCompanyName()).
+                stream().filter((companyData ->
+                companyData.compareCompanies(company))).
+                        limit(1).collect(Collectors.toList());
+        CompanyDataBuffer companyData;
+        if(companies.size() == 0){
+            companyData = new CompanyDataBuffer(company);
+            companiesRepository.insertComapnyDataBuffer(companyData);
+        }
+        else
+            companyData = companies.get(0);
 
         MethodOfPayment methodOfPayment = createMethodOfPayment(form.getMethodOfPayment());
         BigDecimal grossValue = new BigDecimal(0);
@@ -199,12 +214,15 @@ public class InvoiceActions {
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
         if (carServiceData != null && companyData != null && methodOfPayment != null) {
             LocalDate paymentDate = form.getPaymentDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            InvoiceBuffer invoice = new InvoiceBuffer(discount, methodOfPayment, companyData, carServiceData, paymentDate);
+            InvoiceBuffer invoice = new InvoiceBuffer(form.getDiscount(), methodOfPayment, companyData, carServiceData, paymentDate, visit);
             StringBuilder invoiceNumberBuilder = new StringBuilder().append(invoicesRepository.countInvoicesInMonth());
-            String invoiceNumber = invoiceNumberBuilder.append("/").append(LocalDate.now().getMonthValue()).append("/").append(LocalDate.now().getYear()).toString();
+            String invoiceNumber = invoiceNumberBuilder.append("/").append(LocalDate.now().getMonthValue()).
+                    append("/").append(LocalDate.now().getYear()).toString();
             invoice.setInvoiceNumber(invoiceNumber);
             invoice.setInvoiceBufferStatus(InvoiceBufferStatus.proForma);
             invoicesRepository.insertInvoiceBuffer(invoice);
+            companyData.addInvoice(invoice);
+            companiesRepository.updateCompanyDataBuffer(companyData);
             for(VisitsParts position: visit.getParts()){
                 CarPart part = position.getPart();
                 InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position, part.getName(), part.getTax(), invoice, "szt.");
@@ -215,7 +233,8 @@ public class InvoiceActions {
             }
             for(VisitsHasServices position: visit.getServices()){
                 Service service = position.getService();
-                InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position, service.getName(), service.getTax(), invoice, "h");
+                InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position,
+                        service.getName(), service.getTax(), invoice, "h");
                 invoice.getInvoiceBufferPositions().add(invoicePosition);
                 grossValue = grossValue.add(invoicePosition.getGrossPrice());
                 netValue = netValue.add(invoicePosition.getNetPrice());
@@ -292,6 +311,9 @@ public class InvoiceActions {
         InvoiceBuffer proForma = invoicesRepository.getInvoiceBufferById(form.getProFormaInvoiceId());
         if(proForma == null)
             return Response.status(400).entity(new ErrorResponse("Brak faktury o takim id", form.getAccessToken())).build();
+        if(proForma.getVisit() == null || proForma.getVisit().getVisitFinished() == null){
+            return Response.status(400).entity(new ErrorResponse("Brak wizyty przypisanej do faktury", form.getAccessToken())).build();
+        }
         List<CompanyData> companies = companyDataRespository.getAllCompanies(proForma.getCompanyDataBuffer().getCompanyName()).
                 stream().filter((companyData -> companyData.compareCompanies(proForma.getCompanyDataBuffer()))).limit(1).collect(Collectors.toList());
         CompanyData companyData;

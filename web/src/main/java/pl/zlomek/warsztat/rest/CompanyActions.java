@@ -45,15 +45,8 @@ public class CompanyActions {
         if(company != null){
             return Response.status(400).entity(new ErrorResponse("Podana firma istnieje",form.getAccessToken())).build();
         }
-        String companyName = form.getName();
-        String nip = form.getNip();
-        String cityName = form.getCityName();
-        String streetName= form.getStreetName();
-        String aptName = form.getAptNum();
-        String zipCode = form.getZipCode();
-        String email = form.getEmail();
-        String buildNum = form.getBuildingNum();
-        company = new Company(nip,email,companyName,cityName,streetName, buildNum, aptName, zipCode);
+        company = new Company(form.getNip(),form.getEmail(),form.getName(),form.getCityName(),form.getStreetName(),
+                form.getBuildingNum(), form.getAptNum(), form.getZipCode());
         companiesRepository.insert(company);
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }

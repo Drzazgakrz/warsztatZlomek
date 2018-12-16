@@ -79,4 +79,6 @@ public class CompaniesRepository implements Serializable {
     public void insertComapnyDataBuffer(CompanyDataBuffer buffer){
         em.persist(buffer);
     }
+
+    public void updateCompanyDataBuffer(CompanyDataBuffer buffer){ em.merge(buffer);}
 }

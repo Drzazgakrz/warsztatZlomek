@@ -25,7 +25,7 @@ public abstract class CompanyModel {
 
     @NotNull
     @Size(min = 2, max = 40)
-    @Column(name = "company_name")
+    @Column(name = "company_name", unique = true)
     protected String companyName;
 
     @NotNull
@@ -63,5 +63,13 @@ public abstract class CompanyModel {
         this.buildingNum = buildingNum;
         this.aptNum = aptNum;
         this.zipCode = zipCode;
+    }
+
+    public boolean compareCompanies(CompanyModel model){
+        boolean result = model.getNip().equals(this.nip)&&model.getCompanyName().equals(this.companyName);
+        result = result && model.getBuildingNum().equals(this.buildingNum) && model.getCityName().equals(this.cityName);
+        if(this.aptNum != null)
+            result = result && this.aptNum.equals(model.getAptNum());
+        return result && model.getStreetName().equals(this.streetName) && model.getZipCode().equals(this.zipCode);
     }
 }

@@ -82,7 +82,7 @@ public class VisitsActions {
             if (employee == null) {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
             }
-            if(!form.validate()){
+            if (!form.validate()) {
                 return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
             }
             Visit visit = visitsRepository.getVisitById(form.getVisitId());
@@ -96,18 +96,42 @@ public class VisitsActions {
                 carsRepository.updateCar(car);
                 overview.addTerminateOverview(form.getCountYears());
             } else if (overview != null && form.getCountYears() == null &&
-                    (form.getStatus().equals(VisitStatus.FOR_PICKUP.toString())||
+                    (form.getStatus().equals(VisitStatus.FOR_PICKUP.toString()) ||
                             form.getStatus().equals(VisitStatus.FINISHED.toString()))) {
                 return Response.status(400).entity(new ErrorResponse(
                         "Przegląd powinien mieć termin ważności", form.getAccessToken())).build();
             }
             VisitStatus status = getVisitStatus(form.getStatus());
-            if(status!=null && !status.equals(visit.getStatus())){
-                if(visit.getStatus().equals(VisitStatus.IN_PROGRESS) && status.equals(VisitStatus.FOR_PICKUP)){
-                    sendMail(visit);
-                    visit.setVisitFinished(LocalDate.now());
+
+            if (status != null && !visit.getStatus().equals(status)) {
+
+                if (status != null && !visit.getStatus().equals(status)) {
+                    String subject;
+                    String registrationNumber;
+                    String message;
+                    if (visit.getStatus().equals(VisitStatus.IN_PROGRESS) && status.equals(VisitStatus.FOR_PICKUP)) {
+                        subject = "Zakończenie wizyty";
+                        registrationNumber = carsRepository.getOwnership(visit.getCar().getId(),
+                                visit.getClient().getClientId()).getRegistrationNumber();
+                        message = "Samochód o numerze rejestracyjnym  " +
+                                registrationNumber + " jest już do odbioru. Zespół Warsztat Złomek";
+                        sendMail(visit, subject, message);
+                        visit.setVisitFinished(LocalDate.now());
+                    } else if (visit.getStatus().equals(VisitStatus.NEW) &&
+                            status.equals(VisitStatus.ACCEPTED)) {
+                        subject = "Potwierdzenie wizyty";
+                        registrationNumber = carsRepository.getOwnership(visit.getCar().getId(),
+                                visit.getClient().getClientId()).getRegistrationNumber();
+                        LocalDate localDate = visit.getVisitDate().toLocalDate();
+                        String date = localDate.getDayOfMonth() + "-" +
+                                localDate.getMonthValue() + "-" + localDate.getYear();
+                        message = "Akceptacja wizyty umówionej na " + date +
+                                " dla samochodu o numerze rejestracyjnym " + registrationNumber +
+                                ". Zespół Warsztat Złomek";
+                        sendMail(visit, subject, message);
+                    }
+                    visit.setStatus(status);
                 }
-                visit.setStatus(status);
             }
 
             if (form.getCarParts() != null) {
@@ -118,8 +142,8 @@ public class VisitsActions {
                         return;
                     }
                     Object[] parts = visit.getParts().stream().filter((part) -> carPart.equals(part.getPart())).toArray();
-                    if(parts.length != 0){
-                        VisitsParts part = (VisitsParts)parts[0];
+                    if (parts.length != 0) {
+                        VisitsParts part = (VisitsParts) parts[0];
                         part.setCount(carPartModel.getCount());
                         part.setSinglePrice(carPartModel.getPrice());
                         carPartsRepository.updateVisitsParts(part);
@@ -139,7 +163,7 @@ public class VisitsActions {
                     }
                     Object[] parts = visit.getServices().stream().filter((currentService) ->
                             service.equals(currentService.getService())).toArray();
-                    if(parts.length != 0){
+                    if (parts.length != 0) {
                         VisitsHasServices currentService = (VisitsHasServices) parts[0];
                         currentService.setCount(serviceModel.getCount());
                         currentService.setSinglePrice(new BigDecimal(serviceModel.getPrice()));
@@ -159,7 +183,7 @@ public class VisitsActions {
         }
     }
 
-    public void sendMail(Visit visit){
+    public void sendMail(Visit visit, String subject, String msg) {
         try {
             Properties props = new Properties();
             props.put("mail.smtp.host", "poczta.o2.pl");
@@ -173,7 +197,7 @@ public class VisitsActions {
                     new javax.mail.Authenticator() {
                         protected PasswordAuthentication getPasswordAuthentication() {
                             return new PasswordAuthentication(
-                                    "warsztat_zlomek@o2.pl", "abc123*%*");
+                                    "warsztat_zlomek@o2.pl", "abc123*%*2");
                         }
                     });
             MimeMessage message = new MimeMessage(session);
@@ -181,15 +205,12 @@ public class VisitsActions {
             log.info(visit.getClient().getEmail());
             message.setRecipients(
                     Message.RecipientType.TO, InternetAddress.parse(visit.getClient().getEmail()));
-            message.setSubject("Zakończenie usługi", "UTF-8");
-
-            String msg = "Chcieliśmy poinformować o zakończeniu usługi z dnia "+visit.getVisitDate().toLocalDate().toString()+
-                    "Zespół Warsztat Złomek";
-            message.setText(msg,"UTF-8");
+            message.setSubject(subject, "UTF-8");
+            message.setText(msg, "UTF-8");
 
             Transport.send(message);
             log.info("done");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -199,22 +220,36 @@ public class VisitsActions {
     @Path("/addEmployee")
     @Produces(MediaType.APPLICATION_JSON)
     public Response addEmployee(AddEmployeeForm form) {
-
+        String subject;
+        String registrationNumber;
+        String message;
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
-        if(!form.validate()){
+        if (!form.validate()) {
             return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
         }
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
         if (visit == null || !visit.getStatus().equals(VisitStatus.NEW)) {
             return Response.status(400).entity(new ErrorResponse("Wizyta nie istnieje lub zostałą wybrana przez innego pracownika", form.getAccessToken())).build();
         }
+        subject = "Potwierdzenie wizyty";
+        registrationNumber = carsRepository.getOwnership(visit.getCar().getId(),
+                visit.getClient().getClientId()).getRegistrationNumber();
+        LocalDate localDate = visit.getVisitDate().toLocalDate();
+        String date = localDate.getDayOfMonth() + "-" +
+                localDate.getMonthValue() + "-" + localDate.getYear();
+        message = "Akceptacja wizyty umówionej na " + date +
+                " dla samochodu o numerze rejestracyjnym " + registrationNumber +
+                ". Zespół Warsztat Złomek";
+        sendMail(visit, subject, message);
+
+
         visit.setStatus(VisitStatus.ACCEPTED);
         visit.setEmployee(employee);
-        visitsRepository.updateVisit(visit);
         employee.getVisits().add(visit);
+        visitsRepository.updateVisit(visit);
         employeesRepository.update(employee);
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
@@ -246,6 +281,13 @@ public class VisitsActions {
         car.getVisits().add(visit);
         carsRepository.updateCar(car);
         visitsRepository.createVisit(visit);
+        String subject = "Rezerwacja wizyty";
+        String registrationNumber = carsRepository.getOwnership(visit.getCar().getId(), visit.getClient().getClientId()).getRegistrationNumber();
+        LocalDate localDate = visit.getVisitDate().toLocalDate();
+        String date = localDate.getDayOfMonth() + "-" + localDate.getMonthValue() + "-" + localDate.getYear();
+        String message = "Wizyta została zarezerwowana dla samochodu o numerze rejestracyjnym " + registrationNumber + " na " + date +
+                ". Zespół Warsztat Złomek";
+        sendMail(visit, subject, message);
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
@@ -258,7 +300,7 @@ public class VisitsActions {
         if (client == null) {
             return Response.status(401).build();
         }
-        if(!form.validate()){
+        if (!form.validate()) {
             return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
         }
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
@@ -284,7 +326,7 @@ public class VisitsActions {
             Set<Visit> visits = new HashSet<>();
             for (CarsHasOwners cho : client.getCars()) {
                 visits.addAll(cho.getCar().getVisits().stream().filter(visit -> {
-                    LocalDate end = (cho.getEndOwnershipDate() != null)?cho.getEndOwnershipDate() :LocalDate.now();
+                    LocalDate end = (cho.getEndOwnershipDate() != null) ? cho.getEndOwnershipDate() : LocalDate.now();
                     return visit.getVisitDate().toLocalDate().isAfter(cho.getBeginOwnershipDate()) && visit.getVisitDate().toLocalDate().isBefore(end);
                 }).collect(Collectors.toList()));
             }
@@ -309,8 +351,8 @@ public class VisitsActions {
     @Path("/getAllCarVisits")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllCarVisits(GetAllCarVisitsForm form) {
-        if(!form.validate()){
-            return Response.status(400).entity(new ErrorResponse("Błędne dane",null)).build();
+        if (!form.validate()) {
+            return Response.status(400).entity(new ErrorResponse("Błędne dane", null)).build();
         }
         Car car = carsRepository.getCarByVin(form.getVin());
         if (car == null) {
@@ -329,7 +371,7 @@ public class VisitsActions {
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
         }
-        if(!form.validate()){
+        if (!form.validate()) {
             return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
         }
         visitsRepository.insertService(new Service(form.getName(), form.getTax()));
@@ -341,7 +383,7 @@ public class VisitsActions {
     @Path("/getAllEmployeeVisits")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response getAllEmployeeVisits(AccessTokenForm form){
+    public Response getAllEmployeeVisits(AccessTokenForm form) {
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
@@ -354,13 +396,13 @@ public class VisitsActions {
     @Path("/getSingleVisitDetails")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response getSingleVisitDetails(GetSingleEmployeeVisitForm form){
+    public Response getSingleVisitDetails(GetSingleEmployeeVisitForm form) {
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodłą się", null)).build();
         }
-        Object[] visitsArray = employee.getVisits().stream().filter((visit -> visit.getId()==form.getVisitId())).toArray();
-        if(visitsArray.length<1){
+        Object[] visitsArray = employee.getVisits().stream().filter((visit -> visit.getId() == form.getVisitId())).toArray();
+        if (visitsArray.length < 1) {
             return Response.status(403).entity(new ErrorResponse("Wizyta nie należy do tego pracownika", form.getAccessToken())).build();
         }
         VisitDetailsResponse visit = new VisitDetailsResponse((Visit) visitsArray[0]);
@@ -370,18 +412,18 @@ public class VisitsActions {
     @GET
     @Path("/getDataForVisit")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDataForVisit(){
+    public Response getDataForVisit() {
         List<CarPart> parts = carPartsRepository.getAllCarParts();
         CarPartModel[] carParts = new CarPartModel[parts.size()];
         int i = 0;
-        for(CarPart currentPart : parts){
+        for (CarPart currentPart : parts) {
             carParts[i] = new CarPartModel(currentPart);
             i++;
         }
         List<Service> services = servicesRepository.getAllServices();
         ServiceModel[] servicesArray = new ServiceModel[services.size()];
         i = 0;
-        for(Service currentService : services){
+        for (Service currentService : services) {
             servicesArray[i] = new ServiceModel(currentService);
             i++;
         }
@@ -392,26 +434,26 @@ public class VisitsActions {
     @Path("/editService")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response editService(EditServiceForm form){
+    public Response editService(EditServiceForm form) {
         try {
             Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
-            if(employee == null)
+            if (employee == null)
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
-            if(!form.validate()){
+            if (!form.validate()) {
                 return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
             }
             Service service = servicesRepository.getServiceById(form.getId());
-            if(service== null)
+            if (service == null)
                 return Response.status(404).entity(new ErrorResponse("Brak podanej części", form.getAccessToken())).build();
-            if(form.getName()!= null && !service.getName().equals(form.getName())){
+            if (form.getName() != null && !service.getName().equals(form.getName())) {
                 service.setName(form.getName());
             }
-            if(form.getTax()!=0 && service.getTax()!= form.getTax()){
+            if (form.getTax() != 0 && service.getTax() != form.getTax()) {
                 service.setTax(form.getTax());
             }
             servicesRepository.updateService(service);
             return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
-        }catch (Exception e){
+        } catch (Exception e) {
             return Response.status(500).entity(new ErrorResponse("Wystąpił błąd", form.getAccessToken())).build();
         }
     }
@@ -420,48 +462,48 @@ public class VisitsActions {
     @Path("/getNewVisits")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response getNewVisits(AccessTokenForm form){
+    public Response getNewVisits(AccessTokenForm form) {
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
-        if(employee == null){
+        if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         VisitDetailsResponse[] visits = visitsListToArray(visitsRepository.getAllNewVisits());
-        return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(),visits)).build();
+        return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(), visits)).build();
     }
 
     @POST
     @Path("/getNotFinishedVisits")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getNotFinishedVisits(AccessTokenForm form){
+    public Response getNotFinishedVisits(AccessTokenForm form) {
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
-        if(employee == null){
+        if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         List<Visit> notFinishedVisits = employee.getVisits().stream().filter(visit ->
                 !visit.getStatus().equals(VisitStatus.NEW) && !visit.getStatus().equals(VisitStatus.FINISHED)).
                 collect(Collectors.toList());
         VisitDetailsResponse[] visits = visitsListToArray(notFinishedVisits);
-        return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(),visits)).build();
+        return Response.status(200).entity(new GetVisitsResponse(form.getAccessToken(), visits)).build();
     }
 
     @POST
     @Path("/addEmptyVisit")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addEmptyVisit(CreateVisitForm form){
-        Employee employee = (Employee)employeesRepository.findByToken(form.getAccessToken());
-        if(employee == null){
+    public Response addEmptyVisit(CreateVisitForm form) {
+        Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
+        if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         Client client = clientsRepository.getClientById(0L);
         Car car = carsRepository.getCarById(0L);
-        if(client == null || car == null){
+        if (client == null || car == null) {
             return Response.status(404).entity("Brak domyślnych danych").build();
         }
         LocalDateTime date = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         Overview overview = null;
-        if(form.isOverview()){
+        if (form.isOverview()) {
             overview = new Overview(date, car);
             visitsRepository.createOverview(overview);
         }

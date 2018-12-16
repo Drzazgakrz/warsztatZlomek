@@ -49,6 +49,6 @@ public class Invoice extends InvoicesModel implements Serializable {
         this.grossValue = buffer.getGrossValue();
         companyData = (CompanyData) company;
         this.invoicePositions = new HashSet<>();
-
+        this.visitFinished = buffer.getVisit().getVisitFinished();
     }
 }

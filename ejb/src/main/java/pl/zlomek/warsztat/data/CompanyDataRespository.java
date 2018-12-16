@@ -1,6 +1,7 @@
 package pl.zlomek.warsztat.data;
 
 import pl.zlomek.warsztat.model.CompanyData;
+import pl.zlomek.warsztat.model.CompanyDataBuffer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -32,6 +33,16 @@ public class CompanyDataRespository {
     public List<CompanyData> getAllCompanies(String name){
         try{
             TypedQuery<CompanyData> getCompanyData = em.createQuery("select companyData from CompanyData companyData where companyData.companyName = :name", CompanyData.class);
+            getCompanyData.setParameter("name", name);
+            return getCompanyData.getResultList();
+        }catch (Exception e){
+            return null;
+        }
+    }
+    public List<CompanyDataBuffer> getAllCompaniesBuffer(String name){
+        try{
+            TypedQuery<CompanyDataBuffer> getCompanyData = em.createQuery("select companyData from CompanyDataBuffer " +
+                    "companyData where companyData.companyName = :name", CompanyDataBuffer.class);
             getCompanyData.setParameter("name", name);
             return getCompanyData.getResultList();
         }catch (Exception e){

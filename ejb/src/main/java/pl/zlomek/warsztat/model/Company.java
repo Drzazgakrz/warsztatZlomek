@@ -27,7 +27,8 @@ public class Company extends CompanyModel implements Serializable {
 
     @NotNull
     @Size(max = 30, min = 6)
-    @Pattern(regexp = "[A-Za-z0-9.]{1,}+@+[a-z]{1,6}+.+[a-z]{2,3}")
+    @Pattern(regexp = "[A-Za-z0-9._-]{1,}+@+[a-z0-9]{1,6}+.+[a-z]{2,3}")
+    @Column(unique = true)
     private String email;
 
 
