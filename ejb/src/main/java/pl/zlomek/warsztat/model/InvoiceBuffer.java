@@ -36,11 +36,15 @@ public class InvoiceBuffer extends InvoicesModel implements Serializable {
     @JoinColumn(name = "car_service_data_id")
     private CarServiceData carServiceData;
 
+    @OneToOne
+    private Visit visit;
+
     public InvoiceBuffer(int discount, MethodOfPayment methodOfPayment,
-                         CompanyDataBuffer companyData, CarServiceData carServiceData, LocalDate paymentDate){
+                         CompanyDataBuffer companyData, CarServiceData carServiceData, LocalDate paymentDate, Visit visit){
         super(discount, methodOfPayment, carServiceData, LocalDate.now(), paymentDate);
         invoiceBufferPositions = new HashSet<>();
         this.companyDataBuffer = companyData;
         this.carServiceData = carServiceData;
+        this.visit = visit;
     }
 }

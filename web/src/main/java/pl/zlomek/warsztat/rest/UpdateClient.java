@@ -126,7 +126,7 @@ public class UpdateClient {
                 return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu", form.getAccessToken())).build();
             }
             Object[] cho;
-            if( (cho = client.checkCar(car)).length<1){
+            if( (cho = client.checkCar(car,client)).length<1){
                 return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", form.getAccessToken())).build();
             }
             CarsHasOwners ownership = ((CarsHasOwners) cho[0]);
@@ -223,11 +223,12 @@ public class UpdateClient {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
         }
         List<ClientResponse> owners = Arrays.asList(form.getOwners());
-        OwnershipStatus ownershipStatus = (owners.size()>1)?OwnershipStatus.COOWNER: OwnershipStatus.CURRENT_OWNER;
+        OwnershipStatus ownershipStatus = (owners.size()>1)? OwnershipStatus.COOWNER : OwnershipStatus.CURRENT_OWNER;
         Car car = carRepository.getCarById(form.getCar().getId());
         owners.forEach(owner ->{
             Client client = clientsRepository.findClientByUsername(owner.getEmail());
-            Object[] carList = client.getCars().stream().filter(cho-> cho.getCar().equals(car)).toArray();
+            Object[] carList = client.getCars().stream().
+                    filter(cho-> cho.getCar().equals(car)).toArray();
             CarsHasOwners cho = ((CarsHasOwners)carList[0]);
             cho.setStatus(ownershipStatus);
             carRepository.updateOwnership(cho);
@@ -235,7 +236,8 @@ public class UpdateClient {
         List<ClientResponse> notOwners = Arrays.asList(form.getNotOwners());
         notOwners.forEach(owner ->{
             Client client = clientsRepository.findClientByUsername(owner.getEmail());
-            Object[] carList = client.getCars().stream().filter(cho-> cho.getCar().equals(car)).toArray();
+            Object[] carList = client.getCars().stream().
+                    filter(cho-> cho.getCar().equals(car)).toArray();
             CarsHasOwners cho = ((CarsHasOwners)carList[0]);
             if(cho.getStatus().equals(OwnershipStatus.NOT_VERIFIED_OWNER)){
                 carRepository.deleteOwnership(cho);

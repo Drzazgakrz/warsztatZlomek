@@ -61,7 +61,8 @@ public class InvoiceBufferPosition implements Serializable {
         this.invoiceBuffer = invoiceBuffer;
     }
 
-    public InvoiceBufferPosition(VisitPosition position, String name, int tax, InvoiceBuffer invoice, String unitOfMeasure){
+    public InvoiceBufferPosition(VisitPosition position, String name,
+                                 int tax, InvoiceBuffer invoice, String unitOfMeasure){
         this.itemName = name;
         this.unitOfMeasure = unitOfMeasure;
         this.count = position.getCount();

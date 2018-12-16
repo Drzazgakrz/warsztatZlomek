@@ -36,4 +36,7 @@ public class CompanyDataBuffer extends CompanyModel implements Serializable {
                 company.getBuildingNum(), company.getAptNum(), company.getZipCode());
         this.invoicesBuffer = new HashSet<>();
     }
+    public void addInvoice(InvoiceBuffer buffer){
+        this.invoicesBuffer.add(buffer);
+    }
 }

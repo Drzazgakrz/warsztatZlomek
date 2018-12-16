@@ -38,11 +38,5 @@ public class CompanyData extends CompanyModel implements Serializable {
         this.invoices = new HashSet<>();
     }
 
-    public boolean compareCompanies(CompanyModel model){
-        boolean result = model.getNip().equals(this.nip)&&model.getCompanyName().equals(this.companyName);
-        result = result && model.getBuildingNum().equals(this.buildingNum) && model.getCityName().equals(this.cityName);
-        if(this.aptNum != null)
-            result = result && this.aptNum.equals(model.getAptNum());
-        return result && model.getStreetName().equals(this.streetName) && model.getZipCode().equals(this.zipCode);
-    }
+
 }

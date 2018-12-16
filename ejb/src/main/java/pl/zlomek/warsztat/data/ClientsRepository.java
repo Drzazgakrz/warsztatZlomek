@@ -1,7 +1,6 @@
 package pl.zlomek.warsztat.data;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
+
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
@@ -63,7 +62,8 @@ public class ClientsRepository extends AccountsRepository {
     @Override
     public Account findByToken(String accessToken) {
         try {
-            TypedQuery<ClientToken> query = em.createQuery("SELECT clientToken FROM ClientToken clientToken where clientToken.accessToken = :accessToken", ClientToken.class);
+            TypedQuery<ClientToken> query = em.createQuery("SELECT clientToken FROM ClientToken clientToken " +
+                    "WHERE clientToken.accessToken = :accessToken", ClientToken.class);
             query.setParameter("accessToken", accessToken);
             AccessToken token =  query.getSingleResult();
             if(token != null && token.getExpiration().isAfter(LocalDateTime.now())){

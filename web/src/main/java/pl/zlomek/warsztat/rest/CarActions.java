@@ -77,7 +77,7 @@ public class CarActions {
         if(car==null){
             return Response.status(400).entity(new ErrorResponse("Brak podanego samochodu w bazie", form.getAccessToken())).build();
         }
-        if(client.checkCar(car).length<1){
+        if(client.checkCar(car, client).length<1){
             return Response.status(403).entity(new ErrorResponse("Samochód nie należy do tego klienta", form.getAccessToken())).build();
         }
         Company company = companiesRepository.getCompanyById(form.getCompanyId());

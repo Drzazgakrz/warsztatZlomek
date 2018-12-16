@@ -55,17 +55,10 @@ public class Authorization {
             return Response.status(400).entity(new ErrorResponse("Błędne dane", null)).build();
         }
         if (newUserData.getPassword().equals(newUserData.getConfirmPassword())) {
-            String firstName = newUserData.getFirstName();
-            String lastName = newUserData.getLastName();
-            String email = newUserData.getEmail();
-            String phoneNum = newUserData.getPhoneNumber();
-            String cityName = newUserData.getCityName();
-            String streetName = newUserData.getStreetName();
-            String buildNum = newUserData.getBuildNum();
-            String aptNum = newUserData.getAptNum();
-            String zipCode = newUserData.getZipCode();
-            String password = newUserData.getPassword();
-            client = new Client(firstName, lastName, email, phoneNum, cityName, streetName, buildNum, aptNum, zipCode, password, null);
+            client = new Client(newUserData.getFirstName(), newUserData.getLastName(), newUserData.getEmail(),
+                    newUserData.getPhoneNumber(), newUserData.getCityName(), newUserData.getStreetName(),
+                    newUserData.getBuildNum(), newUserData.getAptNum(), newUserData.getZipCode(), newUserData.getPassword(),
+                    null);
             repository.insert(client);
             String token = repository.generateToken(client);
             return Response.status(200).entity(new AccessTokenForm(token)).build();

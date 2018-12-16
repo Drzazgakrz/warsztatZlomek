@@ -73,7 +73,7 @@ public class VisitsRepository {
 
     public List<Visit> getAllVisits(){
         try {
-            TypedQuery<Visit> query = em.createQuery("SELECT visits FROM Visit visits", Visit.class);
+            TypedQuery<Visit> query = em.createQuery("SELECT visits FROM Visit visits ORDER BY visits.visitDate DESC", Visit.class);
             return query.getResultList();
         }catch (Exception e){
             return new ArrayList<>();
@@ -85,7 +85,7 @@ public class VisitsRepository {
 
     public List<Visit> getAllNewVisits(){
         try {
-            TypedQuery<Visit> query = em.createQuery("SELECT visits FROM Visit visits WHERE visits.status = :status", Visit.class);
+            TypedQuery<Visit> query = em.createQuery("SELECT visits FROM Visit visits WHERE visits.status = :status ORDER BY visits.visitDate", Visit.class);
             query.setParameter("status",VisitStatus.NEW);
             return query.getResultList();
         }catch (Exception e){

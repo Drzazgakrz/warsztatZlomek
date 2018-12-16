@@ -23,7 +23,9 @@ public class CarServiceDataRespository implements Serializable {
     public CarServiceData getTopServiceData()
     {
         try{
-            TypedQuery<CarServiceData> getDataQuery = em.createQuery("select carServiceData from CarServiceData carServiceData where id = (select max (carServiceData.id) from CarServiceData carServiceData)", CarServiceData.class);
+            TypedQuery<CarServiceData> getDataQuery = em.createQuery(
+                    "select carServiceData from CarServiceData carServiceData where id = " +
+                            "(select max (carServiceData.id) from CarServiceData carServiceData)", CarServiceData.class);
             return getDataQuery.getSingleResult();
         }catch (Exception e){
             return null;
