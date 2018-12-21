@@ -188,6 +188,22 @@ public class InvoiceActions {
         return Response.status(200).entity(new InvoiceDetailsResponse(form.getAccessToken(),invoice)).build();
     }
 
+    public CompanyDataBuffer getCompanyDataBuffer(Company company){
+        List<CompanyDataBuffer> companies = companyDataRespository.
+                getAllCompaniesBuffer(company.getCompanyName()).
+                stream().filter((companyData ->
+                companyData.compareCompanies(company))).limit(1).
+                collect(Collectors.toList());
+        CompanyDataBuffer companyData;
+        if(companies.size() == 0){
+            companyData = new CompanyDataBuffer(company);
+            companiesRepository.insertComapnyDataBuffer(companyData);
+            return companyData;
+        }
+        else
+            return companies.get(0);
+    }
+
     @POST
     @Path("/addProFormaInvoice")
     @Transactional
@@ -204,59 +220,59 @@ public class InvoiceActions {
         if(company == null){
             return Response.status(400).entity(new ErrorResponse("brak firmy o podanej nazwie", form.getAccessToken())).build();
         }
-        List<CompanyDataBuffer> companies = companyDataRespository
-                .getAllCompaniesBuffer(company.getCompanyName()).
-                stream().filter((companyData ->
-                companyData.compareCompanies(company))).
-                        limit(1).collect(Collectors.toList());
-        CompanyDataBuffer companyData;
-        if(companies.size() == 0){
-            companyData = new CompanyDataBuffer(company);
-            companiesRepository.insertComapnyDataBuffer(companyData);
-        }
-        else
-            companyData = companies.get(0);
+        CompanyDataBuffer companyData = getCompanyDataBuffer(company);
 
-        MethodOfPayment methodOfPayment = createMethodOfPayment(form.getMethodOfPayment());
-        BigDecimal grossValue = new BigDecimal(0);
-        BigDecimal netValue = new BigDecimal(0);
         CarServiceData carServiceData = carServiceDataRespository.getTopServiceData();
         Visit visit = visitsRepository.getVisitById(form.getVisitId());
-        if (carServiceData != null && companyData != null && methodOfPayment != null) {
-            LocalDate paymentDate = form.getPaymentDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            InvoiceBuffer invoice = new InvoiceBuffer(form.getDiscount(), methodOfPayment, companyData, carServiceData, paymentDate, visit);
-            invoice.setInvoiceNumber(generateInvoiceNumber());
-            invoice.setInvoiceBufferStatus(InvoiceBufferStatus.proForma);
-            invoicesRepository.insertInvoiceBuffer(invoice);
-            companyData.addInvoice(invoice);
-            companiesRepository.updateCompanyDataBuffer(companyData);
-            for(VisitsParts position: visit.getParts()){
-                CarPart part = position.getPart();
-                InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position, part.getName(), part.getTax(), invoice, "szt.");
-                invoice.getInvoiceBufferPositions().add(invoicePosition);
-                grossValue = grossValue.add(invoicePosition.getGrossPrice());
-                netValue = netValue.add(invoicePosition.getNetPrice());
-                invoicesRepository.insertInvoiceBufferPosition(invoicePosition);
-            }
-            for(VisitsHasServices position: visit.getServices()){
-                Service service = position.getService();
-                InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position,
-                        service.getName(), service.getTax(), invoice, "h");
-                invoice.getInvoiceBufferPositions().add(invoicePosition);
-                grossValue = grossValue.add(invoicePosition.getGrossPrice());
-                netValue = netValue.add(invoicePosition.getNetPrice());
-                invoicesRepository.insertInvoiceBufferPosition(invoicePosition);
-            }
+        if (carServiceData != null && companyData != null) {
+            InvoiceBuffer invoice = createInvoiceBuffer(form, carServiceData, companyData, visit);
             if (invoice != null) {
-                invoice.setNetValue(netValue);
-                invoice.setGrossValue(grossValue);
-                invoicesRepository.updateInvoiceBuffer(invoice);
                 return Response.status(200).entity(new InvoiceDetailsResponse(form.getAccessToken(), invoice)).build();
             } else
                 return Response.status(500).entity(new ErrorResponse("Nie udało się utworzyć faktury", form.getAccessToken())).build();
 
         }
         return Response.status(400).entity(new ErrorResponse("Brak potrzebnych danych", form.getAccessToken())).build();
+    }
+
+    public InvoiceBuffer createInvoiceBuffer(AddInvoiceForm form, CarServiceData carServiceData, CompanyDataBuffer companyData, Visit visit) {
+        MethodOfPayment methodOfPayment = createMethodOfPayment(form.getMethodOfPayment());
+        LocalDate paymentDate = form.getPaymentDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        InvoiceBuffer invoice = new InvoiceBuffer(form.getDiscount(), methodOfPayment, companyData, carServiceData, paymentDate, visit);
+        invoice.setInvoiceNumber(generateInvoiceNumber());
+        invoice.setInvoiceBufferStatus(InvoiceBufferStatus.proForma);
+        invoicesRepository.insertInvoiceBuffer(invoice);
+        companyData.addInvoice(invoice);
+        companiesRepository.updateCompanyDataBuffer(companyData);
+        TaxModel tax = saveInvoiceBufferPositions(visit, invoice);
+        invoice.setNetValue(tax.getNetValue());
+        invoice.setGrossValue(tax.getGrossValue());
+        invoicesRepository.updateInvoiceBuffer(invoice);
+        return invoice;
+    }
+
+    public TaxModel saveInvoiceBufferPositions(Visit visit, InvoiceBuffer invoice) {
+        BigDecimal grossValue = new BigDecimal(0);
+        BigDecimal netValue = new BigDecimal(0);
+        for (VisitsParts position : visit.getParts()) {
+            CarPart part = position.getPart();
+            InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position, part.getName(),
+                    part.getTax(), invoice, "szt.");
+            invoice.getInvoiceBufferPositions().add(invoicePosition);
+            grossValue = grossValue.add(invoicePosition.getGrossPrice());
+            netValue = netValue.add(invoicePosition.getNetPrice());
+            invoicesRepository.insertInvoiceBufferPosition(invoicePosition);
+        }
+        for (VisitsHasServices position : visit.getServices()) {
+            Service service = position.getService();
+            InvoiceBufferPosition invoicePosition = new InvoiceBufferPosition(position,
+                    service.getName(), service.getTax(), invoice, "h");
+            invoice.getInvoiceBufferPositions().add(invoicePosition);
+            grossValue = grossValue.add(invoicePosition.getGrossPrice());
+            netValue = netValue.add(invoicePosition.getNetPrice());
+            invoicesRepository.insertInvoiceBufferPosition(invoicePosition);
+        }
+        return new TaxModel(netValue, grossValue);
     }
 
     @POST
