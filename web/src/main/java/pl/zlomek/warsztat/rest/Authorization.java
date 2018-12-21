@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -76,43 +77,42 @@ public class Authorization {
             if(!signInForm.validate()){
                 return Response.status(400).entity(new ErrorResponse("Błędne dane", null)).build();
             }
-            Client client = repository.signIn(signInForm.getEmail()
-                    , signInForm.getPassword());
+            Client client = repository.signIn(signInForm.getEmail(), signInForm.getPassword());
             if (client == null || !client.getStatus().equals(ClientStatus.ACTIVE)) {
                 return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
             }
-            List<Overview> overviews = getOverviews(client, LocalDate.now().plusMonths(1));
-            OverviewResponse[] overviewsArray = new OverviewResponse[overviews.size()];
-            int i = 0;
-            for(Overview overview : overviews){
-                Object[] car = client.getCars().stream().filter((carsHasOwners -> carsHasOwners.getCar().equals(overview.getCar()))).toArray();
-                overviewsArray[i] = new OverviewResponse(overview, overview.getCar(), ((CarsHasOwners)car[0]).getRegistrationNumber());
-                i++;
-            }
+            OverviewResponse[] overviews = overviewsListToArray(getOverviews(client, LocalDate.now().plusMonths(1)), client);
 
-            List<Visit> visits = getVisits(client, LocalDate.now().plusDays(7));
-            VisitDetailsResponse[] visitsArray = new VisitDetailsResponse[visits.size()];
-            i = 0;
-            for(Visit visit : visits){
-                visitsArray[i] = new VisitDetailsResponse(visit);
-                i++;
-            }
-
+            VisitDetailsResponse[] visitsArray = visitsActions.visitsListToArray(getVisits(client, LocalDate.now().plusDays(7)));
             client.setLastLoggedIn(LocalDateTime.now());
             String token = repository.generateToken(client);
-            return Response.status(200).entity(new SignInResponse(token, overviewsArray,visitsArray)).build();
+            return Response.status(200).entity(new SignInResponse(token, overviews,visitsArray)).build();
         }
         return Response.status(400).entity(new ErrorResponse("Brak kompletnych danych logowania", null)).build();
     }
 
-    public List<Overview> getOverviews(Client client, LocalDate date) {
-        Object[] currentClientCars = client.getCars().stream().filter(carsHasOwners -> {
+    public OverviewResponse[] overviewsListToArray(Collection<Overview> overviews, Client client){
+        OverviewResponse[] overviewsArray = new OverviewResponse[overviews.size()];
+        int i = 0;
+        for(Overview overview : overviews){
+            Object[] car = client.getCars().stream().filter((carsHasOwners -> carsHasOwners.getCar().equals(overview.getCar()))).toArray();
+            overviewsArray[i] = new OverviewResponse(overview, overview.getCar(), ((CarsHasOwners)car[0]).getRegistrationNumber());
+            i++;
+        }
+        return overviewsArray;
+    }
+
+    public List<CarsHasOwners> getCarsList(Client client){
+        return client.getCars().stream().filter(carsHasOwners -> {
             OwnershipStatus currentStatus = carsHasOwners.getStatus();
             return (currentStatus.equals(OwnershipStatus.CURRENT_OWNER) || currentStatus.equals(OwnershipStatus.COOWNER));
-        }).toArray();
+        }).collect(Collectors.toList());
+    }
+
+    public List<Overview> getOverviews(Client client, LocalDate date) {
         List<Overview> overviews = new ArrayList<>();
-        for (Object currentOwnership : currentClientCars) {
-            Car car = ((CarsHasOwners) currentOwnership).getCar();
+        for (CarsHasOwners currentOwnership : getCarsList(client)) {
+            Car car = currentOwnership.getCar();
             overviews.addAll(car.getOverviews().stream().filter(overview -> {
                 if(date != null && overview.getOverviewLastDay()!=null){
                     return overview.getOverviewLastDay().isBefore(date);
@@ -126,13 +126,9 @@ public class Authorization {
     }
 
     public List<Visit> getVisits(Client client, LocalDate date) {
-        Object[] currentClientCars = client.getCars().stream().filter(carsHasOwners -> {
-            OwnershipStatus currentStatus = carsHasOwners.getStatus();
-            return (currentStatus.equals(OwnershipStatus.CURRENT_OWNER) || currentStatus.equals(OwnershipStatus.COOWNER));
-        }).toArray();
         List<Visit> overviews = new ArrayList<>();
-        for (Object currentOwnership : currentClientCars) {
-            Car car = ((CarsHasOwners) currentOwnership).getCar();
+        for (CarsHasOwners currentOwnership : getCarsList(client)) {
+            Car car =  currentOwnership.getCar();
             overviews.addAll(car.getVisits().stream().filter(overview -> {
                 if(date != null){
                     return overview.getVisitDate().toLocalDate().isBefore(date) && overview.getVisitDate().isAfter(LocalDateTime.now());
