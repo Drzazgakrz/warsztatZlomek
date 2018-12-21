@@ -37,9 +37,8 @@ public class InvoicesRepository {
             TypedQuery<Long> query = em.createQuery("SELECT COUNT(invoice.id) FROM Invoice invoice WHERE " +
                     "Invoice.invoiceNumber LIKE :invoiceNumber", Long.class);
             StringBuilder regexBuilder = new StringBuilder("%/").append(LocalDate.now().getMonthValue());
-            String regex = regexBuilder.append("/").append(LocalDate.now().getYear()).toString();
-            log.info(regex);
-            query.setParameter("invoiceNumber", regex);
+            regexBuilder.append("/").append(LocalDate.now().getYear());
+            query.setParameter("invoiceNumber", regexBuilder.toString());
             return query.getSingleResult() + 1;
         } catch (NoSuchEntityException e) {
             return 1L;

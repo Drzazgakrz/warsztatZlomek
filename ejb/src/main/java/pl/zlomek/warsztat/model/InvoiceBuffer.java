@@ -13,7 +13,7 @@ import java.util.Set;
 @lombok.Getter
 @lombok.Setter
 @Entity
-@Table(name = "invoices_Buffer")
+@Table(name = "invoices_buffer")
 public class InvoiceBuffer extends InvoicesModel implements Serializable {
     @Id
     @GeneratedValue(strategy =GenerationType.IDENTITY)
