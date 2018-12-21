@@ -34,13 +34,15 @@ public class Invoice extends InvoicesModel implements Serializable {
     private LocalDate visitFinished;
 
     
-    public Invoice(int discount, MethodOfPayment methodOfPayment,CompanyData companyData, CarServiceData carServiceData, LocalDate paymentDate){
+    public Invoice(int discount, MethodOfPayment methodOfPayment,CompanyData companyData, CarServiceData carServiceData,
+                   LocalDate paymentDate, String invoiceNumber){
         super(discount, methodOfPayment, carServiceData, LocalDate.now(), paymentDate );
         this.companyData = companyData;
         this.corectionInvoice = null;
         this.carServiceData = carServiceData;
         this.invoicePositions = new HashSet<>();
         this.dayOfIssue = LocalDate.now();
+        this.invoiceNumber = invoiceNumber;
     }
 
     public Invoice(InvoiceBuffer buffer, CompanyModel company, CarServiceData data){

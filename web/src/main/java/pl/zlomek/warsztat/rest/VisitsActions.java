@@ -86,95 +86,23 @@ public class VisitsActions {
                 return Response.status(400).entity(new ErrorResponse("Błędne dane", form.getAccessToken())).build();
             }
             Visit visit = visitsRepository.getVisitById(form.getVisitId());
-            if (visit == null) {
+            if (visit == null)
                 return Response.status(400).entity(new ErrorResponse("Brak wizyty o podanym ID", form.getAccessToken())).build();
-            }
-            Overview overview = visit.getOverview();
-            if (overview != null && form.getCountYears() != null) {
-                Car car = visit.getCar();
-                car.getOverviews().add(overview);
-                carsRepository.updateCar(car);
-                overview.addTerminateOverview(form.getCountYears());
-            } else if (overview != null && form.getCountYears() == null &&
-                    (form.getStatus().equals(VisitStatus.FOR_PICKUP.toString()) ||
-                            form.getStatus().equals(VisitStatus.FINISHED.toString()))) {
-                return Response.status(400).entity(new ErrorResponse(
-                        "Przegląd powinien mieć termin ważności", form.getAccessToken())).build();
-            }
+
+            Response response = setVisitsOverview(visit, form);
+            if (response != null)
+                return response;
             VisitStatus status = getVisitStatus(form.getStatus());
 
-            if (status != null && !visit.getStatus().equals(status)) {
+            if (status != null && !visit.getStatus().equals(status))
+                this.setVisitsStatus(visit, status);
 
-                if (status != null && !visit.getStatus().equals(status)) {
-                    String subject;
-                    String registrationNumber;
-                    String message;
-                    if (visit.getStatus().equals(VisitStatus.IN_PROGRESS) && status.equals(VisitStatus.FOR_PICKUP)) {
-                        subject = "Zakończenie wizyty";
-                        registrationNumber = carsRepository.getOwnership(visit.getCar().getId(),
-                                visit.getClient().getClientId()).getRegistrationNumber();
-                        message = "Samochód o numerze rejestracyjnym  " +
-                                registrationNumber + " jest już do odbioru. Zespół Warsztat Złomek";
-                        sendMail(visit, subject, message);
-                        visit.setVisitFinished(LocalDate.now());
-                    } else if (visit.getStatus().equals(VisitStatus.NEW) &&
-                            status.equals(VisitStatus.ACCEPTED)) {
-                        subject = "Potwierdzenie wizyty";
-                        registrationNumber = carsRepository.getOwnership(visit.getCar().getId(),
-                                visit.getClient().getClientId()).getRegistrationNumber();
-                        LocalDate localDate = visit.getVisitDate().toLocalDate();
-                        String date = localDate.getDayOfMonth() + "-" +
-                                localDate.getMonthValue() + "-" + localDate.getYear();
-                        message = "Akceptacja wizyty umówionej na " + date +
-                                " dla samochodu o numerze rejestracyjnym " + registrationNumber +
-                                ". Zespół Warsztat Złomek";
-                        sendMail(visit, subject, message);
-                    }
-                    visit.setStatus(status);
-                }
-            }
+            if (form.getCarParts() != null)
+                addCarParts(visit, form);
 
-            if (form.getCarParts() != null) {
-                List<CarPartModel> carPartModelList = Arrays.asList(form.getCarParts());
-                carPartModelList.forEach(carPartModel -> {
-                    CarPart carPart = carPartsRepository.getCarPartById(carPartModel.getId());
-                    if (carPart == null) {
-                        return;
-                    }
-                    Object[] parts = visit.getParts().stream().filter((part) -> carPart.equals(part.getPart())).toArray();
-                    if (parts.length != 0) {
-                        VisitsParts part = (VisitsParts) parts[0];
-                        part.setCount(carPartModel.getCount());
-                        part.setSinglePrice(carPartModel.getPrice());
-                        carPartsRepository.updateVisitsParts(part);
-                        return;
-                    }
-                    VisitsParts relation = visit.addPartToVisit(carPart, carPartModel.getCount(), carPartModel.getPrice());
-                    visitsRepository.createVisitPart(relation);
-                    carPartsRepository.updateCarPart(carPart);
-                });
-            }
-            if (form.getServices() != null) {
-                List<ServiceModel> carPartModelList = Arrays.asList(form.getServices());
-                carPartModelList.forEach(serviceModel -> {
-                    Service service = servicesRepository.getServiceByName(serviceModel.getName());
-                    if (service == null) {
-                        return;
-                    }
-                    Object[] parts = visit.getServices().stream().filter((currentService) ->
-                            service.equals(currentService.getService())).toArray();
-                    if (parts.length != 0) {
-                        VisitsHasServices currentService = (VisitsHasServices) parts[0];
-                        currentService.setCount(serviceModel.getCount());
-                        currentService.setSinglePrice(new BigDecimal(serviceModel.getPrice()));
-                        servicesRepository.updateVisitsService(currentService);
-                        return;
-                    }
-                    VisitsHasServices relation = visit.addServiceToVisit(service, serviceModel.getCount(), new BigDecimal(serviceModel.getPrice()));
-                    servicesRepository.insertVisitsServices(relation);
-                    servicesRepository.updateService(service);
-                });
-            }
+            if (form.getServices() != null)
+                this.addServices(visit, form);
+
             visitsRepository.updateVisit(visit);
             return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
         } catch (Exception e) {
@@ -183,7 +111,102 @@ public class VisitsActions {
         }
     }
 
-    public void sendMail(Visit visit, String subject, String msg) {
+    public Response setVisitsOverview(Visit visit, SubmitVisitForm form) {
+        Overview overview = visit.getOverview();
+        if (overview != null && form.getCountYears() != null) {
+            Car car = visit.getCar();
+            car.getOverviews().add(overview);
+            carsRepository.updateCar(car);
+            overview.addTerminateOverview(form.getCountYears());
+        } else if (overview != null && form.getCountYears() == null &&
+                (form.getStatus().equals(VisitStatus.FOR_PICKUP.toString()) ||
+                        form.getStatus().equals(VisitStatus.FINISHED.toString()))) {
+            return Response.status(400).entity(new ErrorResponse(
+                    "Przegląd powinien mieć termin ważności", form.getAccessToken())).build();
+        }
+        return null;
+    }
+
+    public void addCarParts(Visit visit, SubmitVisitForm form){
+        List<CarPartModel> carPartModelList = Arrays.asList(form.getCarParts());
+        carPartModelList.forEach(carPartModel -> {
+            CarPart carPart = carPartsRepository.getCarPartById(carPartModel.getId());
+            if (carPart == null) {
+                return;
+            }
+            Object[] parts = visit.getParts().stream().filter((part) -> carPart.equals(part.getPart())).toArray();
+            if (parts.length != 0) {
+                VisitsParts part = (VisitsParts) parts[0];
+                part.setCount(carPartModel.getCount());
+                part.setSinglePrice(carPartModel.getPrice());
+                carPartsRepository.updateVisitsParts(part);
+                return;
+            }
+            VisitsParts relation = visit.addPartToVisit(carPart, carPartModel.getCount(), carPartModel.getPrice());
+            visitsRepository.createVisitPart(relation);
+            carPartsRepository.updateCarPart(carPart);
+        });
+    }
+
+    public void addServices(Visit visit, SubmitVisitForm form){
+        List<ServiceModel> carPartModelList = Arrays.asList(form.getServices());
+        carPartModelList.forEach(serviceModel -> {
+            Service service = servicesRepository.getServiceByName(serviceModel.getName());
+            if (service == null) {
+                return;
+            }
+            Object[] parts = visit.getServices().stream().filter((currentService) ->
+                    service.equals(currentService.getService())).toArray();
+            if (parts.length != 0) {
+                VisitsHasServices currentService = (VisitsHasServices) parts[0];
+                currentService.setCount(serviceModel.getCount());
+                currentService.setSinglePrice(new BigDecimal(serviceModel.getPrice()));
+                servicesRepository.updateVisitsService(currentService);
+                return;
+            }
+            VisitsHasServices relation = visit.addServiceToVisit(service, serviceModel.getCount(), new BigDecimal(serviceModel.getPrice()));
+            servicesRepository.insertVisitsServices(relation);
+            servicesRepository.updateService(service);
+        });
+    }
+
+    public void setVisitsStatus(Visit visit, VisitStatus status) {
+        if (visit.getStatus().equals(VisitStatus.IN_PROGRESS) && status.equals(VisitStatus.FOR_PICKUP)) {
+            sendMail(visit, createMessage(visit, status));
+            visit.setVisitFinished(LocalDate.now());
+        } else if (visit.getStatus().equals(VisitStatus.NEW) && status.equals(VisitStatus.ACCEPTED)) {
+            sendMail(visit, createMessage(visit, status));
+        }
+        visit.setStatus(status);
+    }
+
+    public MessageModel createMessage(Visit visit, VisitStatus status){
+        String subject, message;
+        String registrationNumber = carsRepository.getOwnership(visit.getCar().getId(), visit.getClient().getClientId()).
+                getRegistrationNumber();
+        LocalDate localDate = visit.getVisitDate().toLocalDate();
+        String date = localDate.getDayOfMonth() + "-" + localDate.getMonthValue() + "-" + localDate.getYear();
+        switch (status){
+            case ACCEPTED:
+                subject = "Potwierdzenie wizyty";
+                message = "Akceptacja wizyty umówionej na " + date + " dla samochodu o numerze rejestracyjnym "
+                        + registrationNumber + ". \nZespół Warsztat Złomek";
+                return new MessageModel(message, subject);
+            case FOR_PICKUP:
+                subject = "Zakończenie wizyty";
+                message = "Samochód o numerze rejestracyjnym " + registrationNumber +
+                        " jest już do odbioru. \nZespół Warsztat Złomek";
+                return new MessageModel(message,subject);
+            case NEW:
+                subject = "Rezerwacja wizyty";
+                message = "Wizyta została zarezerwowana dla samochodu o numerze rejestracyjnym " + registrationNumber +
+                        " na " + date + ". \nZespół Warsztat Złomek";
+                return new MessageModel(message, subject);
+        }
+        return null;
+    }
+
+    public void sendMail(Visit visit, MessageModel messageModel) {
         try {
             Properties props = new Properties();
             props.put("mail.smtp.host", "poczta.o2.pl");
@@ -197,19 +220,17 @@ public class VisitsActions {
                     new javax.mail.Authenticator() {
                         protected PasswordAuthentication getPasswordAuthentication() {
                             return new PasswordAuthentication(
-                                    "warsztat_zlomek@o2.pl", "abc123*%*2");
+                                    "warsztat_zlomek@o2.pl", "abc123*%*3");
                         }
                     });
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress("warsztat_zlomek@o2.pl"));
-            log.info(visit.getClient().getEmail());
             message.setRecipients(
                     Message.RecipientType.TO, InternetAddress.parse(visit.getClient().getEmail()));
-            message.setSubject(subject, "UTF-8");
-            message.setText(msg, "UTF-8");
+            message.setSubject(messageModel.getSubject(), "UTF-8");
+            message.setText(messageModel.getMessage(), "UTF-8");
 
             Transport.send(message);
-            log.info("done");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -220,9 +241,6 @@ public class VisitsActions {
     @Path("/addEmployee")
     @Produces(MediaType.APPLICATION_JSON)
     public Response addEmployee(AddEmployeeForm form) {
-        String subject;
-        String registrationNumber;
-        String message;
         Employee employee = (Employee) employeesRepository.findByToken(form.getAccessToken());
         if (employee == null) {
             return Response.status(401).entity(new ErrorResponse("Autoryzacja nie powiodła się", null)).build();
@@ -234,24 +252,22 @@ public class VisitsActions {
         if (visit == null || !visit.getStatus().equals(VisitStatus.NEW)) {
             return Response.status(400).entity(new ErrorResponse("Wizyta nie istnieje lub zostałą wybrana przez innego pracownika", form.getAccessToken())).build();
         }
-        subject = "Potwierdzenie wizyty";
-        registrationNumber = carsRepository.getOwnership(visit.getCar().getId(),
-                visit.getClient().getClientId()).getRegistrationNumber();
-        LocalDate localDate = visit.getVisitDate().toLocalDate();
-        String date = localDate.getDayOfMonth() + "-" +
-                localDate.getMonthValue() + "-" + localDate.getYear();
-        message = "Akceptacja wizyty umówionej na " + date +
-                " dla samochodu o numerze rejestracyjnym " + registrationNumber +
-                ". Zespół Warsztat Złomek";
-        sendMail(visit, subject, message);
 
-
-        visit.setStatus(VisitStatus.ACCEPTED);
+        this.setVisitsStatus(visit, VisitStatus.ACCEPTED);
         visit.setEmployee(employee);
         employee.getVisits().add(visit);
         visitsRepository.updateVisit(visit);
         employeesRepository.update(employee);
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
+    }
+
+    public Overview creatOberview(CreateVisitForm form, LocalDateTime visitDate, Car car){
+        Overview overview = null;
+        if (form.isOverview()) {
+            overview = new Overview(visitDate, car);
+            visitsRepository.createOverview(overview);
+        }
+        return overview;
     }
 
     @POST
@@ -272,22 +288,13 @@ public class VisitsActions {
             return Response.status(400).entity(new ErrorResponse(
                     "Data wizyty musi być późniejsza niż dzisiejsza data i nie może być zaplanowana na dalej niż 3 tygodnie",
                     form.getAccessToken())).build();
-        Overview overview = null;
-        if (form.isOverview()) {
-            overview = new Overview(visitDate, car);
-            visitsRepository.createOverview(overview);
-        }
+        Overview overview = creatOberview(form, visitDate, car);
         Visit visit = new Visit(visitDate, car, overview, client);
         car.getVisits().add(visit);
         carsRepository.updateCar(car);
         visitsRepository.createVisit(visit);
-        String subject = "Rezerwacja wizyty";
-        String registrationNumber = carsRepository.getOwnership(visit.getCar().getId(), visit.getClient().getClientId()).getRegistrationNumber();
-        LocalDate localDate = visit.getVisitDate().toLocalDate();
-        String date = localDate.getDayOfMonth() + "-" + localDate.getMonthValue() + "-" + localDate.getYear();
-        String message = "Wizyta została zarezerwowana dla samochodu o numerze rejestracyjnym " + registrationNumber + " na " + date +
-                ". Zespół Warsztat Złomek";
-        sendMail(visit, subject, message);
+
+        sendMail(visit, createMessage(visit, VisitStatus.NEW));
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
     }
 
@@ -502,11 +509,7 @@ public class VisitsActions {
             return Response.status(404).entity("Brak domyślnych danych").build();
         }
         LocalDateTime date = form.getVisitDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        Overview overview = null;
-        if (form.isOverview()) {
-            overview = new Overview(date, car);
-            visitsRepository.createOverview(overview);
-        }
+        Overview overview = creatOberview(form, date, car);
         Visit visit = new Visit(date, car, overview, client);
         visitsRepository.createVisit(visit);
         return Response.status(200).entity(new AccessTokenForm(form.getAccessToken())).build();
